@@ -40,15 +40,15 @@ The goal of the website is to connect students, lecturers, and society members w
 | Frontend | HTML5, CSS3, JavaScript |
 | Version Control | Git, GitHub |
 | Future Plans | React, Tailwind CSS, Firebase (authentication & database) |
-| Payments | Flutterwave / PayPal API (for membership fees) |
+| Payments |Airtel Money/TNM mpamba/National bank |
 | Hosting | GitHub Pages (static), backend on Firebase/Render/Vercel |
 
 ---
 
 ## 🧠 Project Goals
 1. Build a clean, professional online presence for the Civil Engineering Society.  
-2. Digitize registration and payment processes for convenience.  
-3. Encourage innovation and problem-solving among students.  
+2. Digitize registration and payment processes for convenience ,removing any use of papers everything will now be digital. 
+3. Encourage innovation and problem-solving among students.Discuss problems and solutions  
 4. Provide academic and financial support for society members.  
 5. Create a structured feedback loop via the suggestion box.  
 
@@ -67,14 +67,15 @@ If you are a member of the society and want to contribute:
 2. Create a new branch for your feature (`git checkout -b feature-name`).  
 3. Commit your changes (`git commit -m "Added new feature"`).  
 4. Push to your branch (`git push origin feature-name`).  
-5. Submit a pull request for review.
+5. Submit a pull request for review
+6. NOTE:If you are new to Github watch tutorial i sent on the group.
 
 ---
 
 ## 👷‍♂️ Project Maintainer
 **Wongani Jiya**  
 Founder & Developer of the Civil Engineering Society Website  
-*(Department of Civil Engineering, [Your University Name], Malawi)*  
+*(Department of Civil Engineering,MUBAS)*  
 
 ---
 
@@ -86,12 +87,11 @@ Founder & Developer of the Civil Engineering Society Website
 ---
 
 ## 📫 Contact
-- **Email:** [your.email@example.com]  
-- **GitHub:** [github.com/YOUR_USERNAME]  
-- **LinkedIn / Instagram / TikTok:** *(optional)*  
+- **GitHub:**wonganijiya55-arch
+-  
 
 ---
 
-> “Engineering is not just about building structures — it’s about ideas that improve lives, serve society, and inspire innovation.”
+> “Engineering is not just about building structures or financial gains — it’s about ideas that improve lives, serve society, and inspire innovation.”
 
 ---

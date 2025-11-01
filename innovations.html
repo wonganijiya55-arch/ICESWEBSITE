@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="index.css">
+    </head>
+    <body>
+       <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="nav-container">
+     <a href="index.html" class="logo">
+      <img src="images/IMG-20251024-WA0002.jpg" alt="CESociety Logo" class="nav-logo">
+    </a>
+       <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="department.html">Our Department</a></li>
+        <li><a href="Executives.html">Executives</a></li>
+        <li><a href="innovations.html">Innovations</a></li>
+        <li><a href="register.html">Register</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <div class="hamburger">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+  </nav>
+ <!-- ===== INNOVATIONS HERO ===== -->
+  <header class="page-hero" id="innovations-hero">
+    <div class="container">
+      <h1>Innovations & Solutions</h1>
+      <p class="lead">
+        Engineering is about serving society — browse problems, read proposed solutions, comment, and submit your idea for review.
+      </p>
+      <a href="#submit-innovation" class="btn hero-btn">Submit an Idea</a>
+    </div>
+  </header>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="site-main container">
+
+    <!-- Filters (client-side) -->
+    <section class="filters" aria-label="innovation filters">
+      <!-- In future, these can call backend endpoints to filter the database -->
+      <label for="category">Category:</label>
+      <select id="category">
+        <option value="all">All</option>
+        <option value="roads">Roads</option>
+        <option value="structures">Structures</option>
+        <option value="floods">Floods</option>
+        <option value="materials">Materials</option>
+        <option value="other">Other</option>
+      </select>
+      <input id="search-innovation" type="search" placeholder="Search problems or solutions">
+      <button id="filter-btn" class="btn">Filter</button>
+    </section>
+
+    <!-- NOTE:
+         The "innovation-list" below is a vertical flow (one card per problem).
+         Each card contains:
+           - optional image (not circular)
+           - problem description
+           - suggested solution
+           - comments area
+         In future, you will load these cards from a JSON / DB endpoint.
+    -->
+    <section id="innovation-list" class="innovation-list">
+      <!-- Example innovation card (copy/clone for dynamic content) -->
+      <article class="innovation-card" data-category="floods" id="innovation-1">
+        <div class="innovation-media">
+          <!-- Image not circular for this page (as requested) -->
+          <img src="images/placeholder-innovation.jpg" alt="Flooded roadway example" />
+        </div>
+
+        <div class="innovation-content">
+          <h3 class="innovation-title">Flooded Roadways in Low-Lying Suburbs</h3>
+          <p class="innovation-meta">Category: Floods • Posted: 2025-10-01</p>
+
+          <h4>Problem</h4>
+          <p class="innovation-problem">
+            Road sections at low elevations collect water during heavy rains, causing long-term damage and transport disruption.
+          </p>
+
+          <h4>Suggested Solution</h4>
+          <p class="innovation-solution">
+            Deploy permeable paving in critical segments, combine with smart drainage gates linked to rainfall sensors and an
+            AI model predicting peak flows to pre-emptively open overflow routes.
+          </p>
+
+          <!-- Comments preview -->
+          <div class="comments" id="comments-innovation-1">
+            <h5>Comments</h5>
+            <ul class="comment-list">
+              <!-- comments will be appended here by JS -->
+              <li class="comment"><strong>Mary K.</strong>: Great idea — what about maintenance costs?</li>
+            </ul>
+
+            <!-- comment form (public; required name) -->
+            <form class="comment-form" data-innovation-id="innovation-1">
+              <input name="commenter" type="text" placeholder="Your name (required)" required>
+              <textarea name="comment" rows="2" placeholder="Add a public comment" required></textarea>
+              <button type="submit" class="btn">Post Comment</button>
+            </form>
+          </div>
+        </div>
+      </article>
+
+      <!-- Additional cards would be inserted here dynamically -->
+    </section>
+
+    <!-- ===== SUBMIT INNOVATION (upload for review) ===== -->
+    <section id="submit-innovation" class="submit-innovation">
+      <h2>Submit Your Innovation (Under Review)</h2>
+      <p class="muted">Submissions will be reviewed by the web team before publication.</p>
+
+      <!-- NOTE: For now this posts to local JS handler; later connect to Firebase / backend -->
+      <form id="innovation-upload-form" enctype="multipart/form-data">
+        <label>
+          Your name
+          <input name="author" type="text" placeholder="Full name" required>
+        </label>
+
+        <label>
+          Email (optional)
+          <input name="email" type="email" placeholder="example@university.edu">
+        </label>
+
+        <label>
+          Category
+          <select name="category" required>
+            <option value="">Select category</option>
+            <option value="roads">Roads</option>
+            <option value="structures">Structures</option>
+            <option value="floods">Floods</option>
+            <option value="materials">Materials</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+
+        <label>
+          Problem title
+          <input name="title" type="text" placeholder="Short problem title" required>
+        </label>
+
+        <label>
+          Problem description
+          <textarea name="problem" rows="4" placeholder="Describe the problem" required></textarea>
+        </label>
+
+        <label>
+          Proposed solution
+          <textarea name="solution" rows="4" placeholder="Describe your suggested solution" required></textarea>
+        </label>
+
+        <label>
+          Upload an image (optional)
+          <input name="image" type="file" accept="image/*">
+        </label>
+
+        <p class="muted small">Submissions are reviewed by the web team before being published. You will be notified if your idea is approved.</p>
+        <button type="submit" class="btn">Submit for Review</button>
+      </form>
+
+      <!-- Small hint about next steps -->
+      <p class="muted small">Tip: Include a short summary of benefits and a basic implementation idea — it helps reviewers evaluate your submission.</p>
+    </section>
+  </main>
+  <!--footer-->
+  <footer class="footer">
+    <p>&copy; 2025 Civil Engineering Society. All Rights Reserved.</p>
+    <p>Developed by <strong>Your Name</strong>.</p>
+  </footer>
+        
+        <script src="index.js" async defer></script>
+    </body>
+</html>

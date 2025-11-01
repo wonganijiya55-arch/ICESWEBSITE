@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="index.css">
+    </head>
+    <body>
+         <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+      <img src="images/IMG-20251024-WA0002.jpg" alt="CESociety Logo" class="nav-logo">
+    </a>
+       <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="departments.html">Departments</a></li>
+        <li><a href="Executives.html">Executives</a></li>
+        <li><a href="innovations.html">Innovations</a></li>
+        <li><a href="register.html">Register</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <div class="hamburger">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+  </nav>
+  <!-- HERO -->
+  <header class="page-hero">
+    <div class="container">
+      <h1>Society Executives</h1>
+      <p class="lead">Meet the students and faculty who lead the Civil Engineering Society.</p>
+    </div>
+  </header>
+
+  <main class="site-main container">
+
+    <!-- NOTE:
+         We use a responsive grid: on large screens each card shows image (left) + description (right).
+         On small screens the card stacks: image on top and description below.
+         Each card is expandable — a "View more" action reveals full bio (handled in JS).
+    -->
+    <section id="executives-grid" class="people-grid">
+      <!-- Example executive card -->
+      <article class="person-card" id="exec-1">
+        <div class="person-photo">
+          <img src="images/person-placeholder.jpg" alt="President Name">
+        </div>
+
+        <div class="person-content">
+          <h3>President Name</h3>
+          <p class="role">President</p>
+          <p class="bio-short">Final year Civil Engineering student focused on structural design and community projects.</p>
+
+          <!-- Expand/collapse details (JS toggles .expanded) -->
+          <div class="person-details">
+            <p class="bio-full">
+              Full biography: teaching assistant for Structures I, leads the site outreach program,
+              and coordinates industry visits. Passionate about AI applications in infrastructure.
+            </p>
+
+            <div class="contact-small">
+              <a href="mailto:president@cesociety.univ">president@cesociety.univ</a> • <span>Phone: +265 9XX XXX XXX</span>
+            </div>
+          </div>
+
+          <div class="person-actions">
+            <button class="btn small view-more" data-target="exec-1">View more</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Additional person-card items go here -->
+    </section>
+
+    <!-- Expand Grid button -->
+    <div class="center">
+      <button id="expand-grid" class="btn">Expand Grid</button>
+    </div>
+
+    <!-- Appreciation & Quote -->
+    <section class="appreciation">
+      <blockquote>
+        <p>“We salute our executives for their service, leadership, and dedication to students and society.”</p>
+        <cite>— Civil Engineering Society</cite>
+      </blockquote>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <p>Appreciation to our executives and volunteers.</p>
+      <p>&copy; 2025 Civil Engineering Society • Developed by <a href="https://your-portfolio.example" target="_blank">Wongani Jiya</a></p>
+    </div>
+  </footer>
+
+        <script src="index.js" async defer></script>
+    </body>
+</html>

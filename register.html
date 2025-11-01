@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | CivilEngSoc</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <img src="images/IMG-20251024-WA0002.jpg" alt="CESociety Logo" class="nav-logo">
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="departments.html">Departments</a></li>
+        <li><a href="Executives.html">Executives</a></li>
+        <li><a href="innovations.html">Innovations</a></li>
+        <li><a href="register.html">Register</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <div class="hamburger">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== REGISTRATION FORM ===== -->
+  <section class="form-container">
+    <h2>Join the Civil Engineering Society</h2>
+
+    <!-- Tabs -->
+    <div class="tab-buttons">
+      <button class="tab-btn active" id="studentTab">Student</button>
+      <button class="tab-btn" id="adminTab">Admin</button>
+    </div>
+
+    <!-- Forms Wrapper for responsive inline layout -->
+    <div class="form-wrapper">
+      <!-- Student Form -->
+      <form id="studentForm" class="form active">
+        <input type="text" placeholder="Full Name" required />
+        <input type="text" placeholder="Registration Number" required />
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <input type="text" placeholder="Year of Study" required />
+        <button type="submit" class="btn">Register as Student</button>
+      </form>
+
+      <!-- Admin Form -->
+      <form id="adminForm" class="form">
+        <input type="text" placeholder="Full Name" required />
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <input type="text" placeholder="Admin Access Code" required />
+        <button type="submit" class="btn">Register as Admin</button>
+      </form>
+    </div>
+
+    <p class="registration">Already have an account? <a href="login.html">Login here</a></p>
+  </section>
+  <footer class="footer">
+    <p>&copy; 2025 Civil Engineering Society. All Rights Reserved.</p>
+    <p>Developed by <strong>Your Name</strong>.</p>
+  </footer>
+  <script src="index.js" defer></script>
+</body>
+</html>

@@ -301,3 +301,35 @@ function showSlidesAuto() {
 // Start the slideshow
 showSlides();
 showSlidesAuto();
+
+// ===== END SLIDESHOW FUNCTIONALITY =====
+/* ===============Registartion form validation================= */
+function validateRegistrationForm() {
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  const email = document.getElementById("email").value;
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    alert("Please enter a valid email address.");
+    return false;
+  }
+  if (password !== confirmPassword) {
+    alert("Passwords do not match.");
+    return false;
+  }
+  return true;
+}
+
+/*end of role registration form jac*/
+
+/*role javascript*/
+document.addEventListener('DOMContentLoaded', () => {
+  const radios = document.querySelectorAll('input[name="role"]');
+  radios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.getElementById('student-fields').style.display = radio.value === 'student' ? 'block' : 'none';
+      document.getElementById('admin-fields').style.display = radio.value === 'admin' ? 'block' : 'none';
+    });
+  });
+});
+/*end of role javascript*/

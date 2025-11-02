@@ -72,11 +72,8 @@ If you are a member of the society and want to contribute:
 
 ---
 
-## 👷‍♂️ Project Maintainer
-**Wongani Jiya**  
-Founder & Developer of the Civil Engineering Society Website  
-*(Department of Civil Engineering,MUBAS)*  
-
+## 👷‍♂️ Project Coordinator
+Wongani Jiya
 ---
 
 ## 📅 Status
@@ -92,6 +89,6 @@ Founder & Developer of the Civil Engineering Society Website
 
 ---
 
-> “Engineering is not just about building structures or financial gains — it’s about ideas that improve lives, serve society, and inspire innovation.”
+> “Engineering is not just about building structures or financial gains — it’s about ideas that improve lives And serve society”
 
 ---

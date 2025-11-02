@@ -36,11 +36,97 @@
                 </div>
             </div>
         </nav>
-        <div class="under-development">
-            <i class="fas fa-cog fa-spin"></i>
-            <h1>Under Development</h1>
-            <p>We're working hard to bring you an amazing experience. This page is currently under construction and will be available soon.</p>
+        <!--End of navabar-->
+        
+        <!-- ===== REGISTRATION FORM ===== -->
+        <div class="form-container">
+            <div class="register-card">
+                <h1>Register</h1>
+                <form id="registration-form" method="POST" action="/register">
+
+                    <!-- Role Selection -->
+                    <div class="role-selection">
+                        <label><input type="radio" name="role" value="student" checked> Student</label>
+                        <label><input type="radio" name="role" value="admin"> Admin</label>
+                    </div>
+
+                    <!-- Common Fields -->
+                    <div class="common-fields">
+
+                        <label for="fullname">Full Name</label>
+                        <input type="text" id="fullname" name="fullname" placeholder="Enter your Full Name" required>
+
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your Email" required>
+                  
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Password" required>
+
+                        <label for="year">Year of Study</label>
+                        <input type="text" id="year" name="year" placeholder=" Enter your Year of Study">            
+                    </div>
+                    <div id="student-fields">
+                        <label for="studentID">Registration number</label>
+                        <input type="text" id="regnumber" name="studentID" placeholder="Enter your registration number">
+  
+                    </div>  
+                    <!-- Admin-specific Fields -->
+                    <div id="admin-fields" style="display:none;">
+                        <label for="adminCode">Admin Code</label>
+                        <input type="text" id="adminCode" name="adminCode" placeholder="Enter Admin Code">
+                    </div>
+                    <button type="submit">Register</button>
+                    <div class="bottom-text">
+                        <p>Already have an account? <a href="login.html">Login here</a></p>
+                    </div>
+                </form>
+            </div>
         </div>
-     <script src="index.js"></script>
-    </body>
+<!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-content container">
+            <div class="footer-logo-section">
+                <img src="images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+                <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
+            </div>
+      
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="departments.html">Departments</a></li>
+                    <li><a href="innovations.html">Innovations</a></li>
+                    <li><a href="executives.html">Executives</a></li>
+                    <li><a href="register.html">Register</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-facebook"></i> Facebook</a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i> Twitter</a>
+                    <a href="#" class="social-link"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i> Instagram</a>
+                    <a href="#" class="social-link"><i class="fab fa-youtube"></i> YouTube</a>
+                </div>
+                <div class="contact-info">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> MUST Campus, Limbe, Malawi</p>
+                    <p><i class="fas fa-phone"></i> +265 888 123 456</p>
+                    <p><i class="fas fa-envelope"></i> info@ices.org.mw</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2025 Innovation in Civil Engineering Society. All Rights Reserved.</p>
+                <p>Designed by ICES</p>
+            </div>
+        </div>
+    </footer>
+    <script src="index.js"></script>
+</body>
 </html>

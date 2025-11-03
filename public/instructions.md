@@ -31,7 +31,7 @@ Everyone must have the following ready before starting work this week:
 
 | *Gracia Kamphinda* | Executives Page | Profile page showing current society executives with photos and short bios. |
 
-| *Thokozire Mafeni* | Contact Page | Design a contact form, add placeholders for phone, email, and map section. |
+| *Thokozire Mafeni* | Contact Page | Design a contact form, add placeholders for phone, email. |
 
 ---
 

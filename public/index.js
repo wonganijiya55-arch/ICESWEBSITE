@@ -192,14 +192,156 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ===========================================================
-     SECTION 3: LOGIN PAGE TABS & POST
+  /* ===========================================================
+     SECTION 3: LOGIN PAGE - UNIFIED LOGIN WITH SESSION MANAGEMENT
      =========================================================== */
+  
+  /**
+   * Unified Login Form Handler
+   * Handles both admin and student login with proper session management
+   * Stores user data in localStorage for dashboard authentication
+   */
+  const loginForm = document.getElementById('loginForm');
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Get form values
+      const email = document.getElementById('email')?.value.trim();
+      const password = document.getElementById('password')?.value;
+
+      // Basic validation
+      if (!email || !password) {
+        alert('Please enter both email and password');
+        return;
+      }
+
+      try {
+        // Show loading state
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.textContent;
+        submitBtn.textContent = 'Logging in...';
+        submitBtn.disabled = true;
+
+        // Send login request to unified endpoint
+        const response = await fetch('http://localhost:5000/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        // Reset button state
+        submitBtn.textContent = originalBtnText;
+        submitBtn.disabled = false;
+
+        if (response.ok && data.role) {
+          console.log('Login successful:', data);
+
+          /**
+           * Store user data in localStorage
+           * This data is used by dashboard pages for:
+           * - Session validation
+           * - User info display
+           * - Role-based access control
+           */
+          const userData = {
+            userId: data.userId,
+            email: data.email,
+            name: data.name || data.username || '',
+            username: data.username || '',
+            role: data.role, // 'student' or 'admin'
+            loginTime: new Date().toISOString()
+          };
+
+          localStorage.setItem('userData', JSON.stringify(userData));
+
+          // Show success message
+          console.log(`Login successful as ${userData.role}:`, userData.email);
+
+          /**
+           * Role-based redirection
+           * Admin → admin dashboard
+           * Student → student dashboard
+           */
+          if (data.role === 'admin') {
+            window.location.href = data.redirect || '../dashboards/admin.html';
+          } else if (data.role === 'student') {
+            window.location.href = data.redirect || '../dashboards/students.html';
+          } else {
+            throw new Error('Unknown user role');
+          }
+        } else {
+          // Handle error response
+          const errorMessage = data.error || data.message || 'Login failed. Please try again.';
+          alert(errorMessage);
+          console.error('Login failed:', data);
+        }
+
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Network error. Please check your connection and try again.');
+        
+        // Reset button state
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+          submitBtn.textContent = 'Login';
+          submitBtn.disabled = false;
+        }
+      }
+    });
+  }
+
+  /**
+   * Check for existing user session on login page
+   * If user is already logged in, offer to continue to dashboard
+   */
+  function checkExistingSession() {
+    // Only run on login page
+    if (!loginForm) return;
+
+    const userData = localStorage.getItem('userData');
+    
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        console.log('Existing session found:', user.email);
+        
+        // Ask user if they want to continue with existing session
+        const continueSession = confirm(`You're already logged in as ${user.email}. Continue to dashboard?`);
+        
+        if (continueSession) {
+          if (user.role === 'admin') {
+            window.location.href = '../dashboards/admin.html';
+          } else if (user.role === 'student') {
+            window.location.href = '../dashboards/students.html';
+          }
+        } else {
+          // User wants to login with different account
+          localStorage.removeItem('userData');
+          console.log('Previous session cleared for new login');
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+        localStorage.removeItem('userData'); // Clear corrupted data
+      }
+    }
+  }
+
+  // Check for existing session when page loads
+  checkExistingSession();
+
+  // Legacy login forms (kept for backwards compatibility if needed)
   const studentLoginTab = document.getElementById('studentLoginTab');
   const adminLoginTab = document.getElementById('adminLoginTab');
   const studentLoginForm = document.getElementById('studentLoginForm');
   const adminLoginForm = document.getElementById('adminLoginForm');
 
-  // Tab switching for login
+  // Tab switching for login (if using tabbed login)
   if (studentLoginTab && adminLoginTab && studentLoginForm && adminLoginForm) {
     studentLoginTab.addEventListener('click', () => {
       studentLoginTab.classList.add('active');
@@ -215,8 +357,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ================= Login POST (Student) =================
-  if (studentLoginForm) {
+  // Legacy Student Login (deprecated - use unified loginForm above)
+  if (studentLoginForm && !loginForm) {
     studentLoginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = {
@@ -239,8 +381,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ================= Login POST (Admin) =================
-  if (adminLoginForm) {
+  // Legacy Admin Login (deprecated - use unified loginForm above)
+  if (adminLoginForm && !loginForm) {
     adminLoginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = {
@@ -394,39 +536,4 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 /*end of role javascript*/
-// login javascript (guarded)
-const loginForm = document.getElementById("loginForm");
-if (loginForm) {
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const email = document.getElementById("email")?.value?.trim();
-    const password = document.getElementById("password")?.value;
-
-    if (!email || !password) {
-      alert("Please enter both email and password");
-      return;
-    }
-
-    try {
-      const res = await fetch("http://localhost:5000/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        // Redirect based on role
-        window.location.href = data.redirect;
-      } else {
-        alert(data.error || "Login failed");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong. Check the console.");
-    }
-  });
-}
-// end of login javascript
+// Duplicate login handler removed - using unified handler in SECTION 3 above

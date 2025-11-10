@@ -19,6 +19,13 @@
         <li><a href="paymentsdata.html">Payments</a></li>
         <li><a href="updatevents.html" class="active">Manage Events</a></li>
       </ul>
+      <!-- User Section: Shows logged-in admin's name and logout button -->
+      <div class="user-section" id="userSection">
+        <span class="user-name" id="userName">Loading...</span>
+        <button class="logout-btn" id="logoutBtn" title="Logout">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
       <div class="hamburger" id="hamburger">
         <div></div><div></div><div></div>
       </div>
@@ -92,5 +99,6 @@
   </footer>
 
   <script src="admin.js"></script>
+  <script src="../logged in.js"></script>
 </body>
 </html>

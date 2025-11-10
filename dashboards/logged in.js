@@ -1,5 +1,7 @@
 /**
  * Logged in.js – central scripts for student dashboard pages
+ * - Session Authentication & User Display
+ * - Logout Functionality
  * - Mobile nav hamburger toggle
  * - Event registration form submission (no personal fields)
  * - Payments form dynamic fields and validation (file proof <= 700KB)
@@ -14,12 +16,249 @@
   }
 
   ready(function(){
-    // 1) Mobile nav toggle
-    const hamburger = document.getElementById('hamburger');
-    const navLinks = document.querySelector('.nav-links');
-    if (hamburger && navLinks) {
-      hamburger.addEventListener('click', () => navLinks.classList.toggle('active'));
+    
+    // ===================================================================
+    // SESSION AUTHENTICATION AND USER DISPLAY
+    // ===================================================================
+    
+    /**
+     * Check if user is logged in and display their information
+     * Redirects to login page if not authenticated
+     * Works for both student and admin pages
+     */
+    function checkAuthentication() {
+      const userData = localStorage.getItem('userData');
+      
+      if (!userData) {
+        // No session found - redirect to login
+        alert('Please login to access this page');
+        
+        // Determine correct login path based on current page location
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('/adminside/') || currentPath.includes('admin.html')) {
+          window.location.href = '/public/login.html';
+        } else if (currentPath.includes('/studentside/')) {
+          window.location.href = '../../public/login.html';
+        } else if (currentPath.includes('/dashboards/')) {
+          window.location.href = '../public/login.html';
+        } else {
+          window.location.href = '/public/login.html';
+        }
+        return false;
+      }
+      
+      try {
+        const user = JSON.parse(userData);
+        
+        // Role-based access control - More precise path checking
+        const currentPath = window.location.pathname.toLowerCase();
+        
+        // Determine if this is an admin-only page
+        const isAdminOnlyPage = 
+          currentPath.includes('/adminside/') || // Any page in adminside folder
+          currentPath.endsWith('admin.html');     // Main admin dashboard
+        
+        // Determine if this is a student-only page
+        const isStudentOnlyPage = 
+          currentPath.includes('/studentside/') || // Any page in studentside folder
+          currentPath.endsWith('students.html') || // Main student dashboard
+          (currentPath.includes('/dashboards/') && 
+           currentPath.endsWith('profile.html') && 
+           !currentPath.includes('/adminside/')); // Student profile (not admin profile)
+        
+        // Block non-admins from admin pages
+        if (isAdminOnlyPage && user.role !== 'admin') {
+          alert('Access denied. This page is for administrators only.');
+          localStorage.removeItem('userData');
+          window.location.href = '/public/login.html';
+          return false;
+        }
+        
+        // Block non-students from student pages
+        if (isStudentOnlyPage && user.role !== 'student') {
+          alert('Access denied. This page is for students only.');
+          localStorage.removeItem('userData');
+          window.location.href = '/public/login.html';
+          return false;
+        }
+        
+        // Display user info
+        displayUserInfo(user);
+        return true;
+        
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('userData');
+        window.location.href = '/public/login.html';
+        return false;
+      }
     }
+    
+    /**
+     * Display user information in navbar
+     * Shows user's name next to logout button
+     */
+    function displayUserInfo(user) {
+      const userNameElement = document.getElementById('userName');
+      if (userNameElement) {
+        // Display user's name or email
+        const displayName = user.name || user.username || user.email.split('@')[0];
+        userNameElement.textContent = displayName;
+      }
+    }
+    
+    /**
+     * Handle user logout
+     * Clears session data and redirects to login page
+     */
+    function handleLogout() {
+      if (confirm('Are you sure you want to logout?')) {
+        // Clear session data
+        localStorage.removeItem('userData');
+        
+        // Redirect to login page
+        window.location.href = '/public/login.html';
+      }
+    }
+
+    // ================================================================
+    // THEME TOGGLER (Light/Dark) – persisted + cross-tab sync
+    // ================================================================
+    const THEME_KEY = 'ices_theme_pref_v1';
+
+    function applyTheme(theme){
+      const html = document.documentElement;
+      if(theme === 'dark') {
+        html.setAttribute('data-theme','dark');
+      } else {
+        html.removeAttribute('data-theme');
+      }
+    }
+
+    function initTheme(){
+      // Check stored preference
+      let pref = localStorage.getItem(THEME_KEY);
+      if(!pref){
+        // Fallback to system preference
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        pref = prefersDark ? 'dark' : 'light';
+      }
+      applyTheme(pref);
+      updateToggleUI(pref);
+    }
+
+    function toggleTheme(){
+      const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme(next);
+      updateToggleUI(next);
+    }
+
+    function updateToggleUI(theme){
+      const btn = document.getElementById('themeToggleBtn');
+      if(!btn) return;
+      const icon = btn.querySelector('i');
+      const label = btn.querySelector('.label');
+      if(theme === 'dark') {
+        icon.className = 'fas fa-moon';
+        label.textContent = 'Dark';
+        btn.title = 'Switch to light theme';
+      } else {
+        icon.className = 'fas fa-sun';
+        label.textContent = 'Light';
+        btn.title = 'Switch to dark theme';
+      }
+    }
+
+    // Sync theme across tabs
+    window.addEventListener('storage', (e) => {
+      if(e.key === THEME_KEY && e.newValue){
+        applyTheme(e.newValue);
+        updateToggleUI(e.newValue);
+      }
+    });
+    
+    // Initialize authentication
+    checkAuthentication();
+    
+    // Attach logout button handler
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', handleLogout);
+    }
+
+    // Inject theme toggle next to logout button if not present
+    const userSectionEl = document.querySelector('.user-section');
+    if(userSectionEl && !document.getElementById('themeToggleBtn')){
+      const toggle = document.createElement('button');
+      toggle.id = 'themeToggleBtn';
+      toggle.type = 'button';
+      toggle.className = 'theme-toggle';
+      toggle.innerHTML = '<i class="fas fa-sun"></i><span class="label">Light</span>';
+      toggle.addEventListener('click', toggleTheme);
+      // Insert before logout for better grouping
+      const logout = document.getElementById('logoutBtn');
+      if(logout){
+        userSectionEl.insertBefore(toggle, logout);
+      } else {
+        userSectionEl.appendChild(toggle);
+      }
+    }
+    initTheme();
+    
+    // Listen for logout events from other tabs (cross-tab synchronization)
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'userData' && !e.newValue) {
+        // User logged out in another tab - redirect this tab too
+        window.location.href = '/public/login.html';
+      }
+    });
+    
+    // ===================================================================
+    // MOBILE NAVIGATION TOGGLE
+    // ===================================================================
+    
+    // 1) Mobile nav toggle - Updated to include user section
+    /**
+     * Hamburger menu toggle for mobile navigation
+     * Toggles both nav-links and user-section on mobile devices
+     */
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+    const userSection = document.querySelector('.user-section');
+    
+    if (hamburger) {
+      hamburger.addEventListener('click', () => {
+        // Toggle navigation links
+        if (navLinks) {
+          navLinks.classList.toggle('active');
+        }
+        
+        // Toggle user section (logout button)
+        if (userSection) {
+          userSection.classList.toggle('active');
+        }
+        
+        // Toggle hamburger animation
+        hamburger.classList.toggle('active');
+      });
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (hamburger && navLinks && userSection) {
+        const isClickInsideNav = navLinks.contains(e.target);
+        const isClickInsideUser = userSection.contains(e.target);
+        const isClickOnHamburger = hamburger.contains(e.target);
+        
+        if (!isClickInsideNav && !isClickInsideUser && !isClickOnHamburger) {
+          navLinks.classList.remove('active');
+          userSection.classList.remove('active');
+          hamburger.classList.remove('active');
+        }
+      }
+    });
 
     // 2) Event Registration Form (studentside/events.html)
     const eventForm = document.getElementById('eventRegistrationForm');

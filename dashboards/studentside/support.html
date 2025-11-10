@@ -3,40 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="index.css">
+  <title>ICES Community Support</title>
+  <link rel="stylesheet" href="../index.css">
+  <link rel="stylesheet" href="../Logged in.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    
 </head>
 <body>
-     <nav class="navbar">
+  <nav class="navbar">
     <div class="nav-container">
-      <a href="index.html" class="logo">
-        <img src="images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
+      <a href="../students.html" class="logo">
+        <img src="../images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
       </a>
-
       <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="innovations.html">Innovations</a></li>
+        <li><a href="../students.html">Home</a></li>
+        <li><a href="../innovations.html">Innovations</a></li>
         <li><a href="events.html">Events</a></li>
         <li><a href="payments.html">Payments</a></li>
-        <li><a href="support.html">Departments</a></li>
-        <li><a href="profile.html">Profile</a></li>
+        <li><a href="support.html" class="active">Support</a></li>
+        <li><a href="../profile.html">Profile</a></li>
       </ul>
-
-      <div class="hamburger">
-        <div></div>
-        <div></div>
-        <div></div>
+      <div class="hamburger" id="hamburger">
+        <div></div><div></div><div></div>
       </div>
     </div>
   </nav>
 
-     <div class="under-development">
-            <i class="fas fa-cog fa-spin"></i>
-            <h1>Under Development</h1>
-            <p>We're working hard to bring you an amazing experience. This page is currently under construction and will be available soon.</p>
-        </div>
-        <div class="footer-social">
+  <section class="container page-section">
+    <div class="chat-welcome">
+      <h1>Welcome to ICES Community Support</h1>
+      <p>This is a free space to share your challenges and ideas with the ICES community—from academics to real-life struggles. Be respectful, be kind, and help each other grow. ICES is ready to assist you.</p>
+    </div>
+
+    <div class="chat-container">
+      <div id="chatThread" class="chat-thread" aria-live="polite"></div>
+
+      <form id="chatComposer" class="chat-composer" autocomplete="off">
+        <textarea id="chatInput" class="composer-input" rows="1" placeholder="Share an idea or ask for help..." required></textarea>
+        <button type="submit" class="btn-primary composer-send">
+          <i class="fas fa-paper-plane"></i> Send
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+     <div class="footer-content">
+      <div class="footer-logo-section">
+        <img src="../images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+        <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="../students.html">Dashboard Home</a></li>
+          <li><a href="../innovations.html">Innovations</a></li>
+          <li><a href="events.html">Events</a></li>
+          <li><a href="payments.html">Payments</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="../profile.html">Profile</a></li>
+        </ul>
+      </div>
+      <div class="footer-social">
         <h3>Connect With Us</h3>
         <div class="social-links">
           <a href="#" class="social-link"><i class="fab fa-facebook"></i> Facebook</a>
@@ -60,6 +90,7 @@
       </div>
     </div>
   </footer>
-    <script src="index.js"></script>
+
+  <script src="../Logged in.js"></script>
 </body>
 </html>

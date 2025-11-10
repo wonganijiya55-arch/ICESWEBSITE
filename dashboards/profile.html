@@ -3,40 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ICES Profile</title>
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="Logged in.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
-     <nav class="navbar">
+  <nav class="navbar">
     <div class="nav-container">
-      <a href="index.html" class="logo">
+      <a href="students.html" class="logo">
         <img src="images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
       </a>
-
       <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
+        <li><a href="students.html">Home</a></li>
         <li><a href="innovations.html">Innovations</a></li>
-        <li><a href="events.html">Events</a></li>
-        <li><a href="payments.html">Payments</a></li>
-        <li><a href="support.html">Departments</a></li>
-        <li><a href="profile.html">Profile</a></li>
+        <li><a href="studentside/events.html">Events</a></li>
+        <li><a href="studentside/payments.html">Payments</a></li>
+        <li><a href="studentside/support.html">Support</a></li>
+        <li><a href="profile.html" class="active">Profile</a></li>
       </ul>
-
-      <div class="hamburger">
-        <div></div>
-        <div></div>
-        <div></div>
+      <div class="hamburger" id="hamburger">
+        <div></div><div></div><div></div>
       </div>
     </div>
   </nav>
 
-     <div class="under-development">
-            <i class="fas fa-cog fa-spin"></i>
-            <h1>Under Development</h1>
-            <p>We're working hard to bring you an amazing experience. This page is currently under construction and will be available soon.</p>
+  <section class="container page-section">
+    <h1 class="section-title">My Profile</h1>
+    <p class="section-lead">Share your background and interests with the ICES community. This information will be visible to other members on the support/forum page.</p>
+    
+    <div class="profile-container">
+      <!-- Profile Header with Photo -->
+      <div class="profile-header">
+        <div class="profile-photo-wrapper">
+          <img id="profilePhoto" src="images/default-avatar.png" alt="Profile Photo" class="profile-photo">
+          <label for="photoUpload" class="photo-upload-btn">
+            <i class="fas fa-camera"></i> Change Photo
+          </label>
+          <input type="file" id="photoUpload" accept="image/*" style="display:none;">
         </div>
-        <div class="footer-social">
+        <div class="profile-user-info">
+          <h2 id="displayName">Your Name</h2>
+          <p class="user-role">ICES Member</p>
+        </div>
+      </div>
+
+      <!-- Profile Biography Form -->
+      <form id="profileForm" class="profile-form">
+        <h3 class="form-section-title"><i class="fas fa-user"></i> Basic Information</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fullName" class="form-label">Full Name</label>
+            <input type="text" id="fullName" class="form-control" placeholder="John Doe" required>
+          </div>
+          <div class="form-group">
+            <label for="nationality" class="form-label">Nationality</label>
+            <input type="text" id="nationality" class="form-control" placeholder="e.g., Malawian">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="bio" class="form-label">Short Bio</label>
+          <textarea id="bio" rows="3" class="form-control" placeholder="Tell us a bit about yourself..."></textarea>
+        </div>
+
+        <h3 class="form-section-title"><i class="fas fa-graduation-cap"></i> Education Background</h3>
+        
+        <div class="form-group">
+          <label for="primarySchool" class="form-label">Primary School</label>
+          <input type="text" id="primarySchool" class="form-control" placeholder="Name of primary school">
+        </div>
+
+        <div class="form-group">
+          <label for="secondarySchool" class="form-label">Secondary School</label>
+          <input type="text" id="secondarySchool" class="form-control" placeholder="Name of secondary school">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="currentYear" class="form-label">Current Year of Study</label>
+            <select id="currentYear" class="form-control">
+              <option value="">Select year</option>
+              <option value="1">Year 1</option>
+              <option value="2">Year 2</option>
+              <option value="3">Year 3</option>
+              <option value="4">Year 4</option>
+              <option value="5">Year 5</option>
+              <option value="graduate">Graduate</option>
+            </select>
+          </div>
+        </div>
+
+        <h3 class="form-section-title"><i class="fas fa-heart"></i> Interests & Values</h3>
+
+        <div class="form-group">
+          <label for="interests" class="form-label">Engineering Interests</label>
+          <textarea id="interests" rows="3" class="form-control" placeholder="What areas of civil engineering excite you?"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="patriotic" class="form-label">How would you describe your commitment to Malawi's development?</label>
+          <textarea id="patriotic" rows="2" class="form-control" placeholder="Share your vision for contributing to the nation..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="skills" class="form-label">Skills & Software</label>
+          <input type="text" id="skills" class="form-control" placeholder="e.g., AutoCAD, MATLAB, Python, SAP2000">
+        </div>
+
+        <h3 class="form-section-title"><i class="fas fa-link"></i> Connect With You</h3>
+
+        <div class="form-row">
+            <div class="form-group">
+              <label for="whatsapp" class="form-label">WhatsApp Number</label>
+              <input type="tel" id="whatsapp" class="form-control" placeholder="+265 888 123 456">
+            </div>
+          <div class="form-group">
+            <label for="linkedin" class="form-label">LinkedIn Profile</label>
+            <input type="url" id="linkedin" class="form-control" placeholder="https://linkedin.com/in/yourprofile">
+          </div>
+          </div>
+
+          <div class="form-group">
+          <div class="form-group">
+            <label for="github" class="form-label">GitHub (Optional)</label>
+            <input type="url" id="github" class="form-control" placeholder="https://github.com/yourusername">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="editBtn" class="btn-secondary">
+            <i class="fas fa-edit"></i> Edit Profile
+          </button>
+          <button type="submit" id="saveBtn" class="btn-primary">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
+        </div>
+
+        <p id="profileSuccess" class="form-success">Profile updated successfully!</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+     <div class="footer-content">
+      <div class="footer-logo-section">
+        <img src="images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+        <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="students.html">Dashboard Home</a></li>
+          <li><a href="innovations.html">Innovations</a></li>
+          <li><a href="studentside/events.html">Events</a></li>
+          <li><a href="studentside/payments.html">Payments</a></li>
+          <li><a href="studentside/support.html">Support</a></li>
+          <li><a href="profile.html">Profile</a></li>
+        </ul>
+      </div>
+      <div class="footer-social">
         <h3>Connect With Us</h3>
         <div class="social-links">
           <a href="#" class="social-link"><i class="fab fa-facebook"></i> Facebook</a>
@@ -60,6 +188,7 @@
       </div>
     </div>
   </footer>
-    <script src="index.js"></script>
+
+  <script src="Logged in.js"></script>
 </body>
 </html>

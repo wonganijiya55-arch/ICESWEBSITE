@@ -3,40 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="index.css">
+  <title>ICES Payments</title>
+  <link rel="stylesheet" href="../index.css">
+  <link rel="stylesheet" href="../Logged in.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">    
+
 </head>
 <body>
-     <nav class="navbar">
+  <nav class="navbar">
     <div class="nav-container">
-      <a href="index.html" class="logo">
-        <img src="images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
+      <a href="../index.html" class="logo">
+        <img src="../images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
       </a>
-
       <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="innovations.html">Innovations</a></li>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../innovations.html">Innovations</a></li>
         <li><a href="events.html">Events</a></li>
-        <li><a href="payments.html">Payments</a></li>
-        <li><a href="support.html">Departments</a></li>
-        <li><a href="profile.html">Profile</a></li>
+        <li><a href="payments.html" class="active">Payments</a></li>
+        <li><a href="support.html">Support</a></li>
+        <li><a href="../profile.html">Profile</a></li>
       </ul>
-
-      <div class="hamburger">
-        <div></div>
-        <div></div>
-        <div></div>
+      <div class="hamburger" id="hamburger">
+        <div></div><div></div><div></div>
       </div>
     </div>
   </nav>
 
-     <div class="under-development">
-            <i class="fas fa-cog fa-spin"></i>
-            <h1>Under Development</h1>
-            <p>We're working hard to bring you an amazing experience. This page is currently under construction and will be available soon.</p>
+  <section class="container page-section">
+    <h1 class="section-title">Make a Payment</h1>
+    <p class="section-lead">Select what you're paying for. Your profile already holds your identity details, so just choose the purpose and complete the payment info.</p>
+    <form id="paymentForm" class="card-form" enctype="multipart/form-data">
+      <label for="paymentPurpose" class="form-label">Payment Purpose</label>
+      <select id="paymentPurpose" required class="form-control">
+        <option value="" disabled selected>Select purpose</option>
+        <option value="membership">Membership Registration Fee</option>
+        <option value="event">Event Registration Fee</option>
+      </select>
+
+      <div id="eventPaymentFields" class="hidden-block">
+        <label for="eventPaymentSelect" class="form-label">Select Event</label>
+        <select id="eventPaymentSelect" class="form-control">
+          <option value="" disabled selected>Choose an event</option>
+          <option value="infrastructure_innovation_forum">Infrastructure Innovation Forum</option>
+          <option value="sustainable_materials_workshop">Sustainable Materials Workshop</option>
+          <option value="bridge_design_challenge">Bridge Design Challenge</option>
+          <option value="geotech_field_day">Geotech Field Day</option>
+        </select>
+      </div>
+
+      <label for="amount" class="form-label">Amount (MWK)</label>
+      <input type="number" id="amount" placeholder="e.g. 5000" required class="form-control" readonly />
+
+      <label for="method" class="form-label">Payment Method</label>
+      <select id="method" required class="form-control">
+        <option value="" disabled selected>Select method</option>
+        <option value="mobile_money">Mobile Money</option>
+        <option value="bank_transfer">Bank Transfer</option>
+      </select>
+
+      <!-- Payment instructions panel: shows account/agent info based on method -->
+      <div id="paymentInstructions" class="payment-info-box hidden-block">
+        <h4 class="payment-info-title">Payment Instructions</h4>
+        <div id="mobileMoneyInfo" class="payment-details hidden-block">
+          <p><strong>Mobile Money Agent Codes:</strong></p>
+          <ul class="payment-list">
+            <li><strong>Airtel Money:</strong> Agent Code <code>987654</code></li>
+            <li><strong>TNM Mpamba:</strong> Agent Code <code>123456</code></li>
+          </ul>
+          <p class="payment-note">Send payment to any of the above agents and upload your receipt below.</p>
         </div>
-        <div class="footer-social">
+        <div id="bankTransferInfo" class="payment-details hidden-block">
+          <p><strong>Bank Account Details:</strong></p>
+          <ul class="payment-list">
+            <li><strong>Bank:</strong> Standard Bank Malawi</li>
+            <li><strong>Account Name:</strong> ICES – MUST</li>
+            <li><strong>Account Number:</strong> <code>9100002345678</code></li>
+            <li><strong>Branch:</strong> Limbe</li>
+          </ul>
+          <p class="payment-note">Transfer to the account above and upload your proof of payment below.</p>
+        </div>
+      </div>
+
+  <label for="paymentProof" class="form-label">Upload Payment Proof</label>
+      <input type="file" id="paymentProof" accept="image/*,.pdf" required class="form-control" />
+
+      <button type="submit" class="btn-primary">Submit Payment</button>
+      <p id="paymentSuccess" class="form-success">Payment recorded! (Demo)</p>
+    </form>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+     <div class="footer-content">
+      <div class="footer-logo-section">
+        <img src="../images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+        <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="../students.html">Dashboard Home</a></li>
+          <li><a href="../innovations.html">Innovations</a></li>
+          <li><a href="events.html">Events</a></li>
+          <li><a href="payments.html">Payments</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="../profile.html">Profile</a></li>
+        </ul>
+      </div>
+      <div class="footer-social">
         <h3>Connect With Us</h3>
         <div class="social-links">
           <a href="#" class="social-link"><i class="fab fa-facebook"></i> Facebook</a>
@@ -60,6 +134,7 @@
       </div>
     </div>
   </footer>
-    <script src="index.js"></script>
+
+  <script src="../Logged in.js"></script>
 </body>
 </html>

@@ -3,39 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <Link rel="stylesheet" href="dashboards/logged in.css">
+    <title>ICES Admin – Manage Events</title>
+    <link rel="stylesheet" href="../logged in.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar">
+  <nav class="navbar">
     <div class="nav-container">
-      <a href="index.html" class="logo">
-        <img src="images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
+      <a href="../admin.html" class="logo">
+        <img src="../images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
       </a>
-
       <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="innovations.html">Innovations</a></li>
-        <li><a href="events.html">Events</a></li>
-        <li><a href="payments.html">Payments</a></li>
-        <li><a href="support.html">Departments</a></li>
-        <li><a href="profile.html">Profile</a></li>
+        <li><a href="../admin.html">Dashboard</a></li>
+        <li><a href="studentrecords.html">Student Records</a></li>
+        <li><a href="paymentsdata.html">Payments</a></li>
+        <li><a href="updatevents.html" class="active">Manage Events</a></li>
       </ul>
-
-      <div class="hamburger">
-        <div></div>
-        <div></div>
-        <div></div>
+      <div class="hamburger" id="hamburger">
+        <div></div><div></div><div></div>
       </div>
     </div>
   </nav>
 
-     <div class="under-development">
-            <i class="fas fa-cog fa-spin"></i>
-            <h1>Under Development</h1>
-            <p>We're working hard to bring you an amazing experience. This page is currently under construction and will be available soon.</p>
-        </div>
-        <div class="footer-social">
+  <section class="container page-section">
+    <h1 class="section-title">Manage ICES Events</h1>
+    <p class="section-lead">Create, update, or delete events that appear on the public website. Changes are reflected across all student dashboards.</p>
+
+    <form id="eventForm" class="card-form" style="margin-bottom:40px;">
+      <h3 class="form-section-title"><i class="fas fa-calendar-plus"></i> Add / Edit Event</h3>
+      
+      <label for="eventTitle" class="form-label">Event Title</label>
+      <input type="text" id="eventTitle" class="form-control" placeholder="e.g., Infrastructure Innovation Forum" required>
+
+      <label for="eventDate" class="form-label">Event Date</label>
+      <input type="date" id="eventDate" class="form-control" required>
+
+      <label for="eventDescription" class="form-label">Description</label>
+      <textarea id="eventDescription" rows="4" class="form-control" placeholder="Describe the event..." required></textarea>
+
+      <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Event</button>
+      <p id="eventSuccess" class="form-success">Event saved successfully!</p>
+    </form>
+
+    <h3 class="section-title" style="font-size:1.5rem; margin-top:50px;">Current Events</h3>
+    <div id="eventList" class="event-list">
+      <p style="color:#5a5a66; text-align:center;">Loading events...</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-logo-section">
+        <img src="../images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+        <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="../admin.html">Admin Dashboard</a></li>
+          <li><a href="studentrecords.html">Student Records</a></li>
+          <li><a href="paymentsdata.html">Payments</a></li>
+          <li><a href="updatevents.html">Manage Events</a></li>
+        </ul>
+      </div>
+      <div class="footer-social">
         <h3>Connect With Us</h3>
         <div class="social-links">
           <a href="#" class="social-link"><i class="fab fa-facebook"></i> Facebook</a>
@@ -59,6 +90,7 @@
       </div>
     </div>
   </footer>
-    <script src="index.js"></script>
+
+  <script src="admin.js"></script>
 </body>
 </html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICES Admin Profile</title>
+    <link rel="stylesheet" href="../index.css">
+    <link rel="stylesheet" href="../Logged in.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../admin.html" class="logo">
+        <img src="../images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
+      </a>
+      <ul class="nav-links">
+        <li><a href="../admin.html">Home</a></li>
+        <li><a href="../innovations.html">Innovations</a></li>
+        <li><a href="updatevents.html">Update Events</a></li>
+        <li><a href="paymentsdata.html">Payment Data</a></li>
+        <li><a href="studentrecords.html">Student Records</a></li>
+        <li><a href="profile.html" class="active">Profile</a></li>
+      </ul>
+      <div class="hamburger" id="hamburger">
+        <div></div><div></div><div></div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="container page-section">
+    <h1 class="section-title">Admin Profile</h1>
+    <p class="section-lead">Manage your administrative profile and account settings.</p>
+    
+    <div class="profile-container">
+      <!-- Profile Header with Photo -->
+      <div class="profile-header">
+        <div class="profile-photo-wrapper">
+          <img id="profilePhoto" src="../images/default-avatar.png" alt="Profile Photo" class="profile-photo">
+          <label for="photoUpload" class="photo-upload-btn">
+            <i class="fas fa-camera"></i> Change Photo
+          </label>
+          <input type="file" id="photoUpload" accept="image/*" style="display:none;">
+        </div>
+        <div class="profile-user-info">
+          <h2 id="displayName">Administrator</h2>
+          <p class="user-role">ICES Admin</p>
+        </div>
+      </div>
+
+      <!-- Profile Information Form -->
+      <form id="profileForm" class="profile-form">
+        <h3 class="form-section-title"><i class="fas fa-user"></i> Basic Information</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fullName" class="form-label">Full Name</label>
+            <input type="text" id="fullName" class="form-control" placeholder="John Doe" required>
+          </div>
+          <div class="form-group">
+            <label for="adminCode" class="form-label">Admin Code</label>
+            <input type="text" id="adminCode" class="form-control" placeholder="Your admin code" readonly>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input type="email" id="email" class="form-control" placeholder="admin@ices.org.mw" readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="bio" class="form-label">Short Bio</label>
+          <textarea id="bio" rows="3" class="form-control" placeholder="Tell us about your role..."></textarea>
+        </div>
+
+        <h3 class="form-section-title"><i class="fas fa-briefcase"></i> Professional Information</h3>
+        
+        <div class="form-group">
+          <label for="position" class="form-label">Position/Role</label>
+          <input type="text" id="position" class="form-control" placeholder="e.g., President, Secretary, etc.">
+        </div>
+
+        <div class="form-group">
+          <label for="department" class="form-label">Department</label>
+          <input type="text" id="department" class="form-control" placeholder="e.g., Civil Engineering">
+        </div>
+
+        <div class="form-group">
+          <label for="responsibilities" class="form-label">Key Responsibilities</label>
+          <textarea id="responsibilities" rows="3" class="form-control" placeholder="Describe your main responsibilities..."></textarea>
+        </div>
+
+        <h3 class="form-section-title"><i class="fas fa-link"></i> Contact Information</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="whatsapp" class="form-label">WhatsApp Number</label>
+            <input type="tel" id="whatsapp" class="form-control" placeholder="+265 888 123 456">
+          </div>
+          <div class="form-group">
+            <label for="linkedin" class="form-label">LinkedIn Profile</label>
+            <input type="url" id="linkedin" class="form-control" placeholder="https://linkedin.com/in/yourprofile">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="editBtn" class="btn-secondary">
+            <i class="fas fa-edit"></i> Edit Profile
+          </button>
+          <button type="submit" id="saveBtn" class="btn-primary">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
+        </div>
+
+        <p id="profileSuccess" class="form-success">Profile updated successfully!</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-logo-section">
+        <img src="../images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+        <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="../admin.html">Admin Dashboard</a></li>
+          <li><a href="../innovations.html">Innovations</a></li>
+          <li><a href="updatevents.html">Manage Events</a></li>
+          <li><a href="paymentsdata.html">Payment Data</a></li>
+          <li><a href="studentrecords.html">Student Records</a></li>
+          <li><a href="profile.html">Profile</a></li>
+        </ul>
+      </div>
+      <div class="footer-social">
+        <h3>Connect With Us</h3>
+        <div class="social-links">
+          <a href="#" class="social-link"><i class="fab fa-facebook"></i> Facebook</a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i> Twitter</a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin"></i> LinkedIn</a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i> Instagram</a>
+          <a href="#" class="social-link"><i class="fab fa-youtube"></i> YouTube</a>
+        </div>
+        <div class="contact-info">
+          <h3>Contact Info</h3>
+          <p><i class="fas fa-map-marker-alt"></i> MUST Campus, Limbe, Malawi</p>
+          <p><i class="fas fa-phone"></i> +265 888 123 456</p>
+          <p><i class="fas fa-envelope"></i> info@ices.org.mw</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <p>&copy; 2025 Innovation in Civil Engineering Society. All Rights Reserved.</p>
+        <p>Designed by ICES</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../Logged in.js"></script>
+</body>
+</html>

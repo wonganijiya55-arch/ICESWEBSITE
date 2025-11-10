@@ -3,40 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="index.css">
+  <title>ICES Events</title>
+  <link rel="stylesheet" href="../index.css">
+  <link rel="stylesheet" href="../Logged in.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+
 </head>
 <body>
      <nav class="navbar">
     <div class="nav-container">
-      <a href="index.html" class="logo">
-        <img src="images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
+      <a href="/dashboards/students.html" class="logo">
+        <img src="../images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
       </a>
-
       <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="innovations.html">Innovations</a></li>
-        <li><a href="events.html">Events</a></li>
+        <li><a href="/dashboards/students.html">Home</a></li>
+        <li><a href="../innovations.html">Innovations</a></li>
+        <li><a href="events.html" class="active">Events</a></li>
         <li><a href="payments.html">Payments</a></li>
-        <li><a href="support.html">Departments</a></li>
-        <li><a href="profile.html">Profile</a></li>
+        <li><a href="support.html">Support</a></li>
+        <li><a href="../profile.html">Profile</a></li>
       </ul>
-
-      <div class="hamburger">
-        <div></div>
-        <div></div>
-        <div></div>
+      <div class="hamburger" id="hamburger">
+        <div></div><div></div><div></div>
       </div>
     </div>
   </nav>
 
-     <div class="under-development">
-            <i class="fas fa-cog fa-spin"></i>
-            <h1>Under Development</h1>
-            <p>We're working hard to bring you an amazing experience. This page is currently under construction and will be available soon.</p>
-        </div>
-        <div class="footer-social">
+  <section class="container page-section">
+    <h1 class="section-title">Register for an Event</h1>
+    <p class="section-lead">Select an upcoming ICES event below and confirm your registration. Your profile already contains your personal details, so we only need your event choice.</p>
+    <form id="eventRegistrationForm" class="card-form">
+      <label for="eventSelect" class="form-label">Choose Event</label>
+      <select id="eventSelect" required class="form-control">
+        <option value="" disabled selected>Select an event</option>
+        <option value="infrastructure_innovation_forum">Infrastructure Innovation Forum</option>
+        <option value="sustainable_materials_workshop">Sustainable Materials Workshop</option>
+        <option value="bridge_design_challenge">Bridge Design Challenge</option>
+        <option value="geotech_field_day">Geotech Field Day</option>
+      </select>
+
+      <button type="submit" class="btn-primary">Register</button>
+      <p id="eventSuccess" class="form-success">Registration recorded! (Demo)</p>
+    </form>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+     <div class="footer-content">
+      <div class="footer-logo-section">
+        <img src="../images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+        <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="../students.html">Dashboard Home</a></li>
+          <li><a href="../innovations.html">Innovations</a></li>
+          <li><a href="events.html">Events</a></li>
+          <li><a href="payments.html">Payments</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="../profile.html">Profile</a></li>
+        </ul>
+      </div>
+      <div class="footer-social">
         <h3>Connect With Us</h3>
         <div class="social-links">
           <a href="#" class="social-link"><i class="fab fa-facebook"></i> Facebook</a>
@@ -60,6 +90,7 @@
       </div>
     </div>
   </footer>
-    <script src="index.js"></script>
+
+  <script src="../Logged in.js"></script>
 </body>
 </html>

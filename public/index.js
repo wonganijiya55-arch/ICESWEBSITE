@@ -104,28 +104,89 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ================= Registration POST (Student) =================
   if (studentForm) {
+    // Legacy support if a page has a dedicated studentForm
     studentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const data = {
-        fullName: studentForm.fullName.value,
-        regNumber: studentForm.regNumber.value,
-        email: studentForm.email.value,
-        password: studentForm.password.value,
-        yearOfStudy: studentForm.yearOfStudy.value
+      const payload = {
+        name: studentForm.fullName?.value || '',
+        email: studentForm.email?.value || '',
+        password: studentForm.password?.value || '',
+        year: parseInt(studentForm.yearOfStudy?.value || '0', 10)
       };
-
       try {
-        const res = await fetch('http://localhost:5000/api/auth/register/student', {
+        const res = await fetch('http://localhost:5000/api/students/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          body: JSON.stringify(payload)
         });
         const result = await res.json();
-        alert(result.message || "Registration successful!");
+        if (res.ok) alert(result.message || 'Registration successful!');
+        else alert(result.message || 'Registration failed');
         studentForm.reset();
       } catch (err) {
         console.error(err);
-        alert("Error registering. Check console.");
+        alert('Error registering. Check console.');
+      }
+    });
+  }
+
+  // ================= Registration POST (Unified form on register.html) =================
+  const registrationForm = document.getElementById('registration-form');
+  if (registrationForm) {
+    registrationForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const role = (document.querySelector('input[name="role"]:checked')?.value || 'student').toLowerCase();
+      const fullName = document.getElementById('fullname')?.value?.trim() || '';
+      const email = document.getElementById('email')?.value?.trim() || '';
+      const password = document.getElementById('password')?.value || '';
+
+      try {
+        let endpoint = '';
+        let payload = {};
+
+        if (role === 'student') {
+          const yearRaw = document.getElementById('year')?.value || '0';
+          const year = parseInt(yearRaw, 10);
+          endpoint = 'http://localhost:5000/api/students/register';
+          payload = { name: fullName, email, password, year };
+        } else {
+          // Admin: use full name as username and require adminCode from dropdown
+          const adminCode = document.getElementById('adminCode')?.value || '';
+          if (!adminCode) {
+            alert('Please select an admin code from the dropdown');
+            return;
+          }
+          endpoint = 'http://localhost:5000/api/admins/register';
+          payload = { username: fullName, email, password, adminCode };
+        }
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          alert(result.message || 'Registration successful!');
+          registrationForm.reset();
+          // Show success message and redirect to login
+          if (confirm('Registration successful! Click OK to proceed to login page.')) {
+            window.location.href = 'login.html';
+          }
+        } else {
+          // Show validation errors if present
+          if (result?.errors && Array.isArray(result.errors)) {
+            const first = result.errors[0];
+            alert(first?.msg || 'Registration failed');
+          } else {
+            alert(result.message || result.error || 'Registration failed');
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error registering. Check console.');
       }
     });
   }
@@ -333,3 +394,39 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 /*end of role javascript*/
+// login javascript (guarded)
+const loginForm = document.getElementById("loginForm");
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("email")?.value?.trim();
+    const password = document.getElementById("password")?.value;
+
+    if (!email || !password) {
+      alert("Please enter both email and password");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Redirect based on role
+        window.location.href = data.redirect;
+      } else {
+        alert(data.error || "Login failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong. Check the console.");
+    }
+  });
+}
+// end of login javascript

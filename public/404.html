@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <meta http-equiv="refresh" content="0; URL=./?p=__PATH__">
+    <script>
+      // Preserve the path so React Router can read it
+      (function() {
+        var path = location.pathname + location.search + location.hash;
+        // Replace meta refresh target dynamically
+        var meta = document.querySelector('meta[http-equiv="refresh"]');
+        if (meta) {
+          meta.setAttribute('content', '0; URL=./?p=' + encodeURIComponent(path));
+        }
+        // As a fallback, hard redirect
+        window.location.replace('./?p=' + encodeURIComponent(path));
+      })();
+    </script>
+  </head>
+  <body>
+    Redirecting...
+  </body>
+</html>

@@ -10,6 +10,8 @@
    5. Executives Page Functionality
    =========================================================== */
 
+import { API, safeFetch } from './api.js';
+
 document.addEventListener("DOMContentLoaded", () => {
   // Smooth scroll for anchor links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -104,7 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ================= Registration POST (Student) =================
   if (studentForm) {
-    // Legacy support if a page has a dedicated studentForm
     studentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const payload = {
@@ -114,14 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
         year: parseInt(studentForm.yearOfStudy?.value || '0', 10)
       };
       try {
-        const res = await fetch('http://localhost:5000/api/students/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-        if (res.ok) alert(result.message || 'Registration successful!');
-        else alert(result.message || 'Registration failed');
+        const result = await API.registerUser(payload);
+        alert(result.message || 'Registration successful!');
         studentForm.reset();
       } catch (err) {
         console.error(err);
@@ -148,41 +143,24 @@ document.addEventListener("DOMContentLoaded", () => {
         if (role === 'student') {
           const yearRaw = document.getElementById('year')?.value || '0';
           const year = parseInt(yearRaw, 10);
-          endpoint = 'http://localhost:5000/api/students/register';
+          endpoint = '/api/students/register';
           payload = { name: fullName, email, password, year };
         } else {
-          // Admin: use full name as username and require adminCode from dropdown
           const adminCode = document.getElementById('adminCode')?.value || '';
           if (!adminCode) {
             alert('Please select an admin code from the dropdown');
             return;
           }
-          endpoint = 'http://localhost:5000/api/admins/register';
+          endpoint = '/api/admins/register';
           payload = { username: fullName, email, password, adminCode };
         }
 
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+        const result = await safeFetch(endpoint, { method: 'POST', body: payload });
 
-        const result = await res.json();
-        if (res.ok) {
-          alert(result.message || 'Registration successful!');
-          registrationForm.reset();
-          // Show success message and redirect to login
-          if (confirm('Registration successful! Click OK to proceed to login page.')) {
-            window.location.href = 'login.html';
-          }
-        } else {
-          // Show validation errors if present
-          if (result?.errors && Array.isArray(result.errors)) {
-            const first = result.errors[0];
-            alert(first?.msg || 'Registration failed');
-          } else {
-            alert(result.message || result.error || 'Registration failed');
-          }
+        alert(result.message || 'Registration successful!');
+        registrationForm.reset();
+        if (confirm('Registration successful! Click OK to proceed to login page.')) {
+          window.location.href = 'login.html';
         }
       } catch (err) {
         console.error(err);
@@ -191,83 +169,45 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* ===========================================================
-  /* ===========================================================
-     SECTION 3: LOGIN PAGE - UNIFIED LOGIN WITH SESSION MANAGEMENT
-     =========================================================== */
-  
-  /**
-   * Unified Login Form Handler
-   * Handles both admin and student login with proper session management
-   * Stores user data in localStorage for dashboard authentication
-   */
+  // ================= Unified Login =================
   const loginForm = document.getElementById('loginForm');
-
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Get form values
       const email = document.getElementById('email')?.value.trim();
       const password = document.getElementById('password')?.value;
 
-      // Basic validation
       if (!email || !password) {
         alert('Please enter both email and password');
         return;
       }
 
-      try {
-        // Show loading state
-        const submitBtn = loginForm.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.textContent;
-        submitBtn.textContent = 'Logging in...';
-        submitBtn.disabled = true;
+      const submitBtn = loginForm.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.textContent;
+      submitBtn.textContent = 'Logging in...';
+      submitBtn.disabled = true;
 
-        // Send login request to unified endpoint
-        const response = await fetch('http://localhost:5000/api/login', {
+      try {
+        const data = await safeFetch('/api/login', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email, password })
+          body: { email, password }
         });
 
-        const data = await response.json();
-
-        // Reset button state
         submitBtn.textContent = originalBtnText;
         submitBtn.disabled = false;
 
-        if (response.ok && data.role) {
-          console.log('Login successful:', data);
-
-          /**
-           * Store user data in localStorage
-           * This data is used by dashboard pages for:
-           * - Session validation
-           * - User info display
-           * - Role-based access control
-           */
+        if (data.role) {
           const userData = {
             userId: data.userId,
             email: data.email,
             name: data.name || data.username || '',
             username: data.username || '',
-            role: data.role, // 'student' or 'admin'
+            role: data.role,
             loginTime: new Date().toISOString()
           };
-
           localStorage.setItem('userData', JSON.stringify(userData));
 
-          // Show success message
-          console.log(`Login successful as ${userData.role}:`, userData.email);
-
-          /**
-           * Role-based redirection
-           * Admin → admin dashboard
-           * Student → student dashboard
-           */
           if (data.role === 'admin') {
             window.location.href = data.redirect || '../dashboards/admin.html';
           } else if (data.role === 'student') {
@@ -276,22 +216,13 @@ document.addEventListener("DOMContentLoaded", () => {
             throw new Error('Unknown user role');
           }
         } else {
-          // Handle error response
-          const errorMessage = data.error || data.message || 'Login failed. Please try again.';
-          alert(errorMessage);
-          console.error('Login failed:', data);
+          alert(data.error || data.message || 'Login failed. Please try again.');
         }
-
       } catch (error) {
         console.error('Login error:', error);
         alert('Network error. Please check your connection and try again.');
-        
-        // Reset button state
-        const submitBtn = loginForm.querySelector('button[type="submit"]');
-        if (submitBtn) {
-          submitBtn.textContent = 'Login';
-          submitBtn.disabled = false;
-        }
+        submitBtn.textContent = originalBtnText;
+        submitBtn.disabled = false;
       }
     });
   }
@@ -536,4 +467,3 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 /*end of role javascript*/
-// Duplicate login handler removed - using unified handler in SECTION 3 above

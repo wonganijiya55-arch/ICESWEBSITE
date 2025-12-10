@@ -51,6 +51,21 @@
       <li>Access learning resources</li>
       <li>Get assistance from the community</li>
     </ul>
+
+    <!-- Test Register/Login (temporary) -->
+    <div id="api-test" style="margin-top:16px;border:1px solid #ddd;padding:12px;border-radius:8px">
+      <h3>API Test: Register & Login</h3>
+      <div style="display:grid;gap:8px;max-width:420px">
+        <input id="test-name" placeholder="Full name" />
+        <input id="test-email" placeholder="Email" />
+        <input id="test-password" type="password" placeholder="Password" />
+        <div style="display:flex;gap:8px">
+          <button id="btn-test-register">Test Register (student)</button>
+          <button id="btn-test-login">Test Login</button>
+        </div>
+        <small id="test-status"></small>
+      </div>
+    </div>
   </div>
 
 <!-- ===== FOOTER ===== -->
@@ -98,6 +113,72 @@
     </div>
   </footer>
   
+  <!-- Page scripts -->
+  <script type="module">
+    import { API, safeFetch } from '../public/api.js';
+
+    const statusEl = document.getElementById('test-status');
+    const nameEl = document.getElementById('test-name');
+    const emailEl = document.getElementById('test-email');
+    const passEl = document.getElementById('test-password');
+
+    function setStatus(msg) {
+      if (statusEl) statusEl.textContent = msg;
+      console.log('[API Test]', msg);
+    }
+
+    // Test Register (student)
+    document.getElementById('btn-test-register')?.addEventListener('click', async () => {
+      const name = nameEl?.value?.trim();
+      const email = emailEl?.value?.trim();
+      const password = passEl?.value || '';
+      if (!name || !email || !password) {
+        alert('Enter name, email, and password');
+        return;
+      }
+      setStatus('Registering...');
+      try {
+        const res = await API.registerUser({ name, email, password, year: 1 });
+        alert(res.message || 'Registration successful');
+        setStatus('Registration OK');
+      } catch (err) {
+        setStatus('Registration failed');
+      }
+    });
+
+    // Test Login
+    document.getElementById('btn-test-login')?.addEventListener('click', async () => {
+      const email = emailEl?.value?.trim();
+      const password = passEl?.value || '';
+      if (!email || !password) {
+        alert('Enter email and password');
+        return;
+      }
+      setStatus('Logging in...');
+      try {
+        const data = await API.loginUser({ email, password });
+        // Fallback to unified login if your backend uses /api/login
+        // const data = await safeFetch('/api/login', { method: 'POST', body: { email, password } });
+
+        if (data.role) {
+          localStorage.setItem('userData', JSON.stringify({
+            userId: data.userId,
+            email: data.email,
+            name: data.name || data.username || '',
+            role: data.role,
+            loginTime: new Date().toISOString()
+          }));
+          alert('Login successful');
+          setStatus('Login OK');
+        } else {
+          alert(data.message || 'Login failed');
+          setStatus('Login failed');
+        }
+      } catch (err) {
+        setStatus('Login failed');
+      }
+    });
+  </script>
   <script src="logged in.js"></script>
 </body>
 </html>

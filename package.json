@@ -1,0 +1,10 @@
+{
+  "homepage": "https://wonganijiya55-arch.github.io/ICESWEBSITE/",
+  "scripts": {
+    "predeploy": "npm run build || echo 'Skipping build for static site'",
+    "deploy": "gh-pages -d public"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
+  }
+}

@@ -1,24 +1,10 @@
 {
-  "name": "ices-website",
-  "version": "1.0.0",
-  "description": "Innovation in Civil Engineering Society Website",
-  "main": "index.js",
+  "homepage": "https://wonganijiya55-arch.github.io/ICESWEBSITE/",
   "scripts": {
-    "start": "webpack serve --mode development",
-    "build": "webpack --mode production"
-  },
-  "author": "ICES",
-  "license": "MIT",
-  "homepage": "https://<your-username>.github.io/<your-repo>",
-  "dependencies": {
-    "webpack": "^5.64.4",
-    "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^3.11.2"
+    "predeploy": "npm run build || echo 'Skipping build for static site'",
+    "deploy": "gh-pages -d public"
   },
   "devDependencies": {
-    "css-loader": "^6.5.1",
-    "style-loader": "^3.3.1",
-    "html-webpack-plugin": "^5.5.0",
-    "clean-webpack-plugin": "^4.0.0"
+    "gh-pages": "^6.1.1"
   }
 }

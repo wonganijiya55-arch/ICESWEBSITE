@@ -211,9 +211,14 @@ header p {
 }
 
 .slide {
-  display: none;
   position: absolute;
   inset: 0;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.slide.active {
+  opacity: 1;
 }
 
 .slide img {
@@ -224,8 +229,10 @@ header p {
 }
 
 .caption {
-  display: none;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
 }
+
 
 /* ===== SCROLL CHEVRON ===== */
 .scroll-chevron {

@@ -1,5 +1,5 @@
 // Environment-aware API base config
-const RENDER_BASE = 'https://back-end-2-lwx2.onrender.com';
+const RENDER_BASE = 'https://back-end-5-t3cv.onrender.com';
 const LOCAL_BASE = 'http://localhost:3000';
 
 // Override via localStorage: localStorage.setItem('apiEnv', 'prod'|'dev')
@@ -57,6 +57,10 @@ export async function safeFetch(path, options = {}) {
     credentials: options.credentials || 'include'
   };
 
+  if (localStorage.getItem('apiDebug') === '1') {
+    const preview = typeof options.body === 'object' ? JSON.stringify(options.body).slice(0, 200) : '';
+    console.info('[API]', opts.method, url, preview ? `body: ${preview}${(preview.length === 200 ? '…' : '')}` : '');
+  }
   try {
     const res = await fetch(url, opts);
     const contentType = res.headers.get('content-type') || '';
@@ -132,78 +136,64 @@ export const API = {
   async getItem(id) {
     return await safeFetch(`${API_CONFIG.endpoints.items}/${id}`, { method: 'GET' });
   },
-  async createItem(item) {
-    return await safeFetch(API_CONFIG.endpoints.items, { method: 'POST', body: item });
-  },
-  async updateItem(id, updates) {
-    return await safeFetch(`${API_CONFIG.endpoints.items}/${id}`, { method: 'PUT', body: updates });
-  },
-  async deleteItem(id) {
-    return await safeFetch(`${API_CONFIG.endpoints.items}/${id}`, { method: 'DELETE' });
-  }
-};
-
-// Health check and diagnostics
-export async function apiPing() {
-  try {
-    // Try common health endpoints; adjust if your backend differs
-    const healthPaths = ['/health', '/api/health', '/api/status'];
-    for (const hp of healthPaths) {
-      try {
-        const res = await safeFetch(hp, { method: 'GET' });
-        console.info('[API] health OK at', hp, res);
-        return { ok: true, pathTried: hp, res };
-      } catch {
-        // try next
-      }
+    async createItem(item) {
+      return await safeFetch(API_CONFIG.endpoints.items, { method: 'POST', body: item });
+    },
+    async updateItem(id, updates) {
+      return await safeFetch(`${API_CONFIG.endpoints.items}/${id}`, { method: 'PUT', body: updates });
+    },
+    async deleteItem(id) {
+      return await safeFetch(`${API_CONFIG.endpoints.items}/${id}`, { method: 'DELETE' });
     }
-    console.warn('[API] health endpoints not responding');
-    return { ok: false };
-  } catch (e) {
-    console.error('[API] ping error:', e);
-    return { ok: false, error: e.message };
-  }
-}
-
-// Endpoint testers to help verify backend wiring
-export const API_TEST = {
-  async tryAdminRegister(payload) {
-    // Tries both unified and admin-specific routes
-    const candidates = [
-      '/api/admins/register',
-      '/api/auth/admin/register'
-    ];
-    for (const ep of candidates) {
-      try {
-        console.log('[TEST] admin register via', ep);
-        const res = await safeFetch(ep, { method: 'POST', body: payload });
-        return { ok: true, endpoint: ep, res };
-      } catch (e) {
-        console.warn('[TEST] failed', ep, e.message);
+  };
+  
+  // Health check and diagnostics (tries common paths)
+  export async function apiPing() {
+    try {
+      const healthPaths = ['/health', '/api/health', '/api/status'];
+      for (const hp of healthPaths) {
+        try {
+          const res = await safeFetch(hp, { method: 'GET' });
+          console.info('[API] health OK at', hp, res);
+          return { ok: true, pathTried: hp, res };
+        } catch (e) {
+          // try next
+        }
       }
+      console.warn('[API] health endpoints not responding');
+      return { ok: false };
+    } catch (e) {
+      console.error('[API] ping error:', e);
+      return { ok: false, error: e.message };
     }
-    throw new Error('All admin register endpoints failed');
-  },
-  async tryLogin(email, password) {
-    const candidates = [
-      API_CONFIG.endpoints.login,
-      '/api/login',
-      '/api/auth/login'
-    ];
-    for (const ep of candidates) {
-      try {
-        console.log('[TEST] login via', ep);
-        const res = await safeFetch(ep, { method: 'POST', body: { email, password } });
-        return { ok: true, endpoint: ep, res };
-      } catch (e) {
-        console.warn('[TEST] failed', ep, e.message);
-      }
-    }
-    throw new Error('All login endpoints failed');
   }
-};
-
-// Minimal hints to toggle environment:
-// localStorage.setItem('apiEnv', 'prod'); // force Render
-// localStorage.setItem('apiEnv', 'dev');  // force localhost
-// localStorage.removeItem('apiEnv');      // auto based on hostname
+  
+  // Endpoint testers
+  export const API_TEST = {
+    async tryAdminRegister(payload) {
+      const candidates = ['/api/admins/register', '/api/auth/admin/register'];
+      for (const ep of candidates) {
+        try {
+          console.log('[TEST] admin register via', ep);
+          const res = await safeFetch(ep, { method: 'POST', body: payload });
+          return { ok: true, endpoint: ep, res };
+        } catch (e) {
+          console.warn('[TEST] failed', ep, e.message);
+        }
+      }
+      throw new Error('All admin register endpoints failed');
+    },
+    async tryLogin(email, password) {
+      const candidates = [API_CONFIG.endpoints.login, '/api/login', '/api/auth/login'];
+      for (const ep of candidates) {
+        try {
+          console.log('[TEST] login via', ep);
+          const res = await safeFetch(ep, { method: 'POST', body: { email, password } });
+          return { ok: true, endpoint: ep, res };
+        } catch (e) {
+          console.warn('[TEST] failed', ep, e.message);
+        }
+      }
+      throw new Error('All login endpoints failed');
+    }
+  };

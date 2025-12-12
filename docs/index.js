@@ -500,29 +500,45 @@ let API, safeFetch, apiPing, API_TEST;
 
   // ===== SLIDESHOW FUNCTIONALITY =====
   let slideIndex = 0;
-  let slideTimer;
+  let slideInterval;
 
-  function showSlides() {
-    const slides = document.getElementsByClassName("slide");
-    for (let i = 0; i < slides.length; i++) {
-      slides[i].style.display = "none";
-    }
-    if (slideIndex > slides.length) {slideIndex = 1}
-    if (slideIndex < 1) {slideIndex = slides.length}
+  function renderSlide(index) {
+    const slides = document.querySelectorAll('.slide');
+    slides.forEach(s => s.classList.remove('active'));
     if (slides.length > 0) {
-      slides[slideIndex-1].style.display = "block";
+      const i = ((index % slides.length) + slides.length) % slides.length;
+      slides[i].classList.add('active');
     }
   }
 
-  function showSlidesAuto() {
-    slideIndex++;
-    showSlides();
-    slideTimer = setTimeout(showSlidesAuto, 5000); // Change slide every 5 seconds
+  function nextSlide() {
+    const slides = document.querySelectorAll('.slide');
+    if (slides.length <= 1) return; // nothing to rotate
+    slideIndex = (slideIndex + 1) % slides.length;
+    renderSlide(slideIndex);
   }
 
-  // Start the slideshow
-  showSlides();
-  showSlidesAuto();
+  function startSlideshow() {
+    const slides = document.querySelectorAll('.slide');
+    if (!slides.length) return;
+    slideIndex = 0;
+    renderSlide(slideIndex);
+    clearInterval(slideInterval);
+    slideInterval = setInterval(nextSlide, 8000); // 8s cadence per request
+  }
+
+  // Ensure DOM and images are present before starting
+  window.addEventListener('load', () => {
+    startSlideshow();
+    const container = document.querySelector('.slideshow-container');
+    if (container) {
+      container.addEventListener('mouseenter', () => clearInterval(slideInterval));
+      container.addEventListener('mouseleave', () => {
+        clearInterval(slideInterval);
+        slideInterval = setInterval(nextSlide, 8000);
+      });
+    }
+  });
 
   // ===== END SLIDESHOW FUNCTIONALITY =====
   /* ===============Registartion form validation================= */

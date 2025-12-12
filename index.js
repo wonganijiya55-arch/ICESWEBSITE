@@ -202,8 +202,13 @@ let API, safeFetch, apiPing, API_TEST;
       const initialRole = (document.querySelector('input[name="role"]:checked')?.value || 'student').toLowerCase();
       applyRoleRequirements(initialRole);
 
+      // Normalize role values and avoid conflicts
       roleRadios.forEach(radio => {
-        radio.addEventListener('change', () => applyRoleRequirements(radio.value.toLowerCase()));
+        radio.addEventListener('change', () => {
+          const value = (radio.value || '').toLowerCase();
+          applyRoleRequirements(value);
+          console.debug('[role-change]', { value, studentVisible: studentFields?.style.display, adminVisible: adminFields?.style.display });
+        });
       });
 
       registrationForm.addEventListener('submit', async (e) => {
@@ -544,17 +549,7 @@ let API, safeFetch, apiPing, API_TEST;
 
   /*end of role registration form jac*/
 
-  /*role javascript*/
-  document.addEventListener('DOMContentLoaded', () => {
-    const radios = document.querySelectorAll('input[name="role"]');
-    radios.forEach(radio => {
-      radio.addEventListener('change', () => {
-        document.getElementById('student-fields').style.display = radio.value === 'student' ? 'block' : 'none';
-        document.getElementById('admin-fields').style.display = radio.value === 'admin' ? 'block' : 'none';
-      });
-    });
-  });
-  /*end of role javascript*/
+  // Removed duplicate role toggler to prevent conflicting visibility changes
 
   // Expose TEST_API only after API is ready
   window.TEST_API = {

@@ -63,8 +63,7 @@ export async function safeFetch(path, options = {}) {
       ...(options.headers || {})
     },
     body: options.body ? JSON.stringify(options.body) : undefined,
-    // Avoid credentialed requests unless explicitly needed; prevents CORS wildcard errors
-    credentials: options.credentials || 'omit'
+    credentials: options.credentials || 'include'
   };
 
   try {

@@ -6,8 +6,8 @@ const LOCAL_BASE = 'http://localhost:3000';
 // Override via localStorage: localStorage.setItem('apiEnv', 'prod'|'dev')
 // Optional manual override: localStorage.setItem('apiBaseOverride', 'https://...') will be honored
 const storedEnv = (localStorage.getItem('apiEnv') || '').toLowerCase();
-const isDevHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-const useDev = storedEnv ? storedEnv === 'dev' : isDevHost;
+// Default to production unless explicitly forced via localStorage
+const useDev = storedEnv === 'dev';
 
 export const API_CONFIG = {
   env: useDev ? 'dev' : 'prod',

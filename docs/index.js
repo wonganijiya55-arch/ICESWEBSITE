@@ -35,7 +35,16 @@ let API, safeFetch, apiPing, API_TEST;
     console.warn('Ping error:', e);
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  // Ensure init runs whether DOMContentLoaded already fired or not
+  function onReady(cb) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', cb);
+    } else {
+      cb();
+    }
+  }
+
+  onReady(() => {
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
@@ -496,7 +505,7 @@ let API, safeFetch, apiPing, API_TEST;
       setInterval(rotateQuotes, 6000);
     }
 
-  }); // End DOMContentLoaded
+  }); // End onReady
 
   // ===== SLIDESHOW FUNCTIONALITY =====
   let slideIndex = 0;
@@ -560,17 +569,7 @@ let API, safeFetch, apiPing, API_TEST;
 
   /*end of role registration form jac*/
 
-  /*role javascript*/
-  document.addEventListener('DOMContentLoaded', () => {
-    const radios = document.querySelectorAll('input[name="role"]');
-    radios.forEach(radio => {
-      radio.addEventListener('change', () => {
-        document.getElementById('student-fields').style.display = radio.value === 'student' ? 'block' : 'none';
-        document.getElementById('admin-fields').style.display = radio.value === 'admin' ? 'block' : 'none';
-      });
-    });
-  });
-  /*end of role javascript*/
+  // Removed duplicate role toggler to avoid conflicts with applyRoleRequirements
 
   // Expose TEST_API only after API is ready
   window.TEST_API = {

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Contact - Innovation in Civil Engineering Society</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    </head>
+    <body>
+        <!-- ===== NAVBAR ===== -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="index.html" class="logo">
+                    <img src="images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
+                </a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="department.html"> Our Department</a></li>
+                    <li><a href="Executives.html">Executives</a></li>
+                    <li><a href="innovations.html">Innovations</a></li>
+                    <li><a href="register.html">Register</a></li>
+                    <li><a href="contact.html" class="active">Contact</a></li>
+                </ul>
+                <div class="hamburger">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+        </nav>
+        <!--End of navabar-->
+        
+        <!-- ===== REGISTRATION FORM ===== -->
+        <div class="form-container">
+            <div class="register-card">
+                <h1>Register</h1>
+                <form id="registration-form" method="POST" action="/register">
+
+                    <!-- Role Selection -->
+                    <div class="role-selection">
+                        <label><input type="radio" name="role" value="student" checked> Student</label>
+                        <label><input type="radio" name="role" value="admin"> Admin</label>
+                    </div>
+
+                    <!-- Common Fields -->
+                    <div class="registration fields">
+
+                        <label for="fullname">Full Name</label>
+                        <input type="text" id="fullname" name="fullname" placeholder="Enter your Full Name" required>
+
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your Email" required>
+                  
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Password" required>
+
+                        <label for="year">Year of Study</label>
+                        <input type="text" id="year" name="year" placeholder=" Enter your Year of Study">            
+                    </div>
+                    <div id="student-fields">
+                        <label for="studentID">Registration number</label>
+                        <input type="text" id="regnumber" name="studentID" placeholder="Enter your registration number">
+  
+                    </div>  
+                    <!-- Admin-specific Fields -->
+                    <div id="admin-fields" style="display:none;">
+                        <label for="adminCode">Admin Code</label>
+                        <select id="adminCode" name="adminCode" required>
+                            <option value="">-- Select Admin Code --</option>
+                            <option value="12#A">12#A</option>
+                            <option value="34@B">34@B</option>
+                            <option value="56$C">56$C</option>
+                            <option value="78&D">78&D</option>
+                            <option value="90*E">90*E</option>
+                            <option value="23!F">23!F</option>
+                            <option value="45%G">45%G</option>
+                            <option value="67^H">67^H</option>
+                            <option value="89+I">89+I</option>
+                            <option value="01-J">01-J</option>
+                            <option value="13=K">13=K</option>
+                            <option value="24~L">24~L</option>
+                            <option value="35|M">35|M</option>
+                            <option value="46\N">46\N</option>
+                            <option value="57:O">57:O</option>
+                            <option value="68;P">68;P</option>
+                            <option value="79<Q">79&lt;Q</option>
+                            <option value="80>R">80&gt;R</option>
+                            <option value="91?S">91?S</option>
+                            <option value="02/T">02/T</option>
+                            <option value="14[U">14[U</option>
+                            <option value="25]V">25]V</option>
+                            <option value="36{W">36{W</option>
+                            <option value="47}X">47}X</option>
+                            <option value="58_Y">58_Y</option>
+                            <option value="69#Z">69#Z</option>
+                            <option value="70@1">70@1</option>
+                            <option value="81$2">81$2</option>
+                            <option value="92&3">92&3</option>
+                            <option value="03*4">03*4</option>
+                        </select>
+                    </div>
+                    <button type="submit">Register</button>
+                    <div class="bottom-text">
+                        <p>Already have an account? <a href="login.html">Login here</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+<!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-content container">
+            <div class="footer-logo-section">
+                <img src="images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+                <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
+            </div>
+      
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="departments.html">Departments</a></li>
+                    <li><a href="innovations.html">Innovations</a></li>
+                    <li><a href="executives.html">Executives</a></li>
+                    <li><a href="register.html">Register</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-social">
+                <h3>Connect With Us</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-facebook"></i> Facebook</a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i> Twitter</a>
+                    <a href="#" class="social-link"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i> Instagram</a>
+                    <a href="#" class="social-link"><i class="fab fa-youtube"></i> YouTube</a>
+                </div>
+                <div class="contact-info">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> MUST Campus, Limbe, Malawi</p>
+                    <p><i class="fas fa-phone"></i> +265 888 123 456</p>
+                    <p><i class="fas fa-envelope"></i> info@ices.org.mw</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2025 Innovation in Civil Engineering Society. All Rights Reserved.</p>
+                <p>Designed by ICES</p>
+            </div>
+        </div>
+    </footer>
+    <script src="index.js"></script>
+</body>
+</html>

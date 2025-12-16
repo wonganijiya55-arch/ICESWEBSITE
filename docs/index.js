@@ -386,50 +386,52 @@ let API, safeFetch, apiPing, API_TEST;
       });
     }
 
-    // Legacy Student Login (deprecated - use unified loginForm above)
+    // Legacy Student Login (updated to use centralized API)
     if (studentLoginForm && !loginForm) {
       studentLoginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const data = {
+        const creds = {
           email: studentLoginForm.email.value,
           password: studentLoginForm.password.value
         };
         try {
-          const res = await fetch('http://localhost:5000/api/auth/login/student', {
+          const data = await safeFetch('/api/login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            body: creds
           });
-          const result = await res.json();
-          if (res.ok) window.location.href = 'student-dashboard.html';
-          else alert(result.message || "Login failed!");
+          if (data.role === 'student') {
+            window.location.href = '../dashboards/students.html';
+          } else {
+            alert(data.error || data.message || 'Login failed!');
+          }
         } catch (err) {
-          console.error(err);
-          alert("Error logging in. Check console.");
+          console.error('Student login error:', err);
+          alert('Error logging in. Check console.');
         }
       });
     }
 
-    // Legacy Admin Login (deprecated - use unified loginForm above)
+    // Legacy Admin Login (updated to use centralized API)
     if (adminLoginForm && !loginForm) {
       adminLoginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const data = {
+        const creds = {
           email: adminLoginForm.email.value,
           password: adminLoginForm.password.value
         };
         try {
-          const res = await fetch('http://localhost:5000/api/auth/login/admin', {
+          const data = await safeFetch('/api/login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            body: creds
           });
-          const result = await res.json();
-          if (res.ok) window.location.href = 'admin-dashboard.html';
-          else alert(result.message || "Login failed!");
+          if (data.role === 'admin') {
+            window.location.href = '../dashboards/admin.html';
+          } else {
+            alert(data.error || data.message || 'Login failed!');
+          }
         } catch (err) {
-          console.error(err);
-          alert("Error logging in. Check console.");
+          console.error('Admin login error:', err);
+          alert('Error logging in. Check console.');
         }
       });
     }

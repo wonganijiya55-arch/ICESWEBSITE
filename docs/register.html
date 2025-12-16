@@ -57,53 +57,22 @@
 
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" placeholder="Enter your Email" required>
-                  
-                        <label for="password">Password</label>
+
+                        <!-- Password (required for students, hidden/disabled for admins) -->
+                        <label for="password" id="password-label">Password</label>
                         <input type="password" id="password" name="password" placeholder="Password" required>
-                    </div>
-                    <div id="student-fields">
+
+                        <!-- Common academic info (required for both roles) -->
                         <label for="year">Year of Study</label>
                         <input type="text" id="year" name="year" placeholder="Enter your Year of Study">
-                        <label for="studentID">Registration number</label>
-                        <input type="text" id="regnumber" name="studentID" placeholder="Enter your registration number">
-  
-                    </div>  
+
+                        <label for="regnumber">Registration number</label>
+                        <input type="text" id="regnumber" name="regnumber" placeholder="Enter your registration number">
+                    </div>
+                    <div id="student-fields"></div>
                     <!-- Admin-specific Fields -->
                     <div id="admin-fields" style="display:none;">
-                        <label for="adminCode">Admin Code</label>
-                        <select id="adminCode" name="adminCode" required>
-                            <option value="">-- Select Admin Code --</option>
-                            <option value="12#A">12#A</option>
-                            <option value="34@B">34@B</option>
-                            <option value="56$C">56$C</option>
-                            <option value="78&D">78&D</option>
-                            <option value="90*E">90*E</option>
-                            <option value="23!F">23!F</option>
-                            <option value="45%G">45%G</option>
-                            <option value="67^H">67^H</option>
-                            <option value="89+I">89+I</option>
-                            <option value="01-J">01-J</option>
-                            <option value="13=K">13=K</option>
-                            <option value="24~L">24~L</option>
-                            <option value="35|M">35|M</option>
-                            <option value="46\N">46\N</option>
-                            <option value="57:O">57:O</option>
-                            <option value="68;P">68;P</option>
-                            <option value="79<Q">79&lt;Q</option>
-                            <option value="80>R">80&gt;R</option>
-                            <option value="91?S">91?S</option>
-                            <option value="02/T">02/T</option>
-                            <option value="14[U">14[U</option>
-                            <option value="25]V">25]V</option>
-                            <option value="36{W">36{W</option>
-                            <option value="47}X">47}X</option>
-                            <option value="58_Y">58_Y</option>
-                            <option value="69#Z">69#Z</option>
-                            <option value="70@1">70@1</option>
-                            <option value="81$2">81$2</option>
-                            <option value="92&3">92&3</option>
-                            <option value="03*4">03*4</option>
-                        </select>
+                        <p style="margin:8px 0 0 0;color:#555">After registering, a unique Admin Code will be sent to your email. Use it to log in as an admin. No password required for admins.</p>
                     </div>
                     <button type="submit">Register</button>
                     <div class="bottom-text">

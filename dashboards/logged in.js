@@ -26,6 +26,23 @@
      * Redirects to login page if not authenticated
      * Works for both student and admin pages
      */
+    function resolveDocsPath(fileName){
+      try {
+        const p = window.location.pathname;
+        const idxDash = p.indexOf('/dashboards/');
+        if (idxDash !== -1) {
+          const base = p.substring(0, idxDash);
+          return base + '/docs/' + fileName;
+        }
+        const idxDocs = p.indexOf('/docs/');
+        if (idxDocs !== -1) {
+          const base = p.substring(0, idxDocs);
+          return base + '/docs/' + fileName;
+        }
+        return '/docs/' + fileName;
+      } catch { return '/docs/' + fileName; }
+    }
+
     function checkAuthentication() {
       const userData = localStorage.getItem('userData');
       
@@ -35,15 +52,7 @@
         
         // Determine correct login path based on current page location
         const currentPath = window.location.pathname;
-        if (currentPath.includes('/adminside/') || currentPath.includes('admin.html')) {
-          window.location.href = '/public/login.html';
-        } else if (currentPath.includes('/studentside/')) {
-          window.location.href = '../../public/login.html';
-        } else if (currentPath.includes('/dashboards/')) {
-          window.location.href = '../public/login.html';
-        } else {
-          window.location.href = '/public/login.html';
-        }
+        window.location.href = resolveDocsPath('login.html');
         return false;
       }
       
@@ -70,7 +79,7 @@
         if (isAdminOnlyPage && user.role !== 'admin') {
           alert('Access denied. This page is for administrators only.');
           localStorage.removeItem('userData');
-          window.location.href = '/public/login.html';
+          window.location.href = resolveDocsPath('login.html');
           return false;
         }
         
@@ -78,7 +87,7 @@
         if (isStudentOnlyPage && user.role !== 'student') {
           alert('Access denied. This page is for students only.');
           localStorage.removeItem('userData');
-          window.location.href = '/public/login.html';
+          window.location.href = resolveDocsPath('login.html');
           return false;
         }
         
@@ -89,7 +98,7 @@
       } catch (error) {
         console.error('Error parsing user data:', error);
         localStorage.removeItem('userData');
-        window.location.href = '/public/login.html';
+        window.location.href = resolveDocsPath('login.html');
         return false;
       }
     }
@@ -101,8 +110,7 @@
     function displayUserInfo(user) {
       const userNameElement = document.getElementById('userName');
       if (userNameElement) {
-        // Display user's name or email
-        const displayName = user.name || user.username || user.email.split('@')[0];
+        const displayName = user.name || user.username || (user.email ? user.email.split('@')[0] : 'User');
         userNameElement.textContent = displayName;
       }
     }
@@ -116,8 +124,8 @@
         // Clear session data
         localStorage.removeItem('userData');
         
-        // Redirect to login page
-        window.location.href = '/public/login.html';
+        // Redirect to home page (index.html)
+        window.location.href = resolveDocsPath('index.html');
       }
     }
 
@@ -211,9 +219,86 @@
     window.addEventListener('storage', (e) => {
       if (e.key === 'userData' && !e.newValue) {
         // User logged out in another tab - redirect this tab too
-        window.location.href = '/public/login.html';
+        window.location.href = resolveDocsPath('index.html');
       }
     });
+
+    // Optional API test helpers (attach only if elements exist)
+    (async function initApiTest(){
+      const statusEl = document.getElementById('test-status');
+      const nameEl = document.getElementById('test-name');
+      const emailEl = document.getElementById('test-email');
+      const passEl = document.getElementById('test-password');
+      const btnRegister = document.getElementById('btn-test-register');
+      const btnLogin = document.getElementById('btn-test-login');
+      if (!btnRegister && !btnLogin) return;
+
+      let API, safeFetch;
+      try {
+        const mod = await import('../docs/api.js');
+        API = mod.API;
+        safeFetch = mod.safeFetch;
+      } catch (e) {
+        console.warn('API module not available for dashboard tests:', e);
+        return;
+      }
+
+      function setStatus(msg){
+        if (statusEl) statusEl.textContent = msg;
+        console.log('[API Test]', msg);
+      }
+
+      if (btnRegister) {
+        btnRegister.addEventListener('click', async () => {
+          const name = nameEl?.value?.trim();
+          const email = emailEl?.value?.trim();
+          const password = passEl?.value || '';
+          if (!name || !email || !password) {
+            alert('Enter name, email, and password');
+            return;
+          }
+          setStatus('Registering...');
+          try {
+            const res = await API.registerUser({ name, email, password, year: 1 });
+            alert(res.message || 'Registration successful');
+            setStatus('Registration OK');
+          } catch (err) {
+            setStatus('Registration failed');
+          }
+        });
+      }
+
+      if (btnLogin) {
+        btnLogin.addEventListener('click', async () => {
+          const email = emailEl?.value?.trim();
+          const password = passEl?.value || '';
+          if (!email || !password) {
+            alert('Enter email and password');
+            return;
+          }
+          setStatus('Logging in...');
+          try {
+            const data = await API.loginUser({ email, password });
+            if (data.role) {
+              localStorage.setItem('userData', JSON.stringify({
+                userId: data.userId,
+                email: data.email,
+                name: data.name || data.username || '',
+                role: data.role,
+                loginTime: new Date().toISOString()
+              }));
+              alert('Login successful');
+              setStatus('Login OK');
+            } else {
+              alert(data.message || 'Login failed');
+              setStatus('Login failed');
+            }
+          } catch (err) {
+            setStatus('Login failed');
+          }
+        });
+      }
+    })();
     
     // ===================================================================
     // MOBILE NAVIGATION TOGGLE

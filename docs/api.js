@@ -1,14 +1,15 @@
 // Environment-aware API base config
 // <-- UPDATED backend Render URL -->
 const RENDER_BASE = 'https://back-end-5-t3cv.onrender.com';
-const LOCAL_BASE = 'http://localhost:3000';
+const LOCAL_BASE = 'http://localhost:5000';
 
-// Override via localStorage: localStorage.setItem('apiEnv', 'prod'|'dev')
-// Optional manual override: localStorage.setItem('apiBaseOverride', 'https://...') will be honored
+// Override via localStorage:
+// - localStorage.setItem('apiEnv', 'dev') to force localhost dev
+// - localStorage.setItem('apiEnv', 'prod') to force production base
+// Optional: localStorage.setItem('apiBaseOverride', 'https://...') to hard override base
 const storedEnv = (localStorage.getItem('apiEnv') || '').toLowerCase();
-const isDevHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-// Priority: explicit localStorage dev flag OR localhost host => dev
-const useDev = storedEnv === 'dev' || isDevHost;
+// IMPORTANT: Default to prod even on localhost unless explicitly forced via apiEnv='dev'
+const useDev = storedEnv === 'dev';
 
 export const API_CONFIG = {
   env: useDev ? 'dev' : 'prod',
@@ -31,10 +32,43 @@ export function setApiBase(newBase) {
   console.info('[API] base set to', API_CONFIG.baseUrl);
 }
 
+// Helpers to inspect/switch environment programmatically
+export function isDevLocalBase() {
+  try {
+    const base = API_CONFIG.baseUrl;
+    return API_CONFIG.env === 'dev' && /localhost|127\.0\.0\.1/.test(new URL(base).hostname);
+  } catch { return false; }
+}
+
+export function forceProdBase() {
+  API_CONFIG.env = 'prod';
+  API_CONFIG.baseUrl = RENDER_BASE;
+  console.info('[API] forced prod base:', API_CONFIG.baseUrl);
+}
+
+export function currentBase() {
+  return API_CONFIG.baseUrl;
+}
+
 // Log current API base/env at startup for visibility
 (function logApiBase() {
   const tag = `[API] base=${API_CONFIG.baseUrl} env=${API_CONFIG.env}`;
   console.info(tag, API_CONFIG.endpoints);
+})();
+
+// If in dev and local API seems down, auto-fallback to Render base
+(async function autoFallbackDevBase() {
+  try {
+    if (API_CONFIG.env !== 'dev') return;
+    const probeUrl = API_CONFIG.baseUrl.replace(/\/+$/, '') + '/health';
+    const res = await fetch(probeUrl, { method: 'GET' });
+    if (!res.ok) throw new Error('health not ok');
+    console.info('[API] dev health OK at', probeUrl);
+  } catch (e) {
+    console.warn('[API] local dev API unreachable, switching to Render base');
+    API_CONFIG.baseUrl = RENDER_BASE;
+    console.info('[API] base now', API_CONFIG.baseUrl);
+  }
 })();
 
 // Guard/validation: do not throw (non-fatal), but warn so developer can correct
@@ -204,6 +238,74 @@ export const API_TEST = {
     }
     throw new Error('All admin register endpoints failed');
   },
+  // Probe multiple payload shapes for admin register-code across candidate endpoints
+  async tryAdminRegisterCodeVariants(basePayload) {
+    const endpoints = [
+      '/api/admins/register-code',
+      '/api/admins/register',
+      '/api/admin/register',
+      '/api/admins/request-code',
+      '/api/admins/register/request-code',
+      '/api/auth/admin/register',
+    ];
+
+    const nameKeys = ['name', 'fullName', 'username'];
+    const regKeys = ['regNumber', 'registrationNumber', 'reg_no', 'reg'];
+    const yearKeys = ['year', 'yearOfStudy', 'level'];
+
+    const variants = [];
+    for (const nk of nameKeys) {
+      for (const rk of regKeys) {
+        for (const yk of yearKeys) {
+          // With and without password, with role hint
+          variants.push(({ name, email, regNumber, year, password }) => ({ [nk]: name, email, [rk]: regNumber, [yk]: year }));
+          variants.push(({ name, email, regNumber, year, password }) => ({ [nk]: name, email, [rk]: regNumber, [yk]: year, role: 'admin' }));
+          variants.push(({ name, email, regNumber, year, password }) => ({ [nk]: name, email, [rk]: regNumber, [yk]: year, password: password || 'Temp#1234' }));
+          variants.push(({ name, email, regNumber, year, password }) => ({ [nk]: name, email, [rk]: regNumber, [yk]: year, role: 'admin', password: password || 'Temp#1234' }));
+        }
+      }
+    }
+
+    for (const ep of endpoints) {
+      for (const build of variants) {
+        const body = build({
+          name: basePayload.name,
+          email: basePayload.email,
+          regNumber: basePayload.regNumber,
+          year: basePayload.year,
+          password: basePayload.password,
+        });
+        try {
+          console.log('[TEST] admin register-code variants via', ep, 'keys', Object.keys(body));
+          const res = await safeFetch(ep, { method: 'POST', body });
+          return { ok: true, endpoint: ep, payloadKeys: Object.keys(body), res };
+        } catch (e) {
+          console.warn('[TEST] failed', ep, 'keys', Object.keys(body), e.message);
+        }
+      }
+    }
+    throw new Error('All admin register-code variant attempts failed');
+  },
+  async tryAdminRegisterCode(payload) {
+    const candidates = [
+      '/api/admins/register-code',
+      '/api/admins/register',
+      '/api/admin/register',
+      '/api/admins/request-code',
+      '/api/admins/register/request-code',
+      '/api/auth/admin/register',
+    ];
+    for (const ep of candidates) {
+      try {
+        console.log('[TEST] admin register-code via', ep);
+        const res = await safeFetch(ep, { method: 'POST', body: payload });
+        return { ok: true, endpoint: ep, res };
+      } catch (e) {
+        console.warn('[TEST] failed', ep, e.message);
+      }
+    }
+    throw new Error('All admin register-code endpoints failed');
+  },
   async tryLogin(email, password) {
     const candidates = [API_CONFIG.endpoints.login, '/api/login', '/api/auth/login'];
     for (const ep of candidates) {
@@ -216,5 +318,82 @@ export const API_TEST = {
       }
     }
     throw new Error('All login endpoints failed');
+  },
+  async tryLoginVariants(identifier, password) {
+    const endpoints = [API_CONFIG.endpoints.login, '/api/login', '/api/auth/login', '/api/admins/login', '/api/students/login'];
+    const payloads = [
+      { email: identifier, password },
+      { username: identifier, password },
+      { identifier, password },
+    ];
+    for (const ep of endpoints) {
+      for (const body of payloads) {
+        try {
+          console.log('[TEST] login via', ep, 'with keys', Object.keys(body));
+          const res = await safeFetch(ep, { method: 'POST', body });
+          return { ok: true, endpoint: ep, payloadKeys: Object.keys(body), res };
+        } catch (e) {
+          console.warn('[TEST] failed', ep, 'keys', Object.keys(body), e.message);
+        }
+      }
+    }
+    throw new Error('All login endpoint/payload variants failed');
+  },
+  async tryAdminLoginCode(payload) {
+    const candidates = [
+      '/api/admins/login-code',
+      '/api/admins/login',
+      '/api/admin/login-code',
+      '/api/auth/admin/login-code',
+      '/api/auth/admin/login',
+    ];
+    for (const ep of candidates) {
+      try {
+        console.log('[TEST] admin login-code via', ep);
+        const res = await safeFetch(ep, { method: 'POST', body: payload });
+        return { ok: true, endpoint: ep, res };
+      } catch (e) {
+        console.warn('[TEST] failed', ep, e.message);
+      }
+    }
+    throw new Error('All admin login-code endpoints failed');
+  },
+  async tryAdminLoginCodeVariants(basePayload) {
+    const endpoints = [
+      '/api/admins/login-code',
+      '/api/admins/login',
+      '/api/admin/login-code',
+      '/api/auth/admin/login-code',
+      '/api/auth/admin/login',
+    ];
+    const nameKeys = ['name', 'fullName', 'username'];
+    const regKeys = ['regNumber', 'registrationNumber', 'reg_no', 'reg'];
+    const codeKeys = ['adminCode', 'code', 'otp'];
+    const variants = [];
+    for (const nk of nameKeys) {
+      for (const rk of regKeys) {
+        for (const ck of codeKeys) {
+          variants.push(({ name, regNumber, adminCode }) => ({ [nk]: name, [rk]: regNumber, [ck]: adminCode }));
+          variants.push(({ name, regNumber, adminCode }) => ({ [nk]: name, [rk]: regNumber, [ck]: adminCode, role: 'admin' }));
+        }
+      }
+    }
+    for (const ep of endpoints) {
+      for (const build of variants) {
+        const body = build({
+          name: basePayload.name,
+          regNumber: basePayload.regNumber,
+          adminCode: basePayload.adminCode,
+        });
+        try {
+          console.log('[TEST] admin login-code variants via', ep, 'keys', Object.keys(body));
+          const res = await safeFetch(ep, { method: 'POST', body });
+          return { ok: true, endpoint: ep, payloadKeys: Object.keys(body), res };
+        } catch (e) {
+          console.warn('[TEST] failed', ep, 'keys', Object.keys(body), e.message);
+        }
+      }
+    }
+    throw new Error('All admin login-code variant attempts failed');
   }
 };

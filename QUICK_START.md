@@ -17,7 +17,7 @@ npm start
 
 ### 3. Open in Browser
 ```
-http://localhost:5000/public/forgot-password.html
+http://localhost:5000/docs/forgot-password.html
 ```
 
 ---
@@ -87,7 +87,7 @@ backend/
 ├── utils/sendEmail.js            ← Email sender
 └── server.js                     ← Route registration
 
-public/
+docs/
 └── forgot-password.html          ← Complete UI
 ```
 

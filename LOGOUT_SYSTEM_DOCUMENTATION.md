@@ -214,7 +214,7 @@ Complete authentication and session management system with logout functionality 
 if (user.role !== 'admin') {
   alert('Access denied. This page is for administrators only.');
   localStorage.removeItem('userData');
-  window.location.href = '../public/login.html';
+  window.location.href = '../docs/login.html';
 }
 ```
 
@@ -224,7 +224,7 @@ if (user.role !== 'admin') {
 function checkAuthentication() {
   const userData = localStorage.getItem('userData');
   if (!userData) {
-    window.location.href = '../public/login.html';
+    window.location.href = '../docs/login.html';
   }
 }
 ```
@@ -234,7 +234,7 @@ function checkAuthentication() {
 // Logout in one tab = logout in all tabs
 window.addEventListener('storage', function(e) {
   if (e.key === 'userData' && !e.newValue) {
-    window.location.href = '../public/login.html';
+    window.location.href = '../docs/index.html';
   }
 });
 ```

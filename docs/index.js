@@ -11,7 +11,7 @@
    =========================================================== */
 
 // Replace static import with dynamic import to avoid "import outside module" errors
-let API, safeFetch, apiPing, API_TEST;
+let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBase;
 (async function initApi() {
   try {
     const mod = await import('./api.js');
@@ -19,6 +19,9 @@ let API, safeFetch, apiPing, API_TEST;
     safeFetch = mod.safeFetch;
     apiPing = mod.apiPing;
     API_TEST = mod.API_TEST;
+    forceProdBase = mod.forceProdBase;
+    isDevLocalBase = mod.isDevLocalBase;
+    currentBase = mod.currentBase;
   } catch (e) {
     console.error('Failed to load API module:', e);
     alert('Failed to initialize API module. Check console for details.');
@@ -170,7 +173,9 @@ let API, safeFetch, apiPing, API_TEST;
       const studentFields = document.getElementById('student-fields');
       const adminFields = document.getElementById('admin-fields');
       const yearInput = document.getElementById('year');
-      const adminCodeInput = document.getElementById('adminCode');
+      const regNumberInput = document.getElementById('regnumber');
+      const passwordInput = document.getElementById('password');
+      const passwordLabel = document.getElementById('password-label');
 
       // Utility: toggle required/disabled for all inputs in a container
       function setInputsState(container, { required, disabled }) {
@@ -193,18 +198,20 @@ let API, safeFetch, apiPing, API_TEST;
         setInputsState(adminFields,   { required: !isStudent, disabled: isStudent });
 
         // Explicitly handle known fields
-        if (yearInput) {
-          yearInput.required = isStudent;
-          yearInput.disabled = !isStudent;
-        }
-        if (adminCodeInput) {
-          adminCodeInput.required = !isStudent;
-          adminCodeInput.disabled = isStudent;
-          // Ensure focusable when required
-          if (!isStudent) {
-            adminCodeInput.tabIndex = 0;
+        if (yearInput) { yearInput.required = true; yearInput.disabled = false; }
+        if (regNumberInput) { regNumberInput.required = true; regNumberInput.disabled = false; }
+        // Admins don't use password; students do
+        if (passwordInput && passwordLabel) {
+          if (isStudent) {
+            passwordInput.required = true;
+            passwordInput.disabled = false;
+            passwordInput.style.display = '';
+            passwordLabel.style.display = '';
           } else {
-            adminCodeInput.removeAttribute('tabindex');
+            passwordInput.required = false;
+            passwordInput.disabled = true;
+            passwordInput.style.display = 'none';
+            passwordLabel.style.display = 'none';
           }
         }
       }
@@ -235,24 +242,55 @@ let API, safeFetch, apiPing, API_TEST;
             endpoint = '/api/students/register';
             payload = { name: fullName, email, password, year };
           } else {
-            const adminCode = (document.getElementById('adminCode')?.value || '').trim();
-            // Guard for hidden/disabled or empty adminCode
-            if (!adminCode || (adminCodeInput && (adminCodeInput.disabled || adminCodeInput.offsetParent === null))) {
-              alert('Please select an admin code from the dropdown');
-              if (adminFields) {
-                adminFields.style.display = 'block'; // ensure visible
-                setInputsState(adminFields, { required: true, disabled: false });
-                if (adminCodeInput) adminCodeInput.focus();
-              }
+            const regNumber = regNumberInput?.value?.trim() || '';
+            const yearRaw = (yearInput?.value || '0');
+            const year = parseInt(yearRaw, 10);
+            if (!regNumber || !year) {
+              alert('Please provide registration number and year of study');
               return;
             }
-            endpoint = '/api/admins/register';
-            payload = { username: fullName, email, password, adminCode };
+            endpoint = '/api/admins/register-code';
+            payload = { name: fullName, email, regNumber, year };
           }
 
-          const result = await safeFetch(endpoint, { method: 'POST', body: payload });
+          let result;
+          if (role === 'student') {
+            result = await safeFetch(endpoint, { method: 'POST', body: payload });
+          } else {
+            try {
+              result = await safeFetch(endpoint, { method: 'POST', body: payload });
+            } catch (e) {
+              console.warn('Primary admin register-code failed, probing alternatives...', e.message);
+              if (API_TEST?.tryAdminRegisterCodeVariants) {
+                const probe = await API_TEST.tryAdminRegisterCodeVariants(payload);
+                result = probe?.res || probe;
+              } else if (API_TEST?.tryAdminRegisterCode) {
+                const probe = await API_TEST.tryAdminRegisterCode(payload);
+                result = probe?.res || probe;
+              } else {
+                throw e;
+              }
+              // If still not found and on local dev base, offer auto-switch to prod
+              if (!result && typeof isDevLocalBase === 'function' && isDevLocalBase()) {
+                const ok = confirm('Admin registration endpoints are missing locally. Switch to hosted backend and retry?');
+                if (ok && typeof forceProdBase === 'function') {
+                  const before = currentBase && currentBase();
+                  forceProdBase();
+                  console.info('Retrying admin register-code on new base');
+                  try {
+                    result = await safeFetch('/api/admins/register-code', { method: 'POST', body: payload });
+                  } catch (e2) {
+                    console.error('Retry on hosted backend failed:', e2);
+                    throw e2;
+                  }
+                  const after = currentBase && currentBase();
+                  console.info('API base switched', { before, after });
+                }
+              }
+            }
+          }
 
-          alert(result.message || 'Registration successful!');
+          alert(result.message || (role === 'admin' ? 'Registration successful! Admin code sent to your email.' : 'Registration successful!'));
           registrationForm.reset();
           // Reapply role requirements after reset
           applyRoleRequirements((document.querySelector('input[name="role"]:checked')?.value || 'student').toLowerCase());
@@ -270,15 +308,50 @@ let API, safeFetch, apiPing, API_TEST;
     // ================= Unified Login =================
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
+      // Role toggle for login
+      const loginRoleRadios = document.querySelectorAll('input[name="loginRole"]');
+      const studentLoginFields = document.getElementById('student-login-fields');
+      const adminLoginFields = document.getElementById('admin-login-fields');
+      function applyLoginRole(role){
+        const isStudent = role === 'student';
+        if (studentLoginFields) studentLoginFields.style.display = isStudent ? 'block' : 'none';
+        if (adminLoginFields) adminLoginFields.style.display = isStudent ? 'none' : 'block';
+        // Required toggles
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const loginFullname = document.getElementById('loginFullname');
+        const loginRegNumber = document.getElementById('loginRegNumber');
+        const loginAdminCode = document.getElementById('loginAdminCode');
+        if (email) email.required = isStudent;
+        if (password) password.required = isStudent;
+        if (loginFullname) loginFullname.required = !isStudent;
+        if (loginRegNumber) loginRegNumber.required = !isStudent;
+        if (loginAdminCode) loginAdminCode.required = !isStudent;
+      }
+      const initialLoginRole = (document.querySelector('input[name="loginRole"]:checked')?.value || 'student').toLowerCase();
+      applyLoginRole(initialLoginRole);
+      loginRoleRadios.forEach(r => r.addEventListener('change', () => applyLoginRole(r.value.toLowerCase())));
+
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const email = document.getElementById('email')?.value.trim();
+        const role = (document.querySelector('input[name="loginRole"]:checked')?.value || 'student').toLowerCase();
+        const email = document.getElementById('email')?.value?.trim();
         const password = document.getElementById('password')?.value;
+        const loginFullname = document.getElementById('loginFullname')?.value?.trim();
+        const loginRegNumber = document.getElementById('loginRegNumber')?.value?.trim();
+        const loginAdminCode = document.getElementById('loginAdminCode')?.value?.trim();
 
-        if (!email || !password) {
-          alert('Please enter both email and password');
-          return;
+        if (role === 'student') {
+          if (!email || !password) {
+            alert('Please enter both email and password');
+            return;
+          }
+        } else {
+          if (!loginFullname || !loginRegNumber || !loginAdminCode) {
+            alert('Please enter full name, registration number, and admin code');
+            return;
+          }
         }
 
         const submitBtn = loginForm.querySelector('button[type="submit"]');
@@ -287,10 +360,56 @@ let API, safeFetch, apiPing, API_TEST;
         submitBtn.disabled = true;
 
         try {
-          const data = await safeFetch('/api/login', {
-            method: 'POST',
-            body: { email, password }
-          });
+          let data;
+          if (role === 'student') {
+            // Try multiple endpoints/payloads to match backend
+            let result;
+            if (API_TEST?.tryLoginVariants) {
+              result = await API_TEST.tryLoginVariants(email, password);
+            } else {
+              result = await API_TEST.tryLogin(email, password);
+            }
+            data = result?.res || result;
+          } else {
+            // Admin code login (passwordless) with endpoint probing
+            try {
+              data = await safeFetch('/api/admins/login-code', {
+                method: 'POST',
+                body: { regNumber: loginRegNumber, name: loginFullname, adminCode: loginAdminCode }
+              });
+            } catch (e) {
+              console.warn('Primary admin login-code failed, probing alternatives...', e.message);
+              if (API_TEST?.tryAdminLoginCodeVariants) {
+                const probe = await API_TEST.tryAdminLoginCodeVariants({ regNumber: loginRegNumber, name: loginFullname, adminCode: loginAdminCode });
+                data = probe?.res || probe;
+              } else if (API_TEST?.tryAdminLoginCode) {
+                const probe = await API_TEST.tryAdminLoginCode({ regNumber: loginRegNumber, name: loginFullname, adminCode: loginAdminCode });
+                data = probe?.res || probe;
+              } else {
+                throw e;
+              }
+              // If still not found and on local dev base, offer auto-switch to prod
+              if (!data && typeof isDevLocalBase === 'function' && isDevLocalBase()) {
+                const ok = confirm('Admin login endpoints are missing locally. Switch to hosted backend and retry?');
+                if (ok && typeof forceProdBase === 'function') {
+                  const before = currentBase && currentBase();
+                  forceProdBase();
+                  console.info('Retrying admin login-code on new base');
+                  try {
+                    data = await safeFetch('/api/admins/login-code', {
+                      method: 'POST',
+                      body: { regNumber: loginRegNumber, name: loginFullname, adminCode: loginAdminCode }
+                    });
+                  } catch (e2) {
+                    console.error('Retry on hosted backend failed:', e2);
+                    throw e2;
+                  }
+                  const after = currentBase && currentBase();
+                  console.info('API base switched', { before, after });
+                }
+              }
+            }
+          }
 
           submitBtn.textContent = originalBtnText;
           submitBtn.disabled = false;
@@ -298,8 +417,8 @@ let API, safeFetch, apiPing, API_TEST;
           if (data.role) {
             const userData = {
               userId: data.userId,
-              email: data.email,
-              name: data.name || data.username || '',
+              email: data.email || '',
+              name: data.name || data.username || loginFullname || '',
               username: data.username || '',
               role: data.role,
               loginTime: new Date().toISOString()
@@ -314,7 +433,7 @@ let API, safeFetch, apiPing, API_TEST;
               throw new Error('Unknown user role');
             }
           } else {
-            alert(data.error || data.message || 'Login failed. Please try again.');
+            alert(data?.error || data?.message || 'Login failed. Please try again.');
           }
         } catch (error) {
           console.error('Login error:', error);
@@ -338,10 +457,11 @@ let API, safeFetch, apiPing, API_TEST;
       if (userData) {
         try {
           const user = JSON.parse(userData);
-          console.log('Existing session found:', user.email);
+          console.log('Existing session found:', user.email || user.name || user.username || '');
           
           // Ask user if they want to continue with existing session
-          const continueSession = confirm(`You're already logged in as ${user.email}. Continue to dashboard?`);
+          const who = user.name || user.username || user.email || 'your account';
+          const continueSession = confirm(`You're already logged in as ${who}. Continue to dashboard?`);
           
           if (continueSession) {
             if (user.role === 'admin') {
@@ -558,6 +678,41 @@ let API, safeFetch, apiPing, API_TEST;
     const loadedSlides = await preloadImages(slides);
     // Fallback: if none loaded (e.g., still decoding), keep originals
     setActiveSlides(loadedSlides.length ? loadedSlides : slides);
+
+    // If fewer than 2 slides are usable, rebuild from fallback images that exist in repo
+    if (activeSlides.length < 2) {
+      const container = document.querySelector('.slideshow-container');
+      const fallbackPaths = [
+        'images/image 9.jpg',
+        'images/image 6.jpg',
+        'images/image 7.jpg',
+        'images/image 5.jpg',
+        'images/ICES-BRAND-ID.jpg',
+        'images/ices web 1.jpg'
+      ];
+      // Try to create slides only for images that load
+      const created = await Promise.all(fallbackPaths.map(src => new Promise(resolve => {
+        const probe = new Image();
+        probe.onload = () => {
+          const slide = document.createElement('div');
+          slide.className = 'slide fade';
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = 'Slide image';
+          slide.appendChild(img);
+          resolve(slide);
+        };
+        probe.onerror = () => resolve(null);
+        probe.src = src;
+      })));
+      const validSlides = created.filter(Boolean);
+      if (validSlides.length >= 2 && container) {
+        // Replace container children with valid fallback slides
+        container.innerHTML = '';
+        validSlides.forEach(s => container.appendChild(s));
+        setActiveSlides(validSlides);
+      }
+    }
     slideIndex = 0;
     renderSlide(slideIndex);
     clearInterval(slideInterval);
@@ -567,14 +722,7 @@ let API, safeFetch, apiPing, API_TEST;
   // Start on window load
   window.addEventListener('load', () => {
     startSlideshowClean();
-    const container = document.querySelector('.slideshow-container');
-    if (container) {
-      container.addEventListener('mouseenter', () => clearInterval(slideInterval));
-      container.addEventListener('mouseleave', () => {
-        clearInterval(slideInterval);
-        slideInterval = setInterval(nextSlide, 8000);
-      });
-    }
+    // Remove hover-pause to avoid accidental permanent pause
   });
   // ===== END NEW SLIDESHOW =====
   /* ===============Registartion form validation================= */
@@ -598,41 +746,94 @@ let API, safeFetch, apiPing, API_TEST;
 
   // Removed duplicate role toggler to avoid conflicts with applyRoleRequirements
 
-  // Expose TEST_API only after API is ready
+  // Expose TEST_API only after API is ready (updated for code-based admin flow)
   window.TEST_API = {
-    adminRegister: async ({ username, email, password, adminCode }) => {
-      if (!username || !email || !password || !adminCode) {
-        alert('Provide username, email, password, and adminCode');
+    adminRegister: async ({ name, email, regNumber, year }) => {
+      if (!name || !email || !regNumber || !year) {
+        alert('Provide name, email, registration number, and year');
         return;
       }
       try {
-        console.log('Registering admin...');
-        const res = await API_TEST.tryAdminRegister({ username, email, password, adminCode });
-        console.log('Admin register response:', res);
-        alert(res.res?.message || 'Admin registration successful');
+        console.log('Registering admin (code flow)...');
+        let res;
+        try {
+          res = await safeFetch('/api/admins/register-code', {
+            method: 'POST',
+            body: { name, email, regNumber, year: Number(year) || 0 }
+          });
+        } catch (e) {
+          console.warn('Primary admin register-code failed, probing alternatives...', e.message);
+          if (API_TEST?.tryAdminRegisterCodeVariants) {
+            const probe = await API_TEST.tryAdminRegisterCodeVariants({ name, email, regNumber, year: Number(year) || 0 });
+            res = probe?.res || probe;
+          } else if (API_TEST?.tryAdminRegisterCode) {
+            const probe = await API_TEST.tryAdminRegisterCode({ name, email, regNumber, year: Number(year) || 0 });
+            res = probe?.res || probe;
+          } else {
+            throw e;
+          }
+          if (!res && typeof isDevLocalBase === 'function' && isDevLocalBase()) {
+            const ok = confirm('Admin endpoints not found locally. Switch to hosted backend and retry?');
+            if (ok && typeof forceProdBase === 'function') {
+              forceProdBase();
+              res = await safeFetch('/api/admins/register-code', {
+                method: 'POST',
+                body: { name, email, regNumber, year: Number(year) || 0 }
+              });
+            }
+          }
+        }
+        console.log('Admin register-code response:', res);
+        alert(res.message || 'Admin registration successful; code emailed');
         return res;
       } catch (err) {
-        console.error('Admin registration failed:', err);
+        console.error('Admin registration (code) failed:', err);
         alert('Admin registration failed. See console for details.');
         throw err;
       }
     },
-    adminLogin: async (email, password) => {
-      if (!email || !password) {
-        alert('Provide email and password');
+    adminLoginCode: async ({ regNumber, name, adminCode }) => {
+      if (!regNumber || !name || !adminCode) {
+        alert('Provide registration number, full name, and admin code');
         return;
       }
       try {
-        console.log('Logging in admin...');
-        const result = await API_TEST.tryLogin(email, password);
-        const data = result.res;
-        console.log('Admin login response via', result.endpoint, data);
+        console.log('Logging in admin (code flow)...');
+        let data;
+        try {
+          data = await safeFetch('/api/admins/login-code', {
+            method: 'POST',
+            body: { regNumber, name, adminCode }
+          });
+        } catch (e) {
+          console.warn('Primary admin login-code failed, probing alternatives...', e.message);
+          if (API_TEST?.tryAdminLoginCodeVariants) {
+            const probe = await API_TEST.tryAdminLoginCodeVariants({ regNumber, name, adminCode });
+            data = probe?.res || probe;
+          } else if (API_TEST?.tryAdminLoginCode) {
+            const probe = await API_TEST.tryAdminLoginCode({ regNumber, name, adminCode });
+            data = probe?.res || probe;
+          } else {
+            throw e;
+          }
+          if (!data && typeof isDevLocalBase === 'function' && isDevLocalBase()) {
+            const ok = confirm('Admin endpoints not found locally. Switch to hosted backend and retry?');
+            if (ok && typeof forceProdBase === 'function') {
+              forceProdBase();
+              data = await safeFetch('/api/admins/login-code', {
+                method: 'POST',
+                body: { regNumber, name, adminCode }
+              });
+            }
+          }
+        }
+        console.log('Admin login-code response:', data);
 
         if (data.role === 'admin') {
           const userData = {
             userId: data.userId,
             email: data.email,
-            name: data.name || data.username || '',
+            name: data.name || '',
             role: data.role,
             loginTime: new Date().toISOString()
           };
@@ -644,7 +845,7 @@ let API, safeFetch, apiPing, API_TEST;
         }
         return data;
       } catch (err) {
-        console.error('Admin login failed:', err);
+        console.error('Admin login (code) failed:', err);
         alert('Admin login failed. See console for details.');
         throw err;
       }

@@ -65,16 +65,18 @@ let API, safeFetch, apiPing, API_TEST;
     let touchEndX = 0;
     
     function handleGesture() {
-      const slides = document.getElementsByClassName("slide");
+      const slides = document.getElementsByClassName('slide');
+      if (!slides.length) return;
+      // Use 0-based indexing consistently
       if (touchEndX < touchStartX && touchStartX - touchEndX > 50) {
         // Swipe left - next slide
-        slideIndex = (slideIndex % slides.length) + 1;
+        slideIndex = (slideIndex + 1) % slides.length;
       }
       if (touchEndX > touchStartX && touchEndX - touchStartX > 50) {
         // Swipe right - previous slide
-        slideIndex = slideIndex <= 1 ? slides.length : slideIndex - 1;
+        slideIndex = (slideIndex - 1 + slides.length) % slides.length;
       }
-      showSlides();
+      renderSlide(slideIndex);
     }
 
     if (slideshowContainer) {
@@ -507,38 +509,62 @@ let API, safeFetch, apiPing, API_TEST;
 
   }); // End onReady
 
-  // ===== SLIDESHOW FUNCTIONALITY =====
+  // ===== NEW SLIDESHOW (Clean Implementation) =====
   let slideIndex = 0;
   let slideInterval;
+  let activeSlides = [];
+
+  function collectSlides() {
+    const container = document.querySelector('.slideshow-container');
+    if (!container) return [];
+    // Only direct children to avoid accidental nesting
+    return Array.from(container.children).filter(el => el.classList.contains('slide'));
+  }
+
+  function setActiveSlides(slides) {
+    activeSlides = slides;
+  }
 
   function renderSlide(index) {
-    const slides = document.querySelectorAll('.slide');
-    slides.forEach(s => s.classList.remove('active'));
-    if (slides.length > 0) {
-      const i = ((index % slides.length) + slides.length) % slides.length;
-      slides[i].classList.add('active');
-    }
+    if (!activeSlides.length) return;
+    activeSlides.forEach(s => s.classList.remove('active'));
+    const i = ((index % activeSlides.length) + activeSlides.length) % activeSlides.length;
+    activeSlides[i].classList.add('active');
   }
 
   function nextSlide() {
-    const slides = document.querySelectorAll('.slide');
-    if (slides.length <= 1) return; // nothing to rotate
-    slideIndex = (slideIndex + 1) % slides.length;
+    if (activeSlides.length <= 1) return;
+    slideIndex = (slideIndex + 1) % activeSlides.length;
     renderSlide(slideIndex);
   }
 
-  function startSlideshow() {
-    const slides = document.querySelectorAll('.slide');
+  async function preloadImages(slides) {
+    const results = await Promise.all(slides.map(slide => new Promise(resolve => {
+      const img = slide.querySelector('img');
+      if (!img) return resolve({ slide, ok: false });
+      if (img.complete) return resolve({ slide, ok: true });
+      img.addEventListener('load', () => resolve({ slide, ok: true }), { once: true });
+      img.addEventListener('error', () => resolve({ slide, ok: false }), { once: true });
+    })));
+    return results.filter(r => r.ok).map(r => r.slide);
+  }
+
+  async function startSlideshowClean() {
+    const slides = collectSlides();
     if (!slides.length) return;
+
+    const loadedSlides = await preloadImages(slides);
+    // Fallback: if none loaded (e.g., still decoding), keep originals
+    setActiveSlides(loadedSlides.length ? loadedSlides : slides);
     slideIndex = 0;
     renderSlide(slideIndex);
     clearInterval(slideInterval);
-    slideInterval = setInterval(nextSlide, 8000); // 8s cadence per request
+    slideInterval = setInterval(nextSlide, 8000);
   }
 
-  // Ensure DOM and images are present before starting
+  // Start on window load
   window.addEventListener('load', () => {
-    startSlideshow();
+    startSlideshowClean();
     const container = document.querySelector('.slideshow-container');
     if (container) {
       container.addEventListener('mouseenter', () => clearInterval(slideInterval));
@@ -548,8 +574,7 @@ let API, safeFetch, apiPing, API_TEST;
       });
     }
   });
-
-  // ===== END SLIDESHOW FUNCTIONALITY =====
+  // ===== END NEW SLIDESHOW =====
   /* ===============Registartion form validation================= */
   function validateRegistrationForm() {
     const password = document.getElementById("password").value;

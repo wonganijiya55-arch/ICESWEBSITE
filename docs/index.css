@@ -13,7 +13,7 @@
   margin-top: 30vh;; /* Account for larger fixed navbar */
   display: block;
   position: relative;
-  z-index: 999;
+  z-index: 1; /* Keep below slideshow */
 }
 
 .welcome-section h1 {
@@ -208,6 +208,7 @@ header p {
   overflow: hidden;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 2; /* Ensure slideshow is visible above welcome section */
 }
 
 .slide {

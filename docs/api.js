@@ -123,7 +123,10 @@ export async function safeFetch(path, options = {}) {
     if (!res.ok) {
       const msg = typeof data === 'string' ? data : (data?.message || data?.error || res.statusText);
       console.error('API error:', { url, status: res.status, msg, data });
-      throw new Error(msg || `HTTP ${res.status}`);
+      const err = new Error(msg || `HTTP ${res.status}`);
+      err.data = data;
+      err.status = res.status;
+      throw err;
     }
     return data;
   } catch (err) {

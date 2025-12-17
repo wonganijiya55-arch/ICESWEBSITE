@@ -466,9 +466,11 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             const basePath = baseMatch ? baseMatch[1] : '';
             
             if (data.role === 'admin') {
-              window.location.href = data.redirect || basePath + '/dashboards/admin.html';
+              // On GitHub Pages, only /docs is served; redirect to admin dashboard within docs
+              window.location.href = data.redirect || basePath + '/docs/dashboards/admin.html';
             } else if (data.role === 'student') {
-              window.location.href = data.redirect || basePath + '/dashboards/students.html';
+              // Redirect to student dashboard within docs
+              window.location.href = data.redirect || basePath + '/docs/dashboards/students.html';
             } else {
               throw new Error('Unknown user role');
             }
@@ -510,9 +512,9 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             const basePath = baseMatch ? baseMatch[1] : '';
             
             if (user.role === 'admin') {
-              window.location.href = basePath + '/dashboards/admin.html';
+              window.location.href = basePath + '/docs/dashboards/admin.html';
             } else if (user.role === 'student') {
-              window.location.href = basePath + '/dashboards/students.html';
+              window.location.href = basePath + '/docs/dashboards/students.html';
             }
           } else {
             // User wants to login with different account

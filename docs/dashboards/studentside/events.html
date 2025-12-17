@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ICES Admin – Payment Records</title>
-    <link rel="stylesheet" href="../Logged in.css">
+  <title>ICES Events</title>
+  <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="../Logged in.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
   <nav class="navbar">
     <div class="nav-container">
-      <a href="../admin.html" class="logo">
-        <img src="../images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
+      <a href="../students.html" class="logo">
+        <img src="../../images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
       </a>
       <ul class="nav-links">
-        <li><a href="../admin.html">Dashboard</a></li>
-        <li><a href="studentrecords.html">Student Records</a></li>
-        <li><a href="paymentsdata.html" class="active">Payments</a></li>
-        <li><a href="updatevents.html">Manage Events</a></li>
+        <li><a href="../students.html">Home</a></li>
+        <li><a href="../../innovations.html">Innovations</a></li>
+        <li><a href="events.html" class="active">Events</a></li>
+        <li><a href="payments.html">Payments</a></li>
+        <li><a href="support.html">Support</a></li>
+        <li><a href="../profile.html">Profile</a></li>
       </ul>
-      <!-- User Section: Shows logged-in admin's name and logout button -->
       <div class="user-section" id="userSection">
         <span class="user-name" id="userName">Loading...</span>
         <button class="logout-btn" id="logoutBtn" title="Logout">
@@ -33,47 +35,37 @@
   </nav>
 
   <section class="container page-section">
-    <h1 class="section-title">Payment Records</h1>
-    <p class="section-lead">Monitor all membership and event payments in real-time. Search, filter, and export data for auditing.</p>
-
-    <div class="admin-toolbar">
-      <input type="text" id="paymentSearch" class="form-control search-input" placeholder="Search by student or purpose...">
-      <button id="exportPayments" class="btn-secondary"><i class="fas fa-download"></i> Export CSV</button>
-    </div>
-
-    <div class="table-wrapper">
-      <table id="paymentDataTable" class="data-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Student</th>
-            <th>Purpose</th>
-            <th>Amount</th>
-            <th>Method</th>
-            <th>Date</th>
-              <th>Proof</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td colspan="7" style="text-align:center; color:#5a5a66;">Loading payment records...</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <h1 class="section-title">Register for an Event</h1>
+    <p class="section-lead">Select an upcoming ICES event below and confirm your registration. Your profile already contains your personal details, so we only need your event choice.</p>
+    <form id="eventRegistrationForm" class="card-form">
+      <label for="eventSelect" class="form-label">Choose Event</label>
+      <select id="eventSelect" required class="form-control">
+        <option value="" disabled selected>Select an event</option>
+        <option value="infrastructure_innovation_forum">Infrastructure Innovation Forum</option>
+        <option value="sustainable_materials_workshop">Sustainable Materials Workshop</option>
+        <option value="bridge_design_challenge">Bridge Design Challenge</option>
+        <option value="geotech_field_day">Geotech Field Day</option>
+      </select>
+      <button type="submit" class="btn-primary">Register</button>
+      <p id="eventSuccess" class="form-success">Registration recorded! (Demo)</p>
+    </form>
   </section>
 
   <footer class="footer">
-    <div class="footer-content">
+     <div class="footer-content">
       <div class="footer-logo-section">
-        <img src="../images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+        <img src="../../images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
         <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
       </div>
       <div class="footer-links">
         <h3>Quick Links</h3>
         <ul>
-          <li><a href="../admin.html">Admin Dashboard</a></li>
-          <li><a href="studentrecords.html">Student Records</a></li>
-          <li><a href="paymentsdata.html">Payments</a></li>
-          <li><a href="updatevents.html">Manage Events</a></li>
+          <li><a href="../students.html">Dashboard Home</a></li>
+          <li><a href="../../innovations.html">Innovations</a></li>
+          <li><a href="events.html">Events</a></li>
+          <li><a href="payments.html">Payments</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="../profile.html">Profile</a></li>
         </ul>
       </div>
       <div class="footer-social">
@@ -101,7 +93,6 @@
     </div>
   </footer>
 
-  <script src="admin.js"></script>
   <script src="../logged in.js"></script>
 </body>
 </html>

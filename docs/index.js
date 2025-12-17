@@ -224,6 +224,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
         radio.addEventListener('change', () => applyRoleRequirements(radio.value.toLowerCase()));
       });
 
+      /* === Updated registration form submit handler (replace the existing handler block) === */
       registrationForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -232,104 +233,70 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
         const email = document.getElementById('email')?.value?.trim() || '';
         const password = document.getElementById('password')?.value || '';
 
-        // find the submit button (works even if markup changes)
-        const submitBtn = registrationForm.querySelector('button[type="submit"]') || document.querySelector('#registrationSubmit');
-        const prevBtnText = submitBtn ? (submitBtn.textContent || submitBtn.innerText) : null;
-
         try {
           let endpoint = '';
           let payload = {};
 
           if (role === 'student') {
-            if (submitBtn) {
-              submitBtn.disabled = true;
-              try {
-                submitBtn.textContent = 'Registering...';
-              } catch (e) {}
-            }
-
             const yearRaw = (document.getElementById('year')?.value || '0');
             const year = parseInt(yearRaw, 10);
             endpoint = '/api/students/register';
             payload = { name: fullName, email, password, year };
-
-            const result = await safeFetch(endpoint, { method: 'POST', body: payload });
-
-            alert(result.message || 'Registration successful!');
-            registrationForm.reset();
-            applyRoleRequirements((document.querySelector('input[name="role"]:checked')?.value || 'student').toLowerCase());
-
-            if (confirm('Registration successful! Click OK to proceed to login page.')) {
-              window.location.href = 'login.html';
-            }
           } else {
-            // Admin registration flow with improved UX and error handling
-            if (submitBtn) {
-              submitBtn.disabled = true;
-              try {
-                submitBtn.textContent = 'Registering...';
-              } catch (e) {}
+            const regNumber = regNumberInput?.value?.trim() || '';
+            const yearRaw = (yearInput?.value || '0');
+            const year = parseInt(yearRaw, 10);
+            if (!regNumber || !year) {
+              alert('Please provide registration number and year of study');
+              return;
             }
+            // Use canonical backend keys: name, email, regNumber, year
+            endpoint = '/api/admins/register-code';
+            payload = { name: fullName, email, regNumber, year };
+          }
 
+          // Find submit button and set busy state
+          const submitBtn = registrationForm.querySelector('button[type="submit"]') || document.querySelector('#registrationSubmit');
+          const prevBtnText = submitBtn ? (submitBtn.textContent || submitBtn.innerText) : null;
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            try { submitBtn.textContent = 'Registering...'; } catch (e) { /* ignore DOM write errors */ }
+          }
+
+          let result;
+          if (role === 'student') {
+            result = await safeFetch(endpoint, { method: 'POST', body: payload });
+          } else {
             try {
-              const regNumber = regNumberInput?.value?.trim() || '';
-              const yearRaw = (yearInput?.value || '0');
-              const year = parseInt(yearRaw, 10);
-              if (!regNumber || !year) {
-                alert('Please provide registration number and year of study');
-                return;
-              }
-              endpoint = '/api/admins/register-code';
-              // IMPORTANT: use the canonical key names the backend validates: name, email, regNumber, year
-              payload = { name: fullName, email, regNumber, year };
-
-              let result;
-              try {
-                result = await safeFetch(endpoint, { method: 'POST', body: payload });
-              } catch (e) {
-                console.warn('Primary admin register-code failed, probing alternatives...', e.message);
-                // If probing tools are present, pass the canonical payload to them
-                if (API_TEST?.tryAdminRegisterCodeVariants) {
-                  const probe = await API_TEST.tryAdminRegisterCodeVariants(payload);
-                  result = probe?.res || probe;
-                } else if (API_TEST?.tryAdminRegisterCode) {
-                  const probe = await API_TEST.tryAdminRegisterCode(payload);
-                  result = probe?.res || probe;
-                } else {
-                  throw e;
-                }
-              }
-
-              alert(result.message || 'Registration successful! Admin code sent to your email.');
-              registrationForm.reset();
-              applyRoleRequirements((document.querySelector('input[name="role"]:checked')?.value || 'student').toLowerCase());
-
-              if (confirm('Registration successful! Click OK to proceed to login page.')) {
-                window.location.href = 'login.html';
-              }
-            } catch (err) {
-              console.error(err);
-              // Show validation errors from server if present
-              const serverErrors = err?.data?.errors || err?.errors || err?.response?.errors;
-              if (serverErrors && serverErrors.length) {
-                alert(serverErrors[0].msg || JSON.stringify(serverErrors));
-              } else if (err?.message) {
-                alert(err.message);
+              // Primary attempt using canonical payload
+              result = await safeFetch(endpoint, { method: 'POST', body: payload });
+            } catch (e) {
+              console.warn('Primary admin register-code failed, probing alternatives...', e.message);
+              // If probing helpers exist, pass canonical payload to them
+              if (API_TEST?.tryAdminRegisterCodeVariants) {
+                const probe = await API_TEST.tryAdminRegisterCodeVariants(payload);
+                result = probe?.res || probe;
+              } else if (API_TEST?.tryAdminRegisterCode) {
+                const probe = await API_TEST.tryAdminRegisterCode(payload);
+                result = probe?.res || probe;
               } else {
-                alert('Error registering. Check console.');
-              }
-            } finally {
-              if (submitBtn) {
-                submitBtn.disabled = false;
-                try {
-                  if (prevBtnText != null) submitBtn.textContent = prevBtnText;
-                } catch (e) {}
+                // rethrow original error if no probes are available
+                throw e;
               }
             }
           }
+
+          alert(result.message || (role === 'admin' ? 'Registration successful! Admin code sent to your email.' : 'Registration successful!'));
+          registrationForm.reset();
+          // Reapply role requirements after reset
+          applyRoleRequirements((document.querySelector('input[name="role"]:checked')?.value || 'student').toLowerCase());
+
+          if (confirm('Registration successful! Click OK to proceed to login page.')) {
+            window.location.href = 'login.html';
+          }
         } catch (err) {
           console.error(err);
-          // Show validation errors from server if present
+          // Prefer server-side validation messages if present
           const serverErrors = err?.data?.errors || err?.errors || err?.response?.errors;
           if (serverErrors && serverErrors.length) {
             alert(serverErrors[0].msg || JSON.stringify(serverErrors));
@@ -339,14 +306,17 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             alert('Error registering. Check console.');
           }
         } finally {
+          // Restore submit button state
+          const submitBtn = registrationForm.querySelector('button[type="submit"]') || document.querySelector('#registrationSubmit');
           if (submitBtn) {
             submitBtn.disabled = false;
             try {
-              if (prevBtnText != null) submitBtn.textContent = prevBtnText;
-            } catch (e) {}
+              if (typeof prevBtnText !== 'undefined' && prevBtnText !== null) submitBtn.textContent = prevBtnText;
+            } catch (e) { /* ignore */ }
           }
         }
       });
+      /* === End updated handler === */
     }
 
     // ================= Unified Login =================

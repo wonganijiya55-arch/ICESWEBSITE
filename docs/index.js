@@ -331,9 +331,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
       if (requestAdminCodeBtn) {
         // Update button visibility based on role
         function updateRequestCodeBtnVisibility(role) {
-          if (requestAdminCodeBtn) {
-            requestAdminCodeBtn.style.display = (role === 'admin') ? 'block' : 'none';
-          }
+          requestAdminCodeBtn.style.display = (role === 'admin') ? 'block' : 'none';
         }
         updateRequestCodeBtnVisibility(initialLoginRole);
         loginRoleRadios.forEach(r => r.addEventListener('change', () => updateRequestCodeBtnVisibility(r.value.toLowerCase())));
@@ -351,7 +349,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
           }
           
           // Prompt for year of study
-          const yearRaw = prompt('Enter your year of study (1, 2, 3, or 4):')?.trim();
+          const yearRaw = prompt('Enter your year of study (1, 2, 3, 4, or 5):')?.trim();
           const year = parseInt(yearRaw || '', 10);
           
           // Validate all required fields

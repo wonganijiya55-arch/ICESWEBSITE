@@ -342,13 +342,26 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
         requestAdminCodeBtn.addEventListener('click', async () => {
           const name = document.getElementById('loginFullname')?.value?.trim();
           const regNumber = document.getElementById('loginRegNumber')?.value?.trim();
-          // For request code, we need email and year too (collect from form or prompt)
-          const email = document.getElementById('email')?.value?.trim() || prompt('Enter your email address:')?.trim();
-          const yearRaw = prompt('Enter your year of study (e.g., 1, 2, 3, 4):')?.trim();
-          const year = parseInt(yearRaw || '0', 10);
-
-          if (!name || !email || !regNumber || !year) {
-            alert('Please provide full name, email, registration number, and year of study');
+          
+          // Prompt for email since it's not visible in admin login form
+          const email = prompt('Enter your email address:')?.trim();
+          if (!email) {
+            alert('Email is required to request admin code');
+            return;
+          }
+          
+          // Prompt for year of study
+          const yearRaw = prompt('Enter your year of study (1, 2, 3, or 4):')?.trim();
+          const year = parseInt(yearRaw || '', 10);
+          
+          // Validate all required fields
+          if (!name || !regNumber) {
+            alert('Please fill in full name and registration number first');
+            return;
+          }
+          
+          if (!yearRaw || isNaN(year) || year < 1 || year > 5) {
+            alert('Please provide a valid year of study (1-5)');
             return;
           }
 

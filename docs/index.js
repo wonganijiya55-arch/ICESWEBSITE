@@ -347,6 +347,12 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             alert('Email is required to request admin code');
             return;
           }
+          // Validate email format
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailPattern.test(email)) {
+            alert('Please enter a valid email address');
+            return;
+          }
           
           // Prompt for year of study
           const yearRaw = prompt('Enter your year of study (1, 2, 3, 4, or 5):')?.trim();

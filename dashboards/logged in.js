@@ -29,18 +29,22 @@
     function resolveDocsPath(fileName){
       try {
         const p = window.location.pathname;
+        // Extract the base path by looking for /dashboards/ or /docs/
         const idxDash = p.indexOf('/dashboards/');
         if (idxDash !== -1) {
           const base = p.substring(0, idxDash);
-          return base + '/docs/' + fileName;
+          // For GitHub Pages, base will be like /ICESWEBSITE or empty for root
+          // Return relative path from dashboards to docs
+          return '../docs/' + fileName;
         }
         const idxDocs = p.indexOf('/docs/');
         if (idxDocs !== -1) {
           const base = p.substring(0, idxDocs);
           return base + '/docs/' + fileName;
         }
-        return '/docs/' + fileName;
-      } catch { return '/docs/' + fileName; }
+        // Fallback: use relative path
+        return '../docs/' + fileName;
+      } catch { return '../docs/' + fileName; }
     }
 
     function checkAuthentication() {

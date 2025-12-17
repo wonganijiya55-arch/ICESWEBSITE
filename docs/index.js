@@ -340,13 +340,14 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
         requestAdminCodeBtn.addEventListener('click', async () => {
           const name = document.getElementById('loginFullname')?.value?.trim();
           const regNumber = document.getElementById('loginRegNumber')?.value?.trim();
+          const email = document.getElementById('loginAdminEmail')?.value?.trim();
           
-          // Prompt for email since it's not visible in admin login form
-          const email = prompt('Enter your email address:')?.trim();
-          if (!email) {
-            alert('Email is required to request admin code');
+          // Validate all required fields
+          if (!name || !regNumber || !email) {
+            alert('Please fill in full name, registration number, and email address');
             return;
           }
+          
           // Validate email format
           const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailPattern.test(email)) {
@@ -358,12 +359,6 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
           const yearRaw = prompt('Enter your year of study (1, 2, 3, 4, or 5):')?.trim();
           const year = parseInt(yearRaw || '', 10);
           
-          // Validate all required fields
-          if (!name || !regNumber) {
-            alert('Please fill in full name and registration number first');
-            return;
-          }
-          
           if (!yearRaw || isNaN(year) || year < 1 || year > 5) {
             alert('Please provide a valid year of study (1-5)');
             return;
@@ -371,21 +366,32 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
 
           const originalBtnText = requestAdminCodeBtn.textContent;
           requestAdminCodeBtn.disabled = true;
-          requestAdminCodeBtn.textContent = 'Requesting...';
+          requestAdminCodeBtn.textContent = 'Sending...';
 
           try {
-            const result = await safeFetch('/api/admins/register-code', {
-              method: 'POST',
-              body: { name, email, regNumber, year }
-            });
-            alert(result.message || 'Admin code request successful! Check your email for the code.');
+            // Try the primary endpoint first, with fallback
+            let result;
+            try {
+              result = await safeFetch('/api/admins/register-code', {
+                method: 'POST',
+                body: { name, email, regNumber, year }
+              });
+            } catch (primaryErr) {
+              console.warn('Primary endpoint failed, trying fallback:', primaryErr);
+              // Fallback to alternate endpoint if available
+              result = await safeFetch('/api/admins/resend-code', {
+                method: 'POST',
+                body: { name, email, regNumber, year }
+              });
+            }
+            alert(result.message || 'Admin code sent successfully! Check your email for the code.');
           } catch (err) {
             console.error('Request admin code error:', err);
             const serverErrors = err?.data?.errors || err?.errors;
             if (serverErrors && serverErrors.length) {
               alert(serverErrors[0].msg || JSON.stringify(serverErrors));
             } else {
-              alert(err.message || 'Failed to request admin code. Please try again.');
+              alert(err.message || 'Failed to send admin code. Please try again.');
             }
           } finally {
             requestAdminCodeBtn.disabled = false;
@@ -454,10 +460,15 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             };
             localStorage.setItem('userData', JSON.stringify(userData));
 
+            // Compute base-aware redirect paths for GitHub Pages compatibility
+            const currentPath = window.location.pathname;
+            const baseMatch = currentPath.match(/^(.*?)\/docs\//);
+            const basePath = baseMatch ? baseMatch[1] : '';
+            
             if (data.role === 'admin') {
-              window.location.href = data.redirect || '../dashboards/admin.html';
+              window.location.href = data.redirect || basePath + '/dashboards/admin.html';
             } else if (data.role === 'student') {
-              window.location.href = data.redirect || '../dashboards/students.html';
+              window.location.href = data.redirect || basePath + '/dashboards/students.html';
             } else {
               throw new Error('Unknown user role');
             }
@@ -493,10 +504,15 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
           const continueSession = confirm(`You're already logged in as ${who}. Continue to dashboard?`);
           
           if (continueSession) {
+            // Compute base-aware redirect paths for GitHub Pages compatibility
+            const currentPath = window.location.pathname;
+            const baseMatch = currentPath.match(/^(.*?)\/docs\//);
+            const basePath = baseMatch ? baseMatch[1] : '';
+            
             if (user.role === 'admin') {
-              window.location.href = '../dashboards/admin.html';
+              window.location.href = basePath + '/dashboards/admin.html';
             } else if (user.role === 'student') {
-              window.location.href = '../dashboards/students.html';
+              window.location.href = basePath + '/dashboards/students.html';
             }
           } else {
             // User wants to login with different account

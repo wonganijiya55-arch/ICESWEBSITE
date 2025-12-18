@@ -3,47 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Innovation in Civil Engineering Society</title>
+  <title>ICES Student Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="Logged in.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
   <nav class="navbar">
     <div class="nav-container">
-      <a href="../index.html" class="logo">
-        <img src="../images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
+      <a href="index.html" class="logo">
+        <img src="images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
       </a>
-
       <ul class="nav-links">
-        <li><a href="students.html">Home</a></li>
-        <li><a href="../innovations.html">Innovations</a></li>
-        <li><a href="studentside/events.html">Events</a></li>
-        <li><a href="studentside/payments.html">Payments</a></li>
-        <li><a href="../support.html">Support</a></li>
+        <li><a href="students.html" class="active">Home</a></li>
+        <li><a href="innovations.html">Innovations</a></li>
+        <li><a href="student-events.html">Events</a></li>
+        <li><a href="student-payments.html">Payments</a></li>
+        <li><a href="student-support.html">Support</a></li>
         <li><a href="profile.html">Profile</a></li>
       </ul>
-
-      <!-- User info and logout section -->
       <div class="user-section">
         <span class="user-name" id="userName">Student</span>
-        <button class="logout-btn" id="logoutBtn">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
       </div>
-
-      <div class="hamburger">
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
+      <div class="hamburger"><div></div><div></div><div></div></div>
     </div>
   </nav>
 
   <div class="welcome-section">
     <h1>Welcome to Student Dashboard</h1>
     <div class="welcome-line"></div>
-    <p>This is your student portal where you can manage your ICES membership and activities. Here you can:</p>
+    <p>Manage your ICES membership and activities: events, payments, community support, and learning resources.</p>
     <ul class="welcome-features">
       <li>Register for upcoming events</li>
       <li>Make membership payments</li>
@@ -53,26 +43,23 @@
     </ul>
   </div>
 
-<!-- ===== FOOTER ===== -->
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-logo-section">
-        <img src="../images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
-        <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
+        <img src="images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+        <p class="footer-description">Innovation in Civil Engineering Society (ICES) fosters excellence and innovation across Malawi.</p>
       </div>
-      
       <div class="footer-links">
         <h3>Quick Links</h3>
         <ul>
           <li><a href="students.html">Home</a></li>
-          <li><a href="../innovations.html">Innovations</a></li>
-          <li><a href="studentside/events.html">Events</a></li>
-          <li><a href="studentside/payments.html">Payments</a></li>
-          <li><a href="../support.html">Support</a></li>
+          <li><a href="innovations.html">Innovations</a></li>
+          <li><a href="student-events.html">Events</a></li>
+          <li><a href="student-payments.html">Payments</a></li>
+          <li><a href="student-support.html">Support</a></li>
           <li><a href="profile.html">Profile</a></li>
         </ul>
       </div>
-
       <div class="footer-social">
         <h3>Connect With Us</h3>
         <div class="social-links">
@@ -97,8 +84,7 @@
       </div>
     </div>
   </footer>
-  
-  <!-- Page scripts -->
+
   <script src="logged in.js"></script>
 </body>
 </html>

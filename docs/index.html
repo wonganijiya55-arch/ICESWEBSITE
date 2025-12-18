@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<body>
+<body class="index-page">
   <nav class="navbar">
     <div class="nav-top">
       <h1>Innovation in Civil Engineering Society</h1>
@@ -21,9 +21,9 @@
       <ul class="nav-links">
         <li><a href="index.html">Home</a></li>
         <li><a href="about.html">About</a></li>
-        <li><a href="department.html">Our Department</a></li>
-        <li><a href="executives.html">Executives</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
         <li><a href="innovations.html">Innovations</a></li>
+        <li><a href="announcements.html">Announcements</a></li>
         <li><a href="register.html">Register</a></li>
         <li><a href="contact.html">Contact</a></li>
       </ul>
@@ -70,19 +70,10 @@
     <div class="glance-grid">
       <article class="glance-card">
         <div class="glance-icon">
-          <i class="fas fa-credit-card"></i>
-        </div>
-        <h3>Payments</h3>
-        <p>Pay membership fees, event tickets and other charges securely.</p>
-        <a href="#" class="glance-link">Go to payments →</a>
-      </article>
-
-      <article class="glance-card">
-        <div class="glance-icon">
           <i class="fas fa-user-plus"></i>
         </div>
         <h3>Registration</h3>
-        <p>Register as a member or sign up for upcoming events.</p>
+        <p>Become a member or sign up for events.</p>
         <a href="register.html" class="glance-link">Register now →</a>
       </article>
 
@@ -91,7 +82,7 @@
           <i class="fas fa-headset"></i>
         </div>
         <h3>Support</h3>
-        <p>Get help with accounts, events, and platform issues from our support team.</p>
+        <p>Get help with accounts, events, and platform issues.</p>
         <a href="support.html" class="glance-link">Get support →</a>
       </article>
 
@@ -100,8 +91,7 @@
           <i class="fas fa-lightbulb"></i>
         </div>
         <h3>Innovations</h3>
-        <p>Explore ideas, projects and solutions submitted by our members.</p>
-        <p>At ICES we must be able to use our engineering knowledge to benefit society and personal gain</p>
+        <p>Explore ideas and projects submitted by our members.</p>
         <a href="innovations.html" class="glance-link">Browse innovations →</a>
       </article>
     </div>
@@ -118,7 +108,7 @@
             <i class="fas fa-bullseye"></i>
           </div>
           <h3>Our Mission</h3>
-          <p>To foster innovation and excellence in civil engineering while promoting sustainable development and professional growth among our members.</p>
+          <p>Foster innovation and excellence in civil engineering for sustainable development.</p>
         </article>
 
         <article class="about-card">
@@ -126,7 +116,7 @@
             <i class="fas fa-eye"></i>
           </div>
           <h3>Our Vision</h3>
-          <p>To be the leading organization in advancing civil engineering practices and solutions that shape a better future for Malawi.</p>
+          <p>Advance civil engineering practices and solutions that shape a better future.</p>
         </article>
 
         <article class="about-card">
@@ -134,15 +124,7 @@
             <i class="fas fa-tasks"></i>
           </div>
           <h3>Our Objectives</h3>
-          <p>To provide a platform for knowledge sharing, professional development, and implementation of innovative engineering solutions.</p>
-        </article>
-
-        <article class="about-card">
-          <div class="about-icon">
-            <i class="fas fa-balance-scale"></i>
-          </div>
-          <h3>Our Ethics</h3>
-          <p>Upholding integrity, professionalism, and environmental responsibility in all our engineering practices.</p>
+          <p>Provide a platform for knowledge sharing and hands‑on innovation.</p>
         </article>
       </div>
     </div>
@@ -156,122 +138,45 @@
       
       <div class="events-grid">
         <div class="event-card">
-          <img src="images/conference.jpg" alt="Annual Engineering Conference" class="event-image">
-          <div class="event-content">
             <h3>Annual Engineering Conference</h3>
-            <p class="event-date"><i class="far fa-calendar-alt"></i> December 15, 2025</p>
+            <p class="event-date"><i class="far fa-calendar-alt"></i> Dec 15, 2025</p>
             <p class="event-location"><i class="fas fa-map-marker-alt"></i> MUST Campus</p>
-            <p>Join industry leaders and experts for our annual conference on sustainable engineering solutions.</p>
-            <a href="register.html" class="event-button">Register Now</a>
-          </div>
-        </div>
-
-        <div class="event-card">
-          <img src="images/workshop.jpg" alt="Innovation Workshop" class="event-image">
-          <div class="event-content">
-            <h3>Innovation Workshop</h3>
-            <p class="event-date"><i class="far fa-calendar-alt"></i> January 10, 2026</p>
-            <p class="event-location"><i class="fas fa-map-marker-alt"></i> Engineering Building</p>
-            <p>Hands-on workshop focusing on innovative approaches to common engineering challenges.</p>
-            <a href="register.html" class="event-button">Register Now</a>
+            <p>Join leaders and experts to explore sustainable engineering solutions.</p>
+            <a href="register.html" class="event-button">Register</a>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- ===== ENGINEERING CHALLENGES SECTION ===== -->
-  <section class="challenges-section" id="challenges">
-    <div class="container">
-      <h2>Engineering Challenges in Malawi</h2>
-      <p class="lead">Identifying and addressing critical infrastructure needs</p>
-      
-      <div class="challenges-grid">
-        <article class="challenge-card">
-          <div class="challenge-image">
-            <img src="images/roads.jpg" alt="Road Infrastructure">
-          </div>
-          <h3>Road Infrastructure</h3>
-          <p>Deteriorating road conditions and inadequate rural connectivity affecting transportation.</p>
-        </article>
-
-        <article class="challenge-card">
-          <div class="challenge-image">
-            <img src="images/water.jpg" alt="Water Supply">
-          </div>
-          <h3>Water Supply</h3>
-          <p>Limited access to clean water and inadequate water distribution systems in urban areas.</p>
-        </article>
-
-        <article class="challenge-card">
-          <div class="challenge-image">
-            <img src="images/housing.jpg" alt="Urban Housing">
-          </div>
-          <h3>Urban Housing</h3>
-          <p>Growing demand for affordable and sustainable housing solutions in cities.</p>
-        </article>
-
-        <article class="challenge-card">
-          <div class="challenge-image">
-            <img src="images/drainage.jpg" alt="Drainage Systems">
-          </div>
-          <h3>Drainage Systems</h3>
-          <p>Insufficient urban drainage infrastructure leading to flooding during rainy seasons.</p>
-        </article>
-
-        <article class="challenge-card">
-          <div class="challenge-image">
-            <img src="images/bridges.jpg" alt="Bridge Infrastructure">
-          </div>
-          <h3>Bridge Infrastructure</h3>
-          <p>Need for durable bridge solutions in rural areas to improve connectivity.</p>
-        </article>
-
-        <article class="challenge-card">
-          <div class="challenge-image">
-            <img src="images/waste.jpg" alt="Waste Management">
-          </div>
-          <h3>Waste Management</h3>
-          <p>Improving urban waste management and recycling infrastructure.</p>
-        </article>
+      <div style="text-align:center; margin-top:16px">
+        <a href="announcements.html" class="btn-primary" style="max-width:220px">View Announcements</a>
       </div>
     </div>
   </section>
 
-  <!-- ===== SOLUTIONS SECTION ===== -->
-  <section class="solutions-section" id="solutions">
-    <div class="container">
-      <h2>Engineering Solutions</h2>
-      <p class="lead">Innovative approaches to address our engineering challenges</p>
-      
-      <div class="solutions-grid">
-        <article class="solution-card">
-          <h3>Sustainable Materials</h3>
-          <p>Implementing locally sourced and sustainable building materials to reduce costs and environmental impact.</p>
-          <a href="#" class="learn-more">Learn More →</a>
-        </article>
-
-        <article class="solution-card">
-          <h3>Smart Infrastructure</h3>
-          <p>Incorporating smart technology for better infrastructure monitoring and maintenance.</p>
-          <a href="#" class="learn-more">Learn More →</a>
-        </article>
-
-        <article class="solution-card">
-          <h3>Community Engagement</h3>
-          <p>Involving local communities in infrastructure planning and maintenance for sustainable solutions.</p>
-          <a href="#" class="learn-more">Learn More →</a>
-        </article>
-
-        <article class="solution-card">
-          <h3>Innovative Design</h3>
-          <p>Using modern design techniques and software for more efficient and cost-effective solutions.</p>
-          <a href="#" class="learn-more">Learn More →</a>
-        </article>
+  <!-- ===== GALLERY TEASER SECTION ===== -->
+  <section class="container page-section" id="gallery">
+    <h2 class="section-title">Gallery</h2>
+    <p class="section-lead">See where we’ve been — projects, workshops, and community impact.</p>
+    <div class="cards-grid" style="margin-top:10px">
+      <div class="card">
+        <img src="images/image 6.jpg" alt="Gallery photo" style="width:100%; border-radius:10px; object-fit:cover; max-height:280px">
+        <p style="margin-top:10px">Explore highlights from events, site visits, and hands‑on activities.</p>
+        <a href="gallery.html" class="btn-primary" style="margin-top:6px; max-width:180px">View Full Gallery</a>
       </div>
     </div>
   </section>
 
+  <!-- ===== CTA BUTTONS AFTER GALLERY ===== -->
+  <section class="container page-section" id="cta">
+    <div style="text-align:center">
+      <h2 class="section-title">Get Involved</h2>
+      <p class="section-lead">Join ICES, reach out, or learn more about our mission.</p>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:10px">
+        <a href="register.html" class="btn-primary">Register</a>
+        <a href="contact.html" class="btn-primary">Contact</a>
+        <a href="about.html" class="btn-primary">Learn More About ICES</a>
+      </div>
+    </div>
+  </section>
 <!-- ===== FOOTER ===== -->
   <footer class="footer">
     <div class="footer-content container">
@@ -285,9 +190,10 @@
         <ul>
           <li><a href="index.html">Home</a></li>
           <li><a href="about.html">About Us</a></li>
-          <li><a href="departments.html">Departments</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
           <li><a href="innovations.html">Innovations</a></li>
-          <li><a href="executives.html">Executives</a></li>
+          <li><a href="announcements.html">Announcements</a></li>
+          <li><a href="announcements.html">Announcements</a></li>
           <li><a href="register.html">Register</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>

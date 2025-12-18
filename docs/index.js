@@ -466,11 +466,11 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             const basePath = baseMatch ? baseMatch[1] : '';
             
             if (data.role === 'admin') {
-              // On GitHub Pages, only /docs is served; redirect to admin dashboard within docs
-              window.location.href = data.redirect || basePath + '/docs/dashboards/admin.html';
+              // On GitHub Pages, only /docs is served; redirect to admin dashboard within docs root
+              window.location.href = data.redirect || basePath + '/docs/admin.html';
             } else if (data.role === 'student') {
-              // Redirect to student dashboard within docs
-              window.location.href = data.redirect || basePath + '/docs/dashboards/students.html';
+              // Redirect to student dashboard within docs root
+              window.location.href = data.redirect || basePath + '/docs/students.html';
             } else {
               throw new Error('Unknown user role');
             }
@@ -512,9 +512,9 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             const basePath = baseMatch ? baseMatch[1] : '';
             
             if (user.role === 'admin') {
-              window.location.href = basePath + '/docs/dashboards/admin.html';
+              window.location.href = basePath + '/docs/admin.html';
             } else if (user.role === 'student') {
-              window.location.href = basePath + '/docs/dashboards/students.html';
+              window.location.href = basePath + '/docs/students.html';
             }
           } else {
             // User wants to login with different account
@@ -567,7 +567,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             body: creds
           });
           if (data.role === 'student') {
-            window.location.href = '../dashboards/students.html';
+            window.location.href = 'students.html';
           } else {
             alert(data.error || data.message || 'Login failed!');
           }
@@ -592,7 +592,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             body: creds
           });
           if (data.role === 'admin') {
-            window.location.href = '../dashboards/admin.html';
+            window.location.href = 'admin.html';
           } else {
             alert(data.error || data.message || 'Login failed!');
           }
@@ -676,7 +676,83 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
       setInterval(rotateQuotes, 6000);
     }
 
+    /* ===========================================================
+       SECTION 6: CONTACT PAGE – SIMPLE FORM HANDLER
+       Purpose: keep contact page JS centralized (no inline scripts)
+       How it works:
+       - Looks for #contactForm and #contactSuccess on contact.html
+       - Prevents default submit, shows success message, resets form
+       Notes:
+       - If you change the IDs on contact.html, update the selectors here.
+       - This is a placeholder; wire to backend by replacing with API call.
+       =========================================================== */
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+      const contactSuccess = document.getElementById('contactSuccess');
+      contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // TODO: Replace with API call (e.g., safeFetch('/api/contact', { method:'POST', body:{...} }))
+        if (contactSuccess) contactSuccess.style.display = 'block';
+        contactForm.reset();
+      });
+    }
+
   }); // End onReady
+
+  // ================= Session Activity & Auto-Logout (20 min) =================
+  const IDLE_LIMIT_MS = 20 * 60 * 1000; // 20 minutes
+  const LAST_ACTIVITY_KEY = 'lastActivityAt';
+
+  function markActivity() {
+    try {
+      localStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now()));
+    } catch (e) { /* ignore storage errors */ }
+  }
+
+  function getLastActivity() {
+    const v = localStorage.getItem(LAST_ACTIVITY_KEY);
+    const n = v ? parseInt(v, 10) : 0;
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function resolveDocsPath(fileName){
+    try {
+      const p = window.location.pathname;
+      const baseMatch = p.match(/^(.*?)\/docs\//);
+      const basePath = baseMatch ? baseMatch[1] : '';
+      return basePath + '/docs/' + fileName;
+    } catch { return '/docs/' + fileName; }
+  }
+
+  function autoLogout(reason) {
+    try { localStorage.removeItem('userData'); localStorage.removeItem(LAST_ACTIVITY_KEY); } catch (e) {}
+    try { alert(reason || 'You have been logged out.'); } catch (e) {}
+    window.location.href = resolveDocsPath('login.html');
+  }
+
+  function checkIdleLogout() {
+    const userData = localStorage.getItem('userData');
+    if (!userData) return; // not logged in
+    const last = getLastActivity();
+    if (!last) { markActivity(); return; }
+    const now = Date.now();
+    if (now - last >= IDLE_LIMIT_MS) {
+      autoLogout('Session expired due to 20 minutes of inactivity.');
+    }
+  }
+
+  // Update activity on common interactions
+  ['mousemove','keydown','click','scroll','touchstart'].forEach(evt => {
+    window.addEventListener(evt, markActivity, { passive: true });
+  });
+  // Share activity across tabs
+  window.addEventListener('storage', (e) => {
+    if (e.key === LAST_ACTIVITY_KEY) { /* no-op; just keeping in sync */ }
+  });
+  // Initialize
+  markActivity();
+  // Periodic idle check
+  setInterval(checkIdleLogout, 30000);
 
   // ===== NEW SLIDESHOW (Clean Implementation) =====
   let slideIndex = 0;
@@ -838,7 +914,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
           };
           localStorage.setItem('userData', JSON.stringify(userData));
           alert('Admin login successful');
-          // window.location.href = data.redirect || '../dashboards/admin.html';
+          // window.location.href = data.redirect || 'admin.html';
         } else {
           alert(data.message || 'Login did not return admin role');
         }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ICES Profile</title>
-    <link rel="stylesheet" href="../index.css">
+    <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="Logged in.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
@@ -12,14 +12,14 @@
   <nav class="navbar">
     <div class="nav-container">
       <a href="students.html" class="logo">
-        <img src="../images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
+        <img src="images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
       </a>
       <ul class="nav-links">
         <li><a href="students.html">Home</a></li>
-        <li><a href="../innovations.html">Innovations</a></li>
-        <li><a href="studentside/events.html">Events</a></li>
-        <li><a href="studentside/payments.html">Payments</a></li>
-        <li><a href="studentside/support.html">Support</a></li>
+        <li><a href="innovations.html">Innovations</a></li>
+        <li><a href="student-events.html">Events</a></li>
+        <li><a href="student-payments.html">Payments</a></li>
+        <li><a href="student-support.html">Support</a></li>
         <li><a href="profile.html" class="active">Profile</a></li>
       </ul>
       <div class="user-section" id="userSection">
@@ -35,20 +35,20 @@
   </nav>
 
   <section class="container page-section">
-    <h1 class="section-title">My Profile</h1>
-    <p class="section-lead">Share your background and interests with the ICES community. This information will be visible to other members on the support/forum page.</p>
+    <h1 class="section-title">Your Profile</h1>
+    <p class="section-lead">Manage your personal information and account settings.</p>
     
     <div class="profile-container">
       <div class="profile-header">
         <div class="profile-photo-wrapper">
-          <img id="profilePhoto" src="../images/default-avatar.svg" alt="Profile Photo" class="profile-photo">
+          <img id="profilePhoto" src="images/default-avatar.svg" alt="Profile Photo" class="profile-photo">
           <label for="photoUpload" class="photo-upload-btn">
             <i class="fas fa-camera"></i> Change Photo
           </label>
           <input type="file" id="photoUpload" accept="image/*" style="display:none;">
         </div>
         <div class="profile-user-info">
-          <h2 id="displayName">Your Name</h2>
+          <h2 id="displayName">Administrator</h2>
           <p class="user-role">ICES Member</p>
         </div>
       </div>
@@ -61,78 +61,46 @@
             <label for="fullName" class="form-label">Full Name</label>
             <input type="text" id="fullName" class="form-control" placeholder="John Doe" required>
           </div>
-          <div class="form-group">
-            <label for="nationality" class="form-label">Nationality</label>
-            <input type="text" id="nationality" class="form-control" placeholder="e.g., Malawian">
-          </div>
+          
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input type="email" id="email" class="form-control" placeholder="you@ices.org.mw" readonly>
         </div>
 
         <div class="form-group">
           <label for="bio" class="form-label">Short Bio</label>
-          <textarea id="bio" rows="3" class="form-control" placeholder="Tell us a bit about yourself..."></textarea>
+          <textarea id="bio" rows="3" class="form-control" placeholder="Tell us about your role..."></textarea>
         </div>
 
-        <h3 class="form-section-title"><i class="fas fa-graduation-cap"></i> Education Background</h3>
+        <h3 class="form-section-title"><i class="fas fa-briefcase"></i> Professional Information</h3>
         
         <div class="form-group">
-          <label for="primarySchool" class="form-label">Primary School</label>
-          <input type="text" id="primarySchool" class="form-control" placeholder="Name of primary school">
+          <label for="position" class="form-label">Area of Interest</label>
+          <input type="text" id="position" class="form-control" placeholder="e.g., Structures, Water, Transport">
         </div>
 
         <div class="form-group">
-          <label for="secondarySchool" class="form-label">Secondary School</label>
-          <input type="text" id="secondarySchool" class="form-control" placeholder="Name of secondary school">
+          <label for="department" class="form-label">Year of Study</label>
+          <input type="text" id="department" class="form-control" placeholder="e.g., Year 2">
         </div>
+
+        <div class="form-group">
+          <label for="responsibilities" class="form-label">Goals</label>
+          <textarea id="responsibilities" rows="3" class="form-control" placeholder="Your learning and project goals..."></textarea>
+        </div>
+
+        <h3 class="form-section-title"><i class="fas fa-link"></i> Contact Information</h3>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="currentYear" class="form-label">Current Year of Study</label>
-            <select id="currentYear" class="form-control">
-              <option value="">Select year</option>
-              <option value="1">Year 1</option>
-              <option value="2">Year 2</option>
-              <option value="3">Year 3</option>
-              <option value="4">Year 4</option>
-              <option value="5">Year 5</option>
-              <option value="graduate">Graduate</option>
-            </select>
+            <label for="whatsapp" class="form-label">WhatsApp Number</label>
+            <input type="tel" id="whatsapp" class="form-control" placeholder="+265 888 123 456">
           </div>
-        </div>
-
-        <h3 class="form-section-title"><i class="fas fa-heart"></i> Interests & Values</h3>
-
-        <div class="form-group">
-          <label for="interests" class="form-label">Engineering Interests</label>
-          <textarea id="interests" rows="3" class="form-control" placeholder="What areas of civil engineering excite you?"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="patriotic" class="form-label">How would you describe your commitment to Malawi's development?</label>
-          <textarea id="patriotic" rows="2" class="form-control" placeholder="Share your vision for contributing to the nation..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="skills" class="form-label">Skills & Software</label>
-          <input type="text" id="skills" class="form-control" placeholder="e.g., AutoCAD, MATLAB, Python, SAP2000">
-        </div>
-
-        <h3 class="form-section-title"><i class="fas fa-link"></i> Connect With You</h3>
-
-        <div class="form-row">
-            <div class="form-group">
-              <label for="whatsapp" class="form-label">WhatsApp Number</label>
-              <input type="tel" id="whatsapp" class="form-control" placeholder="+265 888 123 456">
-            </div>
           <div class="form-group">
             <label for="linkedin" class="form-label">LinkedIn Profile</label>
             <input type="url" id="linkedin" class="form-control" placeholder="https://linkedin.com/in/yourprofile">
-          </div>
-          </div>
-
-          <div class="form-group">
-          <div class="form-group">
-            <label for="github" class="form-label">GitHub (Optional)</label>
-            <input type="url" id="github" class="form-control" placeholder="https://github.com/yourusername">
           </div>
         </div>
 
@@ -151,19 +119,18 @@
   </section>
 
   <footer class="footer">
-     <div class="footer-content">
+    <div class="footer-content">
       <div class="footer-logo-section">
-        <img src="../images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+        <img src="images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
         <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
       </div>
       <div class="footer-links">
         <h3>Quick Links</h3>
         <ul>
-          <li><a href="students.html">Dashboard Home</a></li>
-          <li><a href="../innovations.html">Innovations</a></li>
-          <li><a href="studentside/events.html">Events</a></li>
-          <li><a href="studentside/payments.html">Payments</a></li>
-          <li><a href="studentside/support.html">Support</a></li>
+          <li><a href="students.html">Student Dashboard</a></li>
+          <li><a href="student-events.html">Events</a></li>
+          <li><a href="student-payments.html">Payments</a></li>
+          <li><a href="student-support.html">Support</a></li>
           <li><a href="profile.html">Profile</a></li>
         </ul>
       </div>

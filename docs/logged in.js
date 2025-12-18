@@ -1,5 +1,5 @@
 /**
- * Logged in.js – central scripts for student/admin dashboard pages (GitHub Pages compatible)
+ * Logged in.js – moved to docs root; imports adjusted
  */
 (function(){
   function ready(fn){
@@ -9,7 +9,6 @@
   }
 
   ready(function(){
-    // Compute absolute path to docs root for redirects (works under /docs/dashboards)
     function resolveDocsPath(fileName){
       try {
         const p = window.location.pathname;
@@ -29,8 +28,10 @@
       try {
         const user = JSON.parse(userData);
         const currentPath = window.location.pathname.toLowerCase();
-        const isAdminOnlyPage = currentPath.includes('/adminside/') || currentPath.endsWith('admin.html');
-        const isStudentOnlyPage = currentPath.includes('/studentside/') || currentPath.endsWith('students.html') || (currentPath.includes('/dashboards/') && currentPath.endsWith('profile.html') && !currentPath.includes('/adminside/'));
+        const adminPages = ['admin.html','paymentsdata.html','studentrecords.html','updatevents.html','admin-profile.html'];
+        const studentPages = ['students.html','student-events.html','student-payments.html','student-support.html','profile.html'];
+        const isAdminOnlyPage = adminPages.some(p => currentPath.endsWith('/' + p));
+        const isStudentOnlyPage = studentPages.some(p => currentPath.endsWith('/' + p));
         if (isAdminOnlyPage && user.role !== 'admin') {
           alert('Access denied. This page is for administrators only.');
           localStorage.removeItem('userData');
@@ -43,7 +44,11 @@
           window.location.href = resolveDocsPath('login.html');
           return false;
         }
-        displayUserInfo(user);
+        const userNameElement = document.getElementById('userName');
+        if (userNameElement) {
+          const displayName = user.name || user.username || (user.email ? user.email.split('@')[0] : 'User');
+          userNameElement.textContent = displayName;
+        }
         return true;
       } catch (error) {
         console.error('Error parsing user data:', error);
@@ -53,17 +58,10 @@
       }
     }
 
-    function displayUserInfo(user) {
-      const userNameElement = document.getElementById('userName');
-      if (userNameElement) {
-        const displayName = user.name || user.username || (user.email ? user.email.split('@')[0] : 'User');
-        userNameElement.textContent = displayName;
-      }
-    }
-
     function handleLogout() {
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('userData');
+        localStorage.removeItem('lastActivityAt');
         window.location.href = resolveDocsPath('index.html');
       }
     }
@@ -125,6 +123,34 @@
       }
     });
 
+    // ================= Session Activity & Auto-Logout (20 min) =================
+    const IDLE_LIMIT_MS = 20 * 60 * 1000; // 20 minutes
+    const LAST_ACTIVITY_KEY = 'lastActivityAt';
+    function markActivity(){
+      try { localStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now())); } catch(e){}
+    }
+    function getLastActivity(){
+      const v = localStorage.getItem(LAST_ACTIVITY_KEY); const n = v ? parseInt(v,10) : 0; return Number.isFinite(n)?n:0;
+    }
+    function autoLogout(reason){
+      try { localStorage.removeItem('userData'); localStorage.removeItem(LAST_ACTIVITY_KEY); } catch(e){}
+      try { alert(reason || 'You have been logged out.'); } catch(e){}
+      window.location.href = resolveDocsPath('login.html');
+    }
+    function checkIdleLogout(){
+      const userData = localStorage.getItem('userData');
+      if (!userData) return;
+      const last = getLastActivity();
+      if (!last) { markActivity(); return; }
+      if (Date.now() - last >= IDLE_LIMIT_MS) {
+        autoLogout('Session expired due to 20 minutes of inactivity.');
+      }
+    }
+    ['mousemove','keydown','click','scroll','touchstart'].forEach(evt => window.addEventListener(evt, markActivity, { passive:true }));
+    window.addEventListener('storage', (e) => { if (e.key === LAST_ACTIVITY_KEY) { /* sync */ } });
+    markActivity();
+    setInterval(checkIdleLogout, 30000);
+
     (async function initApiTest(){
       const statusEl = document.getElementById('test-status');
       const nameEl = document.getElementById('test-name');
@@ -136,7 +162,7 @@
 
       let API, safeFetch;
       try {
-        const mod = await import('../api.js');
+        const mod = await import('./api.js');
         API = mod.API;
         safeFetch = mod.safeFetch;
       } catch (e) {

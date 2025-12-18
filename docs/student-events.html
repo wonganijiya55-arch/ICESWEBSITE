@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ICES Events</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="Logged in.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="students.html" class="logo">
+        <img src="images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
+      </a>
+      <ul class="nav-links">
+        <li><a href="students.html">Home</a></li>
+        <li><a href="innovations.html">Innovations</a></li>
+        <li><a href="student-events.html" class="active">Events</a></li>
+        <li><a href="student-payments.html">Payments</a></li>
+        <li><a href="student-support.html">Support</a></li>
+        <li><a href="profile.html">Profile</a></li>
+      </ul>
+      <div class="user-section" id="userSection">
+        <span class="user-name" id="userName">Loading...</span>
+        <button class="logout-btn" id="logoutBtn" title="Logout">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+      <div class="hamburger" id="hamburger">
+        <div></div><div></div><div></div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="container page-section">
+    <h1 class="section-title">Register for an Event</h1>
+    <p class="section-lead">Select an upcoming ICES event below and confirm your registration. Your profile already contains your personal details, so we only need your event choice.</p>
+    <form id="eventRegistrationForm" class="card-form">
+      <label for="eventSelect" class="form-label">Choose Event</label>
+      <select id="eventSelect" required class="form-control">
+        <option value="" disabled selected>Select an event</option>
+        <option value="infrastructure_innovation_forum">Infrastructure Innovation Forum</option>
+        <option value="sustainable_materials_workshop">Sustainable Materials Workshop</option>
+        <option value="bridge_design_challenge">Bridge Design Challenge</option>
+        <option value="geotech_field_day">Geotech Field Day</option>
+      </select>
+      <button type="submit" class="btn-primary">Register</button>
+      <p id="eventSuccess" class="form-success">Registration recorded! (Demo)</p>
+    </form>
+  </section>
+
+  <footer class="footer">
+     <div class="footer-content">
+      <div class="footer-logo-section">
+        <img src="images/mubasiceslogo.png" alt="ICES Logo" class="footer-logo">
+        <p class="footer-description">Innovation in Civil Engineering Society (ICES) is dedicated to fostering excellence and innovation in civil engineering practices across Malawi.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="students.html">Dashboard Home</a></li>
+          <li><a href="innovations.html">Innovations</a></li>
+          <li><a href="student-events.html">Events</a></li>
+          <li><a href="student-payments.html">Payments</a></li>
+          <li><a href="student-support.html">Support</a></li>
+          <li><a href="profile.html">Profile</a></li>
+        </ul>
+      </div>
+      <div class="footer-social">
+        <h3>Connect With Us</h3>
+        <div class="social-links">
+          <a href="#" class="social-link"><i class="fab fa-facebook"></i> Facebook</a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i> Twitter</a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin"></i> LinkedIn</a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i> Instagram</a>
+          <a href="#" class="social-link"><i class="fab fa-youtube"></i> YouTube</a>
+        </div>
+        <div class="contact-info">
+          <h3>Contact Info</h3>
+          <p><i class="fas fa-map-marker-alt"></i> MUST Campus, Limbe, Malawi</p>
+          <p><i class="fas fa-phone"></i> +265 888 123 456</p>
+          <p><i class="fas fa-envelope"></i> info@ices.org.mw</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <p>&copy; 2025 Innovation in Civil Engineering Society. All Rights Reserved.</p>
+        <p>Designed by ICES</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="logged in.js"></script>
+</body>
+</html>

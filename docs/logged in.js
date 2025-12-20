@@ -9,20 +9,17 @@
   }
 
   ready(function(){
-    function resolveDocsPath(fileName){
-      try {
-        const p = window.location.pathname;
-        const baseMatch = p.match(/^(.*?)\/docs\//);
-        const basePath = baseMatch ? baseMatch[1] : '';
-        return basePath + '/docs/' + fileName;
-      } catch { return '/docs/' + fileName; }
+
+    // Universal redirect helper (requirement)
+    function redirectTo(path) {
+      window.location.replace(path);
     }
 
     function checkAuthentication() {
       const userData = localStorage.getItem('userData');
       if (!userData) {
         alert('Please login to access this page');
-        window.location.href = resolveDocsPath('login.html');
+        redirectTo('/docs/login.html');
         return false;
       }
       try {
@@ -35,13 +32,13 @@
         if (isAdminOnlyPage && user.role !== 'admin') {
           alert('Access denied. This page is for administrators only.');
           localStorage.removeItem('userData');
-          window.location.href = resolveDocsPath('login.html');
+          redirectTo('/docs/login.html');
           return false;
         }
         if (isStudentOnlyPage && user.role !== 'student') {
           alert('Access denied. This page is for students only.');
           localStorage.removeItem('userData');
-          window.location.href = resolveDocsPath('login.html');
+          redirectTo('/docs/login.html');
           return false;
         }
         const userNameElement = document.getElementById('userName');
@@ -53,7 +50,7 @@
       } catch (error) {
         console.error('Error parsing user data:', error);
         localStorage.removeItem('userData');
-        window.location.href = resolveDocsPath('login.html');
+        redirectTo('/docs/login.html');
         return false;
       }
     }
@@ -62,7 +59,7 @@
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('userData');
         localStorage.removeItem('lastActivityAt');
-        window.location.href = resolveDocsPath('index.html');
+        redirectTo('/docs/index.html');
       }
     }
 
@@ -119,7 +116,7 @@
 
     window.addEventListener('storage', (e) => {
       if (e.key === 'userData' && !e.newValue) {
-        window.location.href = resolveDocsPath('index.html');
+        redirectTo('/docs/index.html');
       }
     });
 
@@ -135,7 +132,7 @@
     function autoLogout(reason){
       try { localStorage.removeItem('userData'); localStorage.removeItem(LAST_ACTIVITY_KEY); } catch(e){}
       try { alert(reason || 'You have been logged out.'); } catch(e){}
-      window.location.href = resolveDocsPath('login.html');
+      redirectTo('/docs/login.html');
     }
     function checkIdleLogout(){
       const userData = localStorage.getItem('userData');

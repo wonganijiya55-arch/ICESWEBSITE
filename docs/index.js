@@ -11,6 +11,11 @@
    =========================================================== */
 
 // Replace static import with dynamic import to avoid "import outside module" errors
+
+// Universal redirect helper (requirement)
+function redirectTo(path) {
+  window.location.replace(path);
+}
 let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBase;
 (async function initApi() {
   try {
@@ -272,7 +277,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
           applyRoleRequirements((document.querySelector('input[name="role"]:checked')?.value || 'student').toLowerCase());
 
           if (confirm('Registration successful! Click OK to proceed to login page.')) {
-            window.location.href = 'login.html';
+            redirectTo('/docs/login.html');
           }
         } catch (err) {
           console.error(err);
@@ -460,23 +465,8 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             };
             localStorage.setItem('userData', JSON.stringify(userData));
 
-            // Compute base-aware redirect paths for GitHub Pages compatibility
-            const currentPath = window.location.pathname;
-            const baseMatch = currentPath.match(/^(.*?)\/docs\//);
-            const basePath = baseMatch ? baseMatch[1] : '';
-            
-            if (data.role === 'admin') {
-              // Use only basePath + data.redirect for admin
-              const currentPath = window.location.pathname;
-              const baseMatch = currentPath.match(/^(.*?)\/docs\//);
-              const basePath = baseMatch ? baseMatch[1] : '';
-              window.location.href = basePath + data.redirect;
-            } else if (data.role === 'student') {
-              // Use only basePath + data.redirect for student
-              const currentPath = window.location.pathname;
-              const baseMatch = currentPath.match(/^(.*?)\/docs\//);
-              const basePath = baseMatch ? baseMatch[1] : '';
-              window.location.href = basePath + data.redirect;
+            if (data.role === 'admin' || data.role === 'student') {
+              redirectTo(data.redirect);
             } else {
               throw new Error('Unknown user role');
             }
@@ -501,43 +491,25 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
       if (!loginForm) return;
 
       const userData = localStorage.getItem('userData');
-      
       if (userData) {
         try {
           const user = JSON.parse(userData);
           console.log('Existing session found:', user.email || user.name || user.username || '');
-          
-          // Ask user if they want to continue with existing session
           const who = user.name || user.username || user.email || 'your account';
           const continueSession = confirm(`You're already logged in as ${who}. Continue to dashboard?`);
-          
           if (continueSession) {
-            // Compute base-aware redirect paths for GitHub Pages compatibility
-            const currentPath = window.location.pathname;
-            const baseMatch = currentPath.match(/^(.*?)\/docs\//);
-            const basePath = baseMatch ? baseMatch[1] : '';
-            
             if (user.role === 'admin') {
-              // Use only basePath + user.redirect for admin session
-              const currentPath = window.location.pathname;
-              const baseMatch = currentPath.match(/^(.*?)\/docs\//);
-              const basePath = baseMatch ? baseMatch[1] : '';
-              window.location.href = basePath + (user.redirect || '/docs/admin.html');
+              redirectTo(user.redirect || '/docs/admin.html');
             } else if (user.role === 'student') {
-              // Use only basePath + user.redirect for student session
-              const currentPath = window.location.pathname;
-              const baseMatch = currentPath.match(/^(.*?)\/docs\//);
-              const basePath = baseMatch ? baseMatch[1] : '';
-              window.location.href = basePath + (user.redirect || '/docs/students.html');
+              redirectTo(user.redirect || '/docs/students.html');
             }
           } else {
-            // User wants to login with different account
             localStorage.removeItem('userData');
             console.log('Previous session cleared for new login');
           }
         } catch (error) {
           console.error('Error checking session:', error);
-          localStorage.removeItem('userData'); // Clear corrupted data
+          localStorage.removeItem('userData');
         }
       }
     }
@@ -581,10 +553,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             body: creds
           });
           if (data.role === 'student') {
-            const currentPath = window.location.pathname;
-            const baseMatch = currentPath.match(/^(.*?)\/docs\//);
-            const basePath = baseMatch ? baseMatch[1] : '';
-            window.location.href = basePath + data.redirect;
+            redirectTo(data.redirect);
           } else {
             alert(data.error || data.message || 'Login failed!');
           }
@@ -609,10 +578,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             body: creds
           });
           if (data.role === 'admin') {
-            const currentPath = window.location.pathname;
-            const baseMatch = currentPath.match(/^(.*?)\/docs\//);
-            const basePath = baseMatch ? baseMatch[1] : '';
-            window.location.href = basePath + data.redirect;
+            redirectTo(data.redirect);
           } else {
             alert(data.error || data.message || 'Login failed!');
           }
@@ -735,19 +701,12 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
     return Number.isFinite(n) ? n : 0;
   }
 
-  function resolveDocsPath(fileName){
-    try {
-      const p = window.location.pathname;
-      const baseMatch = p.match(/^(.*?)\/docs\//);
-      const basePath = baseMatch ? baseMatch[1] : '';
-      return basePath + '/docs/' + fileName;
-    } catch { return '/docs/' + fileName; }
-  }
+
 
   function autoLogout(reason) {
     try { localStorage.removeItem('userData'); localStorage.removeItem(LAST_ACTIVITY_KEY); } catch (e) {}
     try { alert(reason || 'You have been logged out.'); } catch (e) {}
-    window.location.href = resolveDocsPath('login.html');
+    redirectTo('/docs/login.html');
   }
 
   function checkIdleLogout() {

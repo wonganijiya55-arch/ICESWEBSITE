@@ -6,7 +6,11 @@ async function studentLogin(email, password) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
     });
-    const data = await res.json();
+    let data = {};
+    const text = await res.text();
+    if (text) {
+      try { data = JSON.parse(text); } catch (e) { data = {}; }
+    }
     if (res.ok && data.redirect) {
       window.location.replace(data.redirect);
     } else {
@@ -25,7 +29,11 @@ async function adminLogin(regNumber, name, adminCode) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ regNumber, name, adminCode })
     });
-    const data = await res.json();
+    let data = {};
+    const text = await res.text();
+    if (text) {
+      try { data = JSON.parse(text); } catch (e) { data = {}; }
+    }
     if (res.ok && data.redirect) {
       window.location.replace(data.redirect);
     } else {

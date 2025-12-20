@@ -466,16 +466,13 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             const basePath = baseMatch ? baseMatch[1] : '';
             
             if (data.role === 'admin') {
-              // Redirect to admin dashboard (clean path)
-              // Redirect to admin dashboard with clean p parameter, only if not already present
-              // Use user-provided logic for redirect
+              // Use only basePath + data.redirect for admin
               const currentPath = window.location.pathname;
               const baseMatch = currentPath.match(/^(.*?)\/docs\//);
               const basePath = baseMatch ? baseMatch[1] : '';
               window.location.href = basePath + data.redirect;
             } else if (data.role === 'student') {
-              // Redirect to student dashboard (clean path)
-              // Redirect to student dashboard with clean p parameter, only if not already present
+              // Use only basePath + data.redirect for student
               const currentPath = window.location.pathname;
               const baseMatch = currentPath.match(/^(.*?)\/docs\//);
               const basePath = baseMatch ? baseMatch[1] : '';
@@ -521,11 +518,13 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             const basePath = baseMatch ? baseMatch[1] : '';
             
             if (user.role === 'admin') {
+              // Use only basePath + user.redirect for admin session
               const currentPath = window.location.pathname;
               const baseMatch = currentPath.match(/^(.*?)\/docs\//);
               const basePath = baseMatch ? baseMatch[1] : '';
               window.location.href = basePath + (user.redirect || '/docs/admin.html');
             } else if (user.role === 'student') {
+              // Use only basePath + user.redirect for student session
               const currentPath = window.location.pathname;
               const baseMatch = currentPath.match(/^(.*?)\/docs\//);
               const basePath = baseMatch ? baseMatch[1] : '';

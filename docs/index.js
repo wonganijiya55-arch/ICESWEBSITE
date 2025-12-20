@@ -468,12 +468,18 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             if (data.role === 'admin') {
               // Redirect to admin dashboard (clean path)
               // Redirect to admin dashboard with clean p parameter, only if not already present
-              // Use backend-provided redirect URL only
-              window.location.href = data.redirect;
+              // Use user-provided logic for redirect
+              const currentPath = window.location.pathname;
+              const baseMatch = currentPath.match(/^(.*?)\/docs\//);
+              const basePath = baseMatch ? baseMatch[1] : '';
+              window.location.href = basePath + data.redirect;
             } else if (data.role === 'student') {
               // Redirect to student dashboard (clean path)
               // Redirect to student dashboard with clean p parameter, only if not already present
-              window.location.href = data.redirect;
+              const currentPath = window.location.pathname;
+              const baseMatch = currentPath.match(/^(.*?)\/docs\//);
+              const basePath = baseMatch ? baseMatch[1] : '';
+              window.location.href = basePath + data.redirect;
             } else {
               throw new Error('Unknown user role');
             }
@@ -515,9 +521,15 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             const basePath = baseMatch ? baseMatch[1] : '';
             
             if (user.role === 'admin') {
-              window.location.href = user.redirect || '/docs/admin.html';
+              const currentPath = window.location.pathname;
+              const baseMatch = currentPath.match(/^(.*?)\/docs\//);
+              const basePath = baseMatch ? baseMatch[1] : '';
+              window.location.href = basePath + (user.redirect || '/docs/admin.html');
             } else if (user.role === 'student') {
-              window.location.href = user.redirect || '/docs/students.html';
+              const currentPath = window.location.pathname;
+              const baseMatch = currentPath.match(/^(.*?)\/docs\//);
+              const basePath = baseMatch ? baseMatch[1] : '';
+              window.location.href = basePath + (user.redirect || '/docs/students.html');
             }
           } else {
             // User wants to login with different account
@@ -570,7 +582,10 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             body: creds
           });
           if (data.role === 'student') {
-            window.location.href = data.redirect;
+            const currentPath = window.location.pathname;
+            const baseMatch = currentPath.match(/^(.*?)\/docs\//);
+            const basePath = baseMatch ? baseMatch[1] : '';
+            window.location.href = basePath + data.redirect;
           } else {
             alert(data.error || data.message || 'Login failed!');
           }
@@ -595,7 +610,10 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             body: creds
           });
           if (data.role === 'admin') {
-            window.location.href = data.redirect;
+            const currentPath = window.location.pathname;
+            const baseMatch = currentPath.match(/^(.*?)\/docs\//);
+            const basePath = baseMatch ? baseMatch[1] : '';
+            window.location.href = basePath + data.redirect;
           } else {
             alert(data.error || data.message || 'Login failed!');
           }

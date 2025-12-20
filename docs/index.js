@@ -468,13 +468,12 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             if (data.role === 'admin') {
               // Redirect to admin dashboard (clean path)
               // Redirect to admin dashboard with clean p parameter, only if not already present
-              // Simple redirect for admin
-              window.location.href = basePath + '/docs/admin.html?p=' + encodeURIComponent('/docs/admin.html');
+              // Use backend-provided redirect URL only
+              window.location.href = data.redirect;
             } else if (data.role === 'student') {
               // Redirect to student dashboard (clean path)
               // Redirect to student dashboard with clean p parameter, only if not already present
-              // Simple redirect for student
-              window.location.href = basePath + '/docs/students.html?p=' + encodeURIComponent('/docs/students.html');
+              window.location.href = data.redirect;
             } else {
               throw new Error('Unknown user role');
             }
@@ -516,9 +515,9 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             const basePath = baseMatch ? baseMatch[1] : '';
             
             if (user.role === 'admin') {
-              window.location.href = basePath + '/docs/admin.html?p=' + encodeURIComponent('/docs/admin.html');
+              window.location.href = user.redirect || '/docs/admin.html';
             } else if (user.role === 'student') {
-              window.location.href = basePath + '/docs/students.html?p=' + encodeURIComponent('/docs/students.html');
+              window.location.href = user.redirect || '/docs/students.html';
             }
           } else {
             // User wants to login with different account
@@ -571,7 +570,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             body: creds
           });
           if (data.role === 'student') {
-            window.location.href = 'students.html?p=' + encodeURIComponent('/docs/students.html');
+            window.location.href = data.redirect;
           } else {
             alert(data.error || data.message || 'Login failed!');
           }
@@ -596,7 +595,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             body: creds
           });
           if (data.role === 'admin') {
-            window.location.href = 'admin.html?p=' + encodeURIComponent('/docs/admin.html');
+            window.location.href = data.redirect;
           } else {
             alert(data.error || data.message || 'Login failed!');
           }

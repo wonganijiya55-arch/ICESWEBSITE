@@ -469,7 +469,8 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
               // Redirect to admin dashboard (clean path)
               // Redirect to admin dashboard with clean p parameter, only if not already present
               const adminTarget = basePath + '/docs/admin.html';
-              if (!window.location.search.includes('p=')) {
+              // Only set p if not present in current or target URL
+              if (!window.location.search.includes('p=') && !adminTarget.includes('p=')) {
                 window.location.href = adminTarget + '?p=' + encodeURIComponent('/docs/admin.html');
               } else {
                 window.location.href = adminTarget;
@@ -478,7 +479,8 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
               // Redirect to student dashboard (clean path)
               // Redirect to student dashboard with clean p parameter, only if not already present
               const studentTarget = basePath + '/docs/students.html';
-              if (!window.location.search.includes('p=')) {
+              // Only set p if not present in current or target URL
+              if (!window.location.search.includes('p=') && !studentTarget.includes('p=')) {
                 window.location.href = studentTarget + '?p=' + encodeURIComponent('/docs/students.html');
               } else {
                 window.location.href = studentTarget;
@@ -525,14 +527,14 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             
             if (user.role === 'admin') {
               const adminTarget = basePath + '/docs/admin.html';
-              if (!window.location.search.includes('p=')) {
+              if (!window.location.search.includes('p=') && !adminTarget.includes('p=')) {
                 window.location.href = adminTarget + '?p=' + encodeURIComponent('/docs/admin.html');
               } else {
                 window.location.href = adminTarget;
               }
             } else if (user.role === 'student') {
               const studentTarget = basePath + '/docs/students.html';
-              if (!window.location.search.includes('p=')) {
+              if (!window.location.search.includes('p=') && !studentTarget.includes('p=')) {
                 window.location.href = studentTarget + '?p=' + encodeURIComponent('/docs/students.html');
               } else {
                 window.location.href = studentTarget;
@@ -589,7 +591,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             body: creds
           });
           if (data.role === 'student') {
-            if (!window.location.search.includes('p=')) {
+            if (!window.location.search.includes('p=') && !window.location.pathname.includes('p=')) {
               window.location.href = 'students.html?p=' + encodeURIComponent('/docs/students.html');
             } else {
               window.location.href = 'students.html';
@@ -618,7 +620,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
             body: creds
           });
           if (data.role === 'admin') {
-            if (!window.location.search.includes('p=')) {
+            if (!window.location.search.includes('p=') && !window.location.pathname.includes('p=')) {
               window.location.href = 'admin.html?p=' + encodeURIComponent('/docs/admin.html');
             } else {
               window.location.href = 'admin.html';

@@ -1,3 +1,41 @@
+// --- Unified Login Functions ---
+async function studentLogin(email, password) {
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.redirect) {
+      window.location.replace(data.redirect);
+    } else {
+      alert(data.error || "Login failed. Check credentials.");
+    }
+  } catch (err) {
+    console.error("Student login error:", err);
+    alert("An unexpected error occurred.");
+  }
+}
+
+async function adminLogin(regNumber, name, adminCode) {
+  try {
+    const res = await fetch("/api/admins/login-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ regNumber, name, adminCode })
+    });
+    const data = await res.json();
+    if (res.ok && data.redirect) {
+      window.location.replace(data.redirect);
+    } else {
+      alert(data.message || "Admin login failed.");
+    }
+  } catch (err) {
+    console.error("Admin login error:", err);
+    alert("An unexpected error occurred.");
+  }
+}
 /* ===========================================================
    ICES UNIVERSAL JAVASCRIPT FILE
    Author: Wongani Jiya
@@ -407,7 +445,6 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
 
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const role = (document.querySelector('input[name="loginRole"]:checked')?.value || 'student').toLowerCase();
         const email = document.getElementById('email')?.value?.trim();
         const password = document.getElementById('password')?.value;
@@ -415,67 +452,26 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
         const loginRegNumber = document.getElementById('loginRegNumber')?.value?.trim();
         const loginAdminCode = document.getElementById('loginAdminCode')?.value?.trim();
 
-        if (role === 'student') {
-          if (!email || !password) {
-            alert('Please enter both email and password');
-            return;
-          }
-        } else {
-          if (!loginFullname || !loginRegNumber || !loginAdminCode) {
-            alert('Please enter full name, registration number, and admin code');
-            return;
-          }
-        }
-
         const submitBtn = loginForm.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.textContent;
         submitBtn.textContent = 'Logging in...';
         submitBtn.disabled = true;
 
         try {
-          let data;
           if (role === 'student') {
-            // Try multiple endpoints/payloads to match backend
-            let result;
-            if (API_TEST?.tryLoginVariants) {
-              result = await API_TEST.tryLoginVariants(email, password);
-            } else {
-              result = await API_TEST.tryLogin(email, password);
+            if (!email || !password) {
+              alert('Please enter both email and password');
+              return;
             }
-            data = result?.res || result;
+            await studentLogin(email, password);
           } else {
-            // Admin code login (passwordless) - canonical endpoint only
-            data = await safeFetch('/api/admins/login-code', {
-              method: 'POST',
-              body: { regNumber: loginRegNumber, name: loginFullname, adminCode: loginAdminCode }
-            });
-          }
-
-          submitBtn.textContent = originalBtnText;
-          submitBtn.disabled = false;
-
-          if (data.role) {
-            const userData = {
-              userId: data.userId,
-              email: data.email || '',
-              name: data.name || data.username || loginFullname || '',
-              username: data.username || '',
-              role: data.role,
-              loginTime: new Date().toISOString()
-            };
-            localStorage.setItem('userData', JSON.stringify(userData));
-
-            if (data.role === 'admin' || data.role === 'student') {
-              redirectTo(data.redirect);
-            } else {
-              throw new Error('Unknown user role');
+            if (!loginFullname || !loginRegNumber || !loginAdminCode) {
+              alert('Please enter full name, registration number, and admin code');
+              return;
             }
-          } else {
-            alert(data?.error || data?.message || 'Login failed. Please try again.');
+            await adminLogin(loginRegNumber, loginFullname, loginAdminCode);
           }
-        } catch (error) {
-          console.error('Login error:', error);
-          alert('Network error. Please check your connection and try again.');
+        } finally {
           submitBtn.textContent = originalBtnText;
           submitBtn.disabled = false;
         }

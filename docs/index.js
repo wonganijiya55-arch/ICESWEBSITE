@@ -1,49 +1,6 @@
-// --- Unified Login Functions ---
-async function studentLogin(email, password) {
-  try {
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-    let data = {};
-    const text = await res.text();
-    if (text) {
-      try { data = JSON.parse(text); } catch (e) { data = {}; }
-    }
-    if (res.ok && data.redirect) {
-      window.location.replace(data.redirect);
-    } else {
-      alert(data.error || "Login failed. Check credentials.");
-    }
-  } catch (err) {
-    console.error("Student login error:", err);
-    alert("An unexpected error occurred.");
-  }
-}
 
-async function adminLogin(regNumber, name, adminCode) {
-  try {
-    const res = await fetch("/api/admins/login-code", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ regNumber, name, adminCode })
-    });
-    let data = {};
-    const text = await res.text();
-    if (text) {
-      try { data = JSON.parse(text); } catch (e) { data = {}; }
-    }
-    if (res.ok && data.redirect) {
-      window.location.replace(data.redirect);
-    } else {
-      alert(data.message || "Admin login failed.");
-    }
-  } catch (err) {
-    console.error("Admin login error:", err);
-    alert("An unexpected error occurred.");
-  }
-}
+
+// Admin login uses student login logic (no separate admin code)
 /* ===========================================================
    ICES UNIVERSAL JAVASCRIPT FILE
    Author: Wongani Jiya
@@ -53,7 +10,7 @@ async function adminLogin(regNumber, name, adminCode) {
    2. Registration Page Tabs & POST
    3. Login Page Tabs & POST
    4. Innovations Page Functionality
-   5. Executives Page Functionality
+   5. Announcements page Functionality
    =========================================================== */
 
 // Replace static import with dynamic import to avoid "import outside module" errors
@@ -161,437 +118,140 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
     /* ===========================================================
        SECTION 2: REGISTRATION PAGE TABS & POST
        =========================================================== */
-    const studentTab = document.getElementById('studentTab');
-    const adminTab = document.getElementById('adminTab');
-    const studentForm = document.getElementById('studentForm');
-    const adminForm = document.getElementById('adminForm');
 
-    // Tab switching
-    if (studentTab && adminTab && studentForm && adminForm) {
-      studentTab.addEventListener('click', () => {
-        studentTab.classList.add('active');
-        adminTab.classList.remove('active');
-        studentForm.classList.add('active');
-        adminForm.classList.remove('active');
-      });
+    // ===================== API BASE URL CONFIG =====================
+    // Set your dev and prod API base URLs here
+    const API_BASE_URL =
+      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+        ? "http://localhost:3000" // Dev
+        : "https://back-end-9-qudx.onrender.com"; // Prod (replace with your Render URL)
 
-      adminTab.addEventListener('click', () => {
-        adminTab.classList.add('active');
-        studentTab.classList.remove('active');
-        adminForm.classList.add('active');
-        studentForm.classList.remove('active');
-      });
-
-      // Hide tab buttons on large screens
-      function handleTabVisibility() {
-        const tabButtons = document.querySelector('.tab-buttons');
-        if (!tabButtons) return;
-        tabButtons.style.display = (window.innerWidth >= 992) ? 'none' : 'flex';
-      }
-      window.addEventListener('load', handleTabVisibility);
-      window.addEventListener('resize', handleTabVisibility);
-    }
-
-    // ================= Registration POST (Student) =================
-    if (studentForm) {
-      studentForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const payload = {
-          name: studentForm.fullName?.value || '',
-          email: studentForm.email?.value || '',
-          password: studentForm.password?.value || '',
-          year: parseInt(studentForm.yearOfStudy?.value || '0', 10)
-        };
-        try {
-          const result = await API.registerUser(payload);
-          alert(result.message || 'Registration successful!');
-          studentForm.reset();
-        } catch (err) {
-          console.error(err);
-          alert('Error registering. Check console.');
-        }
-      });
-    }
-
-    // ================= Registration POST (Unified form on register.html) =================
-    const registrationForm = document.getElementById('registration-form');
-    if (registrationForm) {
-      // Disable native validation to avoid "not focusable" errors for hidden fields
-      registrationForm.setAttribute('novalidate', 'true');
-
-      // Toggle required attributes based on role selection
-      const roleRadios = document.querySelectorAll('input[name="role"]');
-      const studentFields = document.getElementById('student-fields');
-      const adminFields = document.getElementById('admin-fields');
-      const yearInput = document.getElementById('year');
-      const regNumberInput = document.getElementById('regnumber');
-      const passwordInput = document.getElementById('password');
-      const passwordLabel = document.getElementById('password-label');
-
-      // Utility: toggle required/disabled for all inputs in a container
-      function setInputsState(container, { required, disabled }) {
-        if (!container) return;
-        const controls = container.querySelectorAll('input, select, textarea');
-        controls.forEach(ctrl => {
-          ctrl.required = !!required;
-          ctrl.disabled = !!disabled;
+    // ===================== Robust safeFetch =====================
+    async function safeFetch(path, options = {}) {
+      const url = path.startsWith("http") ? path : `${API_BASE_URL}${path}`;
+      let res;
+      try {
+        res = await fetch(url, {
+          method: options.method || "GET",
+          headers: { "Content-Type": "application/json" },
+          body: options.body ? JSON.stringify(options.body) : undefined,
+          credentials: "include" // allow cookies if needed
         });
+      } catch (err) {
+        throw { error: `Network error: ${err.message || err}` };
       }
 
-      function applyRoleRequirements(role) {
-        const isStudent = role === 'student';
-        // Show/hide sections
-        if (studentFields) studentFields.style.display = isStudent ? 'block' : 'none';
-        if (adminFields) adminFields.style.display = !isStudent ? 'block' : 'none';
-
-        // Enable visible section, disable hidden section
-        setInputsState(studentFields, { required: isStudent, disabled: !isStudent });
-        setInputsState(adminFields,   { required: !isStudent, disabled: isStudent });
-
-        // Explicitly handle known fields
-        if (yearInput) { yearInput.required = true; yearInput.disabled = false; }
-        if (regNumberInput) { regNumberInput.required = true; regNumberInput.disabled = false; }
-        // Admins don't use password; students do
-        if (passwordInput && passwordLabel) {
-          if (isStudent) {
-            passwordInput.required = true;
-            passwordInput.disabled = false;
-            passwordInput.style.display = '';
-            passwordLabel.style.display = '';
-          } else {
-            passwordInput.required = false;
-            passwordInput.disabled = true;
-            passwordInput.style.display = 'none';
-            passwordLabel.style.display = 'none';
-          }
-        }
-      }
-
-      // Initialize on load based on selected role
-      const initialRole = (document.querySelector('input[name="role"]:checked')?.value || 'student').toLowerCase();
-      applyRoleRequirements(initialRole);
-
-      roleRadios.forEach(radio => {
-        radio.addEventListener('change', () => applyRoleRequirements(radio.value.toLowerCase()));
-      });
-
-      /* === Updated registration form submit handler (replace the existing handler block) === */
-      registrationForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const role = (document.querySelector('input[name="role"]:checked')?.value || 'student').toLowerCase();
-        const fullName = document.getElementById('fullname')?.value?.trim() || '';
-        const email = document.getElementById('email')?.value?.trim() || '';
-        const password = document.getElementById('password')?.value || '';
-
-        try {
-          let endpoint = '';
-          let payload = {};
-
-          if (role === 'student') {
-            const yearRaw = (document.getElementById('year')?.value || '0');
-            const year = parseInt(yearRaw, 10);
-            endpoint = '/api/students/register';
-            payload = { name: fullName, email, password, year };
-          } else {
-            const regNumber = regNumberInput?.value?.trim() || '';
-            const yearRaw = (yearInput?.value || '0');
-            const year = parseInt(yearRaw, 10);
-            if (!regNumber || !year) {
-              alert('Please provide registration number and year of study');
-              return;
-            }
-            // Use canonical backend keys: name, email, regNumber, year
-            endpoint = '/api/admins/register-code';
-            payload = { name: fullName, email, regNumber, year };
-          }
-
-          // Find submit button and set busy state
-          const submitBtn = registrationForm.querySelector('button[type="submit"]') || document.querySelector('#registrationSubmit');
-          const prevBtnText = submitBtn ? (submitBtn.textContent || submitBtn.innerText) : null;
-          if (submitBtn) {
-            submitBtn.disabled = true;
-            try { submitBtn.textContent = 'Registering...'; } catch (e) { /* ignore DOM write errors */ }
-          }
-
-          // Call the appropriate endpoint with canonical payload
-          let result = await safeFetch(endpoint, { method: 'POST', body: payload });
-
-          alert(result.message || (role === 'admin' ? 'Registration successful! Admin code sent to your email.' : 'Registration successful!'));
-          registrationForm.reset();
-          // Reapply role requirements after reset
-          applyRoleRequirements((document.querySelector('input[name="role"]:checked')?.value || 'student').toLowerCase());
-
-          if (confirm('Registration successful! Click OK to proceed to login page.')) {
-            redirectTo('/docs/login.html');
-          }
-        } catch (err) {
-          console.error(err);
-          // Prefer server-side validation messages if present
-          const serverErrors = err?.data?.errors || err?.errors || err?.response?.errors;
-          if (serverErrors && serverErrors.length) {
-            alert(serverErrors[0].msg || JSON.stringify(serverErrors));
-          } else if (err?.message) {
-            alert(err.message);
-          } else {
-            alert('Error registering. Check console.');
-          }
-        } finally {
-          // Restore submit button state
-          const submitBtn = registrationForm.querySelector('button[type="submit"]') || document.querySelector('#registrationSubmit');
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            try {
-              if (typeof prevBtnText !== 'undefined' && prevBtnText !== null) submitBtn.textContent = prevBtnText;
-            } catch (e) { /* ignore */ }
-          }
-        }
-      });
-      /* === End updated handler === */
-    }
-
-    // ================= Unified Login =================
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-      // Role toggle for login
-      const loginRoleRadios = document.querySelectorAll('input[name="loginRole"]');
-      const studentLoginFields = document.getElementById('student-login-fields');
-      const adminLoginFields = document.getElementById('admin-login-fields');
-      function applyLoginRole(role){
-        const isStudent = role === 'student';
-        if (studentLoginFields) studentLoginFields.style.display = isStudent ? 'block' : 'none';
-        if (adminLoginFields) adminLoginFields.style.display = isStudent ? 'none' : 'block';
-        // Required toggles
-        const email = document.getElementById('email');
-        const password = document.getElementById('password');
-        const loginFullname = document.getElementById('loginFullname');
-        const loginRegNumber = document.getElementById('loginRegNumber');
-        const loginAdminCode = document.getElementById('loginAdminCode');
-        if (email) email.required = isStudent;
-        if (password) password.required = isStudent;
-        if (loginFullname) loginFullname.required = !isStudent;
-        if (loginRegNumber) loginRegNumber.required = !isStudent;
-        if (loginAdminCode) loginAdminCode.required = !isStudent;
-      }
-      const initialLoginRole = (document.querySelector('input[name="loginRole"]:checked')?.value || 'student').toLowerCase();
-      applyLoginRole(initialLoginRole);
-      loginRoleRadios.forEach(r => r.addEventListener('change', () => applyLoginRole(r.value.toLowerCase())));
-
-      // Request Admin Code button logic
-      const requestAdminCodeBtn = document.getElementById('requestAdminCodeBtn');
-      if (requestAdminCodeBtn) {
-        // Update button visibility based on role
-        function updateRequestCodeBtnVisibility(role) {
-          requestAdminCodeBtn.style.display = (role === 'admin') ? 'block' : 'none';
-        }
-        updateRequestCodeBtnVisibility(initialLoginRole);
-        loginRoleRadios.forEach(r => r.addEventListener('change', () => updateRequestCodeBtnVisibility(r.value.toLowerCase())));
-
-        // Handle button click
-        requestAdminCodeBtn.addEventListener('click', async () => {
-          const name = document.getElementById('loginFullname')?.value?.trim();
-          const regNumber = document.getElementById('loginRegNumber')?.value?.trim();
-          const email = document.getElementById('loginAdminEmail')?.value?.trim();
-          
-          // Validate all required fields
-          if (!name || !regNumber || !email) {
-            alert('Please fill in full name, registration number, and email address');
-            return;
-          }
-          
-          // Validate email format
-          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailPattern.test(email)) {
-            alert('Please enter a valid email address');
-            return;
-          }
-          
-          // Prompt for year of study
-          const yearRaw = prompt('Enter your year of study (1, 2, 3, 4, or 5):')?.trim();
-          const year = parseInt(yearRaw || '', 10);
-          
-          if (!yearRaw || isNaN(year) || year < 1 || year > 5) {
-            alert('Please provide a valid year of study (1-5)');
-            return;
-          }
-
-          const originalBtnText = requestAdminCodeBtn.textContent;
-          requestAdminCodeBtn.disabled = true;
-          requestAdminCodeBtn.textContent = 'Sending...';
-
+      let text = "";
+      let data = undefined;
+      try {
+        text = await res.text();
+        if (text) {
           try {
-            // Try the primary endpoint first, with fallback
-            let result;
-            try {
-              result = await safeFetch('/api/admins/register-code', {
-                method: 'POST',
-                body: { name, email, regNumber, year }
-              });
-            } catch (primaryErr) {
-              console.warn('Primary endpoint failed, trying fallback:', primaryErr);
-              // Fallback to alternate endpoint if available
-              result = await safeFetch('/api/admins/resend-code', {
-                method: 'POST',
-                body: { name, email, regNumber, year }
-              });
-            }
-            alert(result.message || 'Admin code sent successfully! Check your email for the code.');
-          } catch (err) {
-            console.error('Request admin code error:', err);
-            const serverErrors = err?.data?.errors || err?.errors;
-            if (serverErrors && serverErrors.length) {
-              alert(serverErrors[0].msg || JSON.stringify(serverErrors));
-            } else {
-              alert(err.message || 'Failed to send admin code. Please try again.');
-            }
-          } finally {
-            requestAdminCodeBtn.disabled = false;
-            requestAdminCodeBtn.textContent = originalBtnText;
+            data = JSON.parse(text);
+          } catch {
+            data = { error: "Invalid JSON response", raw: text };
           }
-        });
+        } else {
+          data = {};
+        }
+      } catch (e) {
+        data = { error: "Failed to read response body" };
       }
 
-      loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const role = (document.querySelector('input[name="loginRole"]:checked')?.value || 'student').toLowerCase();
-        const email = document.getElementById('email')?.value?.trim();
-        const password = document.getElementById('password')?.value;
-        const loginFullname = document.getElementById('loginFullname')?.value?.trim();
-        const loginRegNumber = document.getElementById('loginRegNumber')?.value?.trim();
-        const loginAdminCode = document.getElementById('loginAdminCode')?.value?.trim();
-
-        const submitBtn = loginForm.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.textContent;
-        submitBtn.textContent = 'Logging in...';
-        submitBtn.disabled = true;
-
-        try {
-          if (role === 'student') {
-            if (!email || !password) {
-              alert('Please enter both email and password');
-              return;
-            }
-            await studentLogin(email, password);
-          } else {
-            if (!loginFullname || !loginRegNumber || !loginAdminCode) {
-              alert('Please enter full name, registration number, and admin code');
-              return;
-            }
-            await adminLogin(loginRegNumber, loginFullname, loginAdminCode);
-          }
-        } finally {
-          submitBtn.textContent = originalBtnText;
-          submitBtn.disabled = false;
-        }
-      });
-    }
-
-    /**
-     * Check for existing user session on login page
-     * If user is already logged in, offer to continue to dashboard
-     */
-    function checkExistingSession() {
-      // Only run on login page
-      if (!loginForm) return;
-
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        try {
-          const user = JSON.parse(userData);
-          console.log('Existing session found:', user.email || user.name || user.username || '');
-          const who = user.name || user.username || user.email || 'your account';
-          const continueSession = confirm(`You're already logged in as ${who}. Continue to dashboard?`);
-          if (continueSession) {
-            if (user.role === 'admin') {
-              redirectTo(user.redirect || '/docs/admin.html');
-            } else if (user.role === 'student') {
-              redirectTo(user.redirect || '/docs/students.html');
-            }
-          } else {
-            localStorage.removeItem('userData');
-            console.log('Previous session cleared for new login');
-          }
-        } catch (error) {
-          console.error('Error checking session:', error);
-          localStorage.removeItem('userData');
-        }
+      if (!res.ok) {
+        throw { ...data, status: res.status, error: data?.error || data?.message || `HTTP ${res.status}` };
       }
+      return data;
     }
 
-    // Check for existing session when page loads
-    checkExistingSession();
+function redirectTo(path) {
+  window.location.href = path;
+}
 
-    // Legacy login forms (kept for backwards compatibility if needed)
-    const studentLoginTab = document.getElementById('studentLoginTab');
-    const adminLoginTab = document.getElementById('adminLoginTab');
-    const studentLoginForm = document.getElementById('studentLoginForm');
-    const adminLoginForm = document.getElementById('adminLoginForm');
+// ===================== Registration =====================
+const registrationForm = document.getElementById("registration-form");
+if (registrationForm) {
+  registrationForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const role = (document.querySelector('input[name="role"]:checked')?.value || "student").toLowerCase();
+    const name = document.getElementById("fullname")?.value?.trim();
+    const email = document.getElementById("email")?.value?.trim();
+    const password = document.getElementById("password")?.value;
+    const payload = { name, email, password };
+    let endpoint = role === "student" ? "/api/students/register" : "/api/admins/register";
+    try {
+      const result = await safeFetch(endpoint, { method: "POST", body: payload });
+      alert(result.message || "Registration successful");
+      registrationForm.reset();
+      if (confirm("Go to login page?")) redirectTo("/docs/login.html");
+    } catch (err) {
+      console.error(err);
+      alert(err.error || err.message || "Registration failed");
+    }
+  });
+}
 
-    // Tab switching for login (if using tabbed login)
-    if (studentLoginTab && adminLoginTab && studentLoginForm && adminLoginForm) {
-      studentLoginTab.addEventListener('click', () => {
-        studentLoginTab.classList.add('active');
-        adminLoginTab.classList.remove('active');
-        studentLoginForm.classList.add('active');
-        adminLoginForm.classList.remove('active');
-      });
-      adminLoginTab.addEventListener('click', () => {
-        adminLoginTab.classList.add('active');
-        studentLoginTab.classList.remove('active');
-        adminLoginForm.classList.add('active');
-        studentLoginForm.classList.remove('active');
-      });
+// ===================== Login =====================
+const loginForm = document.getElementById("loginForm");
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const role = (document.querySelector('input[name="loginRole"]:checked')?.value || "student").toLowerCase();
+    const email = document.getElementById("email")?.value?.trim();
+    const password = document.getElementById("password")?.value;
+
+    if (!email || !password) {
+      alert("Please enter email and password");
+      return;
     }
 
-    // Legacy Student Login (updated to use centralized API)
-    if (studentLoginForm && !loginForm) {
-      studentLoginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const creds = {
-          email: studentLoginForm.email.value,
-          password: studentLoginForm.password.value
-        };
-        try {
-          const data = await safeFetch('/api/login', {
-            method: 'POST',
-            body: creds
-          });
-          if (data.role === 'student') {
-            redirectTo(data.redirect);
-          } else {
-            alert(data.error || data.message || 'Login failed!');
-          }
-        } catch (err) {
-          console.error('Student login error:', err);
-          alert('Error logging in. Check console.');
-        }
-      });
-    }
+    const endpoint = role === "student" ? "/api/login" : "/api/admins/login";
+    const payload = { email, password };
 
-    // Legacy Admin Login (updated to use centralized API)
-    if (adminLoginForm && !loginForm) {
-      adminLoginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const creds = {
-          email: adminLoginForm.email.value,
-          password: adminLoginForm.password.value
-        };
-        try {
-          const data = await safeFetch('/api/login', {
-            method: 'POST',
-            body: creds
-          });
-          if (data.role === 'admin') {
-            redirectTo(data.redirect);
-          } else {
-            alert(data.error || data.message || 'Login failed!');
-          }
-        } catch (err) {
-          console.error('Admin login error:', err);
-          alert('Error logging in. Check console.');
-        }
-      });
+    try {
+      const data = await safeFetch(endpoint, { method: "POST", body: payload });
+      // Store user data in localStorage
+      localStorage.setItem("userData", JSON.stringify(data));
+      // Use backend redirect if present, fallback to dashboard
+      if (data.redirect) {
+        redirectTo(data.redirect);
+      } else if (data.role === "admin") {
+        redirectTo("/docs/admin.html");
+      } else if (data.role === "student") {
+        redirectTo("/docs/students.html");
+      } else {
+        alert("Login successful, but no redirect provided.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert(err.error || err.message || "Login failed");
     }
+  });
+}
+
+// ===================== Existing Session =====================
+(function checkSession() {
+  const userData = localStorage.getItem("userData");
+  if (!userData) return;
+  try {
+    const user = JSON.parse(userData);
+    const cont = confirm(`You're already logged in as ${user.name || user.email}. Continue?`);
+    if (cont) {
+      if (user.redirect) {
+        redirectTo(user.redirect);
+      } else if (user.role === "admin") {
+        redirectTo("/docs/admin.html");
+      } else if (user.role === "student") {
+        redirectTo("/docs/students.html");
+      }
+    } else {
+      localStorage.removeItem("userData");
+    }
+  } catch (err) {
+    localStorage.removeItem("userData");
+  }
+})();
+
 
     /* ===========================================================
        SECTION 4: INNOVATIONS PAGE FUNCTIONALITY
@@ -636,35 +296,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
       });
     }
 
-    /* ===========================================================
-       SECTION 5: EXECUTIVES PAGE FUNCTIONALITY
-       =========================================================== */
-    const execCards = document.querySelectorAll(".exec-card");
-    execCards.forEach(card => {
-      const readMoreBtn = card.querySelector(".read-more");
-      if (readMoreBtn) {
-        readMoreBtn.addEventListener("click", () => {
-          card.classList.toggle("expanded");
-        });
-      }
-    });
-
-    const quoteElement = document.getElementById("quote");
-    if (quoteElement) {
-      const quotes = [
-        "Leadership is service, not position.",
-        "Innovation distinguishes between a leader and a follower.",
-        "Great leaders inspire others to lead.",
-        "Success is built on teamwork and vision."
-      ];
-      let quoteIndex = 0;
-      function rotateQuotes() {
-        quoteElement.textContent = quotes[quoteIndex];
-        quoteIndex = (quoteIndex + 1) % quotes.length;
-      }
-      rotateQuotes();
-      setInterval(rotateQuotes, 6000);
-    }
+    // Executives section removed: no longer needed
 
     /* ===========================================================
        SECTION 6: CONTACT PAGE – SIMPLE FORM HANDLER
@@ -911,3 +543,236 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
   };
 
 })(); // end initApi IIFE
+
+    /* ===========================================================
+       SECTION 7: FORGOT PASSWORD PAGE FUNCTIONALITY
+       Handles all logic for forgot-password.html (OTP, reset, etc.)
+       =========================================================== */
+    if (window.location.pathname.endsWith('forgot-password.html')) {
+      // State management
+      let currentStep = 1;
+      let userEmail = '';
+      let otpToken = '';
+      let resendTimeout = null;
+
+      // Use centralized API helper for all POSTs
+      async function callApi(path, body) {
+        const { safeFetch } = await import('./api.js');
+        return await safeFetch(path, { method: 'POST', body });
+      }
+
+      // DOM Elements
+      const emailForm = document.getElementById('emailForm');
+      const otpForm = document.getElementById('otpForm');
+      const resetPasswordForm = document.getElementById('resetPasswordForm');
+      const messageBox = document.getElementById('messageBox');
+      const otpInputs = document.querySelectorAll('.otp-input');
+      const resendBtn = document.getElementById('resendOtpBtn');
+      const resendTimer = document.getElementById('resendTimer');
+
+      // Utility Functions
+      function showMessage(message, type) {
+        messageBox.textContent = message;
+        messageBox.className = `message ${type} show`;
+        setTimeout(() => {
+          messageBox.classList.remove('show');
+        }, 5000);
+      }
+
+      function setLoading(button, isLoading) {
+        if (isLoading) {
+          button.disabled = true;
+          button.innerHTML += '<span class="loading"></span>';
+        } else {
+          button.disabled = false;
+          const loading = button.querySelector('.loading');
+          if (loading) loading.remove();
+        }
+      }
+
+      function goToStep(step) {
+        // Hide all steps
+        document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.step').forEach(s => {
+          s.classList.remove('active', 'completed');
+        });
+
+        // Show current step
+        document.getElementById(`step${step}`).classList.add('active');
+        document.getElementById(`step${step}Indicator`).classList.add('active');
+
+        // Mark previous steps as completed
+        for (let i = 1; i < step; i++) {
+          document.getElementById(`step${i}Indicator`).classList.add('completed');
+        }
+
+        currentStep = step;
+      }
+
+      function startResendTimer() {
+        let timeLeft = 60;
+        resendBtn.disabled = true;
+        resendTimeout = setInterval(() => {
+          timeLeft--;
+          resendTimer.textContent = `(${timeLeft}s)`;
+          if (timeLeft <= 0) {
+            clearInterval(resendTimeout);
+            resendBtn.disabled = false;
+            resendTimer.textContent = '';
+          }
+        }, 1000);
+      }
+
+      // OTP Input Handler
+      otpInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+          if (e.target.value.length === 1) {
+            if (index < otpInputs.length - 1) {
+              otpInputs[index + 1].focus();
+            }
+          }
+        });
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            otpInputs[index - 1].focus();
+          }
+        });
+        // Allow paste
+        input.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const pastedData = e.clipboardData.getData('text').slice(0, 6);
+          pastedData.split('').forEach((char, i) => {
+            if (otpInputs[i]) {
+              otpInputs[i].value = char;
+            }
+          });
+          if (pastedData.length === 6) {
+            otpInputs[5].focus();
+          }
+        });
+      });
+
+      // Password Validation
+      const newPasswordInput = document.getElementById('newPassword');
+      newPasswordInput?.addEventListener('input', (e) => {
+        const password = e.target.value;
+        document.getElementById('req-length').classList.toggle('valid', password.length >= 6);
+        document.getElementById('req-uppercase').classList.toggle('valid', /[A-Z]/.test(password));
+        document.getElementById('req-lowercase').classList.toggle('valid', /[a-z]/.test(password));
+        document.getElementById('req-number').classList.toggle('valid', /[0-9]/.test(password));
+      });
+
+      // Step 1: Send OTP
+      emailForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const sendBtn = document.getElementById('sendOtpBtn');
+        setLoading(sendBtn, true);
+        try {
+          const data = await callApi('/password-reset/request-otp', { email });
+          userEmail = email;
+          document.getElementById('emailDisplay').textContent = email;
+          showMessage(data.message || 'OTP sent successfully', 'success');
+          goToStep(2);
+          startResendTimer();
+          otpInputs[0].focus();
+        } catch (error) {
+          showMessage(error?.message || 'Network error. Please try again.', 'error');
+        } finally {
+          setLoading(sendBtn, false);
+        }
+      });
+
+      // Resend OTP
+      resendBtn?.addEventListener('click', async () => {
+        setLoading(resendBtn, true);
+        try {
+          await callApi('/password-reset/request-otp', { email: userEmail });
+          showMessage('OTP resent successfully!', 'success');
+          startResendTimer();
+          otpInputs.forEach(input => input.value = '');
+          otpInputs[0].focus();
+        } catch (error) {
+          showMessage(error?.message || 'Network error. Please try again.', 'error');
+        } finally {
+          setLoading(resendBtn, false);
+        }
+      });
+
+      // Step 2: Verify OTP
+      otpForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const otp = Array.from(otpInputs).map(input => input.value).join('');
+        const verifyBtn = document.getElementById('verifyOtpBtn');
+        if (otp.length !== 6) {
+          showMessage('Please enter all 6 digits', 'error');
+          return;
+        }
+        setLoading(verifyBtn, true);
+        try {
+          const data = await callApi('/password-reset/verify-otp', { email: userEmail, otp });
+          otpToken = data.resetToken;
+          showMessage('OTP verified successfully!', 'success');
+          goToStep(3);
+          clearInterval(resendTimeout);
+        } catch (error) {
+          showMessage(error?.message || 'Invalid OTP', 'error');
+          otpInputs.forEach(input => input.value = '');
+          otpInputs[0].focus();
+        } finally {
+          setLoading(verifyBtn, false);
+        }
+      });
+
+      // Step 3: Reset Password
+      resetPasswordForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const resetBtn = document.getElementById('resetPasswordBtn');
+        // Validation
+        if (newPassword.length < 6) {
+          showMessage('Password must be at least 6 characters', 'error');
+          return;
+        }
+        if (newPassword !== confirmPassword) {
+          showMessage('Passwords do not match', 'error');
+          return;
+        }
+        setLoading(resetBtn, true);
+        try {
+          await callApi('/password-reset/reset-password', { resetToken: otpToken, newPassword });
+          showMessage('Password reset successfully! Redirecting to login...', 'success');
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 2000);
+        } catch (error) {
+          showMessage(error?.message || 'Failed to reset password', 'error');
+        } finally {
+          setLoading(resetBtn, false);
+        }
+      });
+    }
+// --- Unified Login Functions ---
+async function studentLogin(email, password) {
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    let data = {};
+    const text = await res.text();
+    if (text) {
+      try { data = JSON.parse(text); } catch (e) { data = {}; }
+    }
+    if (res.ok && data.redirect) {
+      window.location.replace(data.redirect);
+    } else {
+      alert(data.error || "Login failed. Check credentials.");
+    }
+  } catch (err) {
+    console.error("Student login error:", err);
+    alert("An unexpected error occurred.");
+  }
+}

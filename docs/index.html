@@ -7,6 +7,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script>
+(function() {
+  const url = window.location.href;
+  // Detect repeated ?p= chains (common in your issue)
+  const maxDepth = 3; // adjust if needed
+  const hasRepeatedP = (url.match(/(\?p=)+/g) || []).length >= maxDepth;
+  if (hasRepeatedP) {
+    // Strip all query parameters and reload once
+    const cleanUrl = window.location.origin + window.location.pathname;
+    console.log('Cleaning repeated ?p= params, redirecting to:', cleanUrl);
+    window.location.replace(cleanUrl);
+  }
+})();
+</script>
 </head>
 <body class="index-page">
   <nav class="navbar">

@@ -2,58 +2,88 @@
  * Logged in.js – moved to docs root; imports adjusted
  */
 (function(){
+
   function ready(fn){
     if(document.readyState === 'loading'){
       document.addEventListener('DOMContentLoaded', fn);
     } else { fn(); }
   }
 
-  ready(function(){
+  // List of public (unprotected) pages
+  const PUBLIC_PAGES = [
+    '/docs/login.html',
+    '/docs/index.html',
+    '/docs/register.html',
+    '/docs/forgot-password.html',
+    '/docs/about.html',
+    '/docs/contact.html',
+    '/docs/gallery.html',
+    '/docs/announcements.html',
+    '/docs/events.html',
+    '/docs/innovations.html',
+    '/docs/404.html'
+  ];
 
-    // Universal redirect helper (requirement)
-    function redirectTo(path) {
-      window.location.replace(path);
+  // Only run authentication guard on protected pages
+  function isProtectedPage() {
+    const path = window.location.pathname.toLowerCase();
+    return !PUBLIC_PAGES.includes(path);
+  }
+
+  function redirectTo(path) {
+    window.location.replace(path);
+  }
+
+  function checkAuthentication() {
+    const userData = localStorage.getItem('userData');
+    if (!userData) {
+      alert('Please login to access this page');
+      redirectTo('/docs/login.html');
+      return false;
     }
-
-    function checkAuthentication() {
-      const userData = localStorage.getItem('userData');
-      if (!userData) {
-        alert('Please login to access this page');
-        redirectTo('/docs/login.html');
-        return false;
-      }
-      try {
-        const user = JSON.parse(userData);
-        const currentPath = window.location.pathname.toLowerCase();
-        const adminPages = ['admin.html','paymentsdata.html','studentrecords.html','updatevents.html','admin-profile.html'];
-        const studentPages = ['students.html','student-events.html','student-payments.html','student-support.html','profile.html'];
-        const isAdminOnlyPage = adminPages.some(p => currentPath.endsWith('/' + p));
-        const isStudentOnlyPage = studentPages.some(p => currentPath.endsWith('/' + p));
-        if (isAdminOnlyPage && user.role !== 'admin') {
-          alert('Access denied. This page is for administrators only.');
-          localStorage.removeItem('userData');
-          redirectTo('/docs/login.html');
-          return false;
-        }
-        if (isStudentOnlyPage && user.role !== 'student') {
-          alert('Access denied. This page is for students only.');
-          localStorage.removeItem('userData');
-          redirectTo('/docs/login.html');
-          return false;
-        }
-        const userNameElement = document.getElementById('userName');
-        if (userNameElement) {
-          const displayName = user.name || user.username || (user.email ? user.email.split('@')[0] : 'User');
-          userNameElement.textContent = displayName;
-        }
-        return true;
-      } catch (error) {
-        console.error('Error parsing user data:', error);
+    try {
+      const user = JSON.parse(userData);
+      const currentPath = window.location.pathname.toLowerCase();
+      const adminPages = ['admin.html','paymentsdata.html','studentrecords.html','updatevents.html','admin-profile.html'];
+      const studentPages = ['students.html','student-events.html','student-payments.html','student-support.html','profile.html'];
+      const isAdminOnlyPage = adminPages.some(p => currentPath.endsWith('/' + p));
+      const isStudentOnlyPage = studentPages.some(p => currentPath.endsWith('/' + p));
+      if (isAdminOnlyPage && user.role !== 'admin') {
+        alert('Access denied. This page is for administrators only.');
         localStorage.removeItem('userData');
         redirectTo('/docs/login.html');
         return false;
       }
+      if (isStudentOnlyPage && user.role !== 'student') {
+        alert('Access denied. This page is for students only.');
+        localStorage.removeItem('userData');
+        redirectTo('/docs/login.html');
+        return false;
+      }
+      const userNameElement = document.getElementById('userName');
+      if (userNameElement) {
+        const displayName = user.name || user.username || (user.email ? user.email.split('@')[0] : 'User');
+        userNameElement.textContent = displayName;
+      }
+      return true;
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      localStorage.removeItem('userData');
+      redirectTo('/docs/login.html');
+      return false;
     }
+  }
+
+  ready(function(){
+
+    // Early exit for public pages: skip all auth checks/redirects
+    if (!isProtectedPage()) {
+      // Still allow theme toggle, etc. on public pages
+      initTheme();
+      return;
+    }
+
+    checkAuthentication();
 
     function handleLogout() {
       if (confirm('Are you sure you want to logout?')) {
@@ -97,7 +127,6 @@
       if(e.key === THEME_KEY && e.newValue){ applyTheme(e.newValue); updateToggleUI(e.newValue); }
     });
 
-    checkAuthentication();
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
 
@@ -115,7 +144,7 @@
     initTheme();
 
     window.addEventListener('storage', (e) => {
-      if (e.key === 'userData' && !e.newValue) {
+      if (e.key === 'userData' && !e.newValue && isProtectedPage()) {
         redirectTo('/docs/index.html');
       }
     });

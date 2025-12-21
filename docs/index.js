@@ -124,81 +124,77 @@ const API_BASE_URL =
   window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://localhost:3000"
     : "https://back-end-9-qudx.onrender.com";
-
-async function safeFetch(path, options = {}) {
-  const url = path.startsWith('http') ? path : `${API_BASE_URL}${path}`;
-  const res = await fetch(url, {
-    method: options.method || 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    body: options.body ? JSON.stringify(options.body) : undefined,
-    credentials: 'include'
-  });
-
-  let data;
-  try { data = await res.json(); } catch { data = { error: 'Invalid JSON' }; }
-  if(!res.ok) throw { ...data, status: res.status };
-  return data;
+    
+// Clean redirect helper: removes query params & hash
+function redirectTo(path) {
+  window.location.replace(path.split('?')[0].split('#')[0]);
 }
-
-function redirectTo(path){ window.location.replace(path); }
 
 // ===================== Registration =====================
 const registrationForm = document.getElementById("registration-form");
-if(registrationForm){
-  registrationForm.addEventListener("submit", async e=>{
+if (registrationForm) {
+  registrationForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const role = document.querySelector('input[name="role"]:checked')?.value.toLowerCase() || 'student';
+    const role = (document.querySelector('input[name="role"]:checked')?.value || "student").toLowerCase();
     const name = document.getElementById("fullname")?.value?.trim();
     const email = document.getElementById("email")?.value?.trim();
     const password = document.getElementById("password")?.value;
     const payload = { name, email, password };
     const endpoint = role === "student" ? "/api/students/register" : "/api/admins/register";
-
-    try{
-      const result = await safeFetch(endpoint,{method:'POST', body:payload});
+    try {
+      const result = await safeFetch(endpoint, { method: "POST", body: payload });
       alert(result.message || "Registration successful");
       registrationForm.reset();
-      redirectTo('/docs/login.html');
-    } catch(err){
+      redirectTo("/docs/login.html");
+    } catch (err) {
       console.error(err);
-      alert(err.error || err.message || 'Registration failed');
+      alert(err.error || err.message || "Registration failed");
     }
   });
 }
 
 // ===================== Login =====================
 const loginForm = document.getElementById("loginForm");
-if(loginForm){
-  loginForm.addEventListener("submit", async e=>{
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const role = document.querySelector('input[name="loginRole"]:checked')?.value.toLowerCase() || 'student';
+    const role = (document.querySelector('input[name="loginRole"]:checked')?.value || "student").toLowerCase();
     const email = document.getElementById("email")?.value?.trim();
     const password = document.getElementById("password")?.value;
 
-    if(!email || !password){ alert('Enter email and password'); return; }
+    if (!email || !password) { alert("Please enter email and password"); return; }
 
-    const endpoint = role === 'student' ? '/api/login' : '/api/admins/login';
+    const endpoint = role === "student" ? "/api/login" : "/api/admins/login";
     const payload = { email, password };
 
-    try{
-      const data = await safeFetch(endpoint,{method:'POST', body:payload});
-      localStorage.setItem('userData', JSON.stringify(data));
+    try {
+      const data = await safeFetch(endpoint, { method: "POST", body: payload });
+      localStorage.setItem("userData", JSON.stringify(data));
 
-      // Clean dashboard redirect
-      if(data.role === 'admin') redirectTo('/docs/admin.html');
-      else if(data.role === 'student') redirectTo('/docs/students.html');
-      else alert('Login successful, no dashboard redirect');
-    } catch(err){
-      console.error(err);
-      alert(err.error || err.message || 'Login failed');
+      // Always clean redirect
+      if (data.redirect) redirectTo(data.redirect);
+      else if (data.role === "admin") redirectTo("/docs/admin.html");
+      else if (data.role === "student") redirectTo("/docs/students.html");
+      else alert("Login successful, but no redirect provided.");
+    } catch (err) {
+      console.error("Login error:", err);
+      alert(err.error || err.message || "Login failed");
     }
   });
 }
 
-// ===================== Optional Dashboard Guard =====================
-const DASHBOARD_PAGES = ['/docs/students.html','/docs/admin.html'];
-if(DASHBOARD_PAGES.includes(window.location.pathname)){
-  if(!localStorage.getItem('userData')) redirectTo('/docs/login.html');
+// ===================== Dashboard guard =====================
+function sessionGuard() {
+  const DASHBOARD_PAGES = ["/docs/students.html", "/docs/admin.html"];
+  if (!DASHBOARD_PAGES.includes(window.location.pathname)) return;
+  const userData = localStorage.getItem("userData");
+  if (!userData) redirectTo("/docs/login.html");
+}
+sessionGuard();
+
+// Strip leftover query params on page load
+if (window.location.search) {
+  window.history.replaceState({}, '', window.location.pathname);
 }
 
 

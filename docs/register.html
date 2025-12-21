@@ -14,20 +14,19 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     </head>
     <body>
-  <script> (function() {
+  <script>
+(function() {
   const url = new URL(window.location.href);
-  // Only add ?p= if not present and not already redirecting to self
-  if (!url.searchParams.has('p')) {
-    // Optionally, only add ?p= for specific logic (e.g., after login)
-    // url.searchParams.set('p', window.location.pathname);
-    // window.location.replace(url.pathname + '?p=' + encodeURIComponent(window.location.pathname));
-    // But by default, do nothing unless you have a real use-case for ?p=
-  } else {
-    // If ?p= is present, do NOT redirect or append again
-    // Optionally, you can clean up the URL if needed:
+  // If ?p= is already present, do NOT redirect or append again
+  if (url.searchParams.has('p')) {
+    // Optionally, clean up the URL (remove ?p=) ONCE, but do NOT reload/redirect again
     // window.history.replaceState({}, '', url.pathname);
+    return; // Stop further logic to prevent loops
   }
-  // The key: never redirect or append ?p= if already present!
+  // Only add ?p= if you have a real use-case (e.g., after login), not on every load!
+  // Example: Uncomment below ONLY if you need to add ?p= once
+  // url.searchParams.set('p', url.pathname);
+  // window.location.replace(url.pathname + '?p=' + encodeURIComponent(url.pathname));
 })();
 </script>
         <!-- ===== NAVBAR ===== -->

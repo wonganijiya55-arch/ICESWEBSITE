@@ -1,76 +1,153 @@
-(function(){
-  function ready(fn){
-    if(document.readyState === 'loading'){
+/**
+ * loggedin.js – Frontend-only authentication & session guard
+ */
+(function() {
+  function ready(fn) {
+    if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', fn);
-    } else { fn(); }
+    } else {
+      fn();
+    }
   }
 
-  ready(function(){
+  ready(function() {
 
-    // Clean redirect helper: removes all query params & hash
+    // ------------------ Helpers ------------------
+    const THEME_KEY = 'ices_theme_pref_v1';
+    const LAST_ACTIVITY_KEY = 'lastActivityAt';
+    const IDLE_LIMIT_MS = 20 * 60 * 1000; // 20 min
+
     function redirectTo(path) {
-      window.location.replace(path.split('?')[0].split('#')[0]);
+      if (!path) return;
+      const current = window.location.pathname;
+      if (current !== path) window.location.replace(path);
     }
 
-    function checkAuthentication() {
-      const userData = localStorage.getItem('userData');
-      if (!userData) {
-        alert('Please login to access this page');
-        redirectTo('/docs/login.html');
-        return false;
-      }
+    function getUserData() {
       try {
-        const user = JSON.parse(userData);
-        const currentPath = window.location.pathname.toLowerCase();
-        const adminPages = ['admin.html','paymentsdata.html','studentrecords.html','updatevents.html','admin-profile.html'];
-        const studentPages = ['students.html','student-events.html','student-payments.html','student-support.html','profile.html'];
-        const isAdminOnlyPage = adminPages.some(p => currentPath.endsWith('/' + p));
-        const isStudentOnlyPage = studentPages.some(p => currentPath.endsWith('/' + p));
-
-        if (isAdminOnlyPage && user.role !== 'admin') {
-          alert('Access denied. This page is for administrators only.');
-          localStorage.removeItem('userData');
-          redirectTo('/docs/login.html');
-          return false;
-        }
-        if (isStudentOnlyPage && user.role !== 'student') {
-          alert('Access denied. This page is for students only.');
-          localStorage.removeItem('userData');
-          redirectTo('/docs/login.html');
-          return false;
-        }
-
-        const userNameElement = document.getElementById('userName');
-        if (userNameElement) {
-          const displayName = user.name || user.username || (user.email ? user.email.split('@')[0] : 'User');
-          userNameElement.textContent = displayName;
-        }
-        return true;
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        localStorage.removeItem('userData');
-        redirectTo('/docs/login.html');
-        return false;
+        const raw = localStorage.getItem('userData');
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
       }
+    }
+
+    function saveLastActivity() {
+      localStorage.setItem(LAST_ACTIVITY_KEY, Date.now());
+    }
+
+    function checkIdleLogout() {
+      const user = getUserData();
+      if (!user) return;
+      const last = parseInt(localStorage.getItem(LAST_ACTIVITY_KEY) || '0', 10);
+      if (Date.now() - last >= IDLE_LIMIT_MS) {
+        alert('Session expired due to inactivity.');
+        localStorage.removeItem('userData');
+        localStorage.removeItem(LAST_ACTIVITY_KEY);
+        redirectTo('/docs/login.html');
+      }
+    }
+
+    function applyTheme(theme) {
+      const html = document.documentElement;
+      if (theme === 'dark') html.setAttribute('data-theme', 'dark');
+      else html.removeAttribute('data-theme');
+      updateThemeToggleUI(theme);
+    }
+
+    function updateThemeToggleUI(theme) {
+      const btn = document.getElementById('themeToggleBtn');
+      if (!btn) return;
+      const icon = btn.querySelector('i');
+      const label = btn.querySelector('.label');
+      if (!icon || !label) return;
+      if (theme === 'dark') {
+        icon.className = 'fas fa-moon';
+        label.textContent = 'Dark';
+        btn.title = 'Switch to light theme';
+      } else {
+        icon.className = 'fas fa-sun';
+        label.textContent = 'Light';
+        btn.title = 'Switch to dark theme';
+      }
+    }
+
+    function initTheme() {
+      let theme = localStorage.getItem(THEME_KEY);
+      if (!theme) {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      applyTheme(theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme(next);
     }
 
     function handleLogout() {
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('userData');
-        localStorage.removeItem('lastActivityAt');
-        redirectTo('/docs/index.html');
+        localStorage.removeItem(LAST_ACTIVITY_KEY);
+        redirectTo('/docs/login.html');
       }
     }
 
+    // ------------------ Authentication Guard ------------------
+    function checkAuthentication() {
+      const user = getUserData();
+      const currentPath = window.location.pathname.toLowerCase();
+      const adminPages = ['/docs/admin.html','/docs/paymentsdata.html','/docs/studentrecords.html','/docs/updatevents.html','/docs/admin-profile.html'];
+      const studentPages = ['/docs/students.html','/docs/student-events.html','/docs/student-payments.html','/docs/student-support.html','/docs/profile.html'];
+
+      if (!user) {
+        alert('Please login to access this page.');
+        redirectTo('/docs/login.html');
+        return false;
+      }
+
+      if (adminPages.includes(currentPath) && user.role !== 'admin') {
+        alert('Access denied. Admins only.');
+        localStorage.removeItem('userData');
+        redirectTo('/docs/login.html');
+        return false;
+      }
+
+      if (studentPages.includes(currentPath) && user.role !== 'student') {
+        alert('Access denied. Students only.');
+        localStorage.removeItem('userData');
+        redirectTo('/docs/login.html');
+        return false;
+      }
+
+      const userNameEl = document.getElementById('userName');
+      if (userNameEl) {
+        userNameEl.textContent = user.name || user.username || (user.email ? user.email.split('@')[0] : 'User');
+      }
+
+      return true;
+    }
+
+    // ------------------ Init ------------------
     checkAuthentication();
 
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
 
-    // Optional: strip query params on page load (prevents loops)
-    if (window.location.search) {
-      window.history.replaceState({}, '', window.location.pathname);
-    }
+    const themeBtn = document.getElementById('themeToggleBtn');
+    if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'userData' && !e.newValue) redirectTo('/docs/login.html');
+      if (e.key === THEME_KEY && e.newValue) applyTheme(e.newValue);
+    });
+
+    ['mousemove','keydown','click','scroll','touchstart'].forEach(evt => window.addEventListener(evt, saveLastActivity, {passive:true}));
+    saveLastActivity();
+    setInterval(checkIdleLogout, 30000);
+
+    initTheme();
   });
 })();

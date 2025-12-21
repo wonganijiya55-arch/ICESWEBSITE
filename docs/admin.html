@@ -9,17 +9,20 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <script>
   (function() {
-    const url = window.location.href;
-    // Detect repeated ?p= chains (common in your issue)
-    const maxDepth = 3; // adjust if needed
-    const hasRepeatedP = (url.match(/(\?p=)+/g) || []).length >= maxDepth;
-    if (hasRepeatedP) {
-      // Strip all query parameters and reload once
-      const cleanUrl = window.location.origin + window.location.pathname;
-      console.log('Cleaning repeated ?p= params, redirecting to:', cleanUrl);
-      window.location.replace(cleanUrl);
-    }
-  })();
+  const url = new URL(window.location.href);
+  // Only add ?p= if not present and not already redirecting to self
+  if (!url.searchParams.has('p')) {
+    // Optionally, only add ?p= for specific logic (e.g., after login)
+    // url.searchParams.set('p', window.location.pathname);
+    // window.location.replace(url.pathname + '?p=' + encodeURIComponent(window.location.pathname));
+    // But by default, do nothing unless you have a real use-case for ?p=
+  } else {
+    // If ?p= is present, do NOT redirect or append again
+    // Optionally, you can clean up the URL if needed:
+    // window.history.replaceState({}, '', url.pathname);
+  }
+  // The key: never redirect or append ?p= if already present!
+})();
   </script>
 </head>
 <body>

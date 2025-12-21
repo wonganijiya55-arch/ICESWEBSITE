@@ -16,6 +16,7 @@
 // Replace static import with dynamic import to avoid "import outside module" errors
 
 // Universal redirect helper (requirement)
+// Universal redirect helper (used only for login success)
 function redirectTo(path) {
   window.location.replace(path);
 }
@@ -183,7 +184,8 @@ if (registrationForm) {
       const result = await safeFetch(endpoint, { method: "POST", body: payload });
       alert(result.message || "Registration successful");
       registrationForm.reset();
-      if (confirm("Go to login page?")) redirectTo("/docs/login.html");
+      // Always redirect cleanly to login page, no parameters
+      redirectTo("/docs/login.html");
     } catch (err) {
       console.error(err);
       alert(err.error || err.message || "Registration failed");
@@ -210,15 +212,15 @@ if (loginForm) {
 
     try {
       const data = await safeFetch(endpoint, { method: "POST", body: payload });
-      // Store user data in localStorage
+      // Store user data in localStorage exactly once
       localStorage.setItem("userData", JSON.stringify(data));
-      // Use backend redirect if present, fallback to dashboard
+      // Only login page performs redirect, using backend-provided path
       if (data.redirect) {
-        redirectTo(data.redirect);
+        window.location.replace(data.redirect);
       } else if (data.role === "admin") {
-        redirectTo("/docs/admin.html");
+        window.location.replace("/docs/admin.html");
       } else if (data.role === "student") {
-        redirectTo("/docs/students.html");
+        window.location.replace("/docs/students.html");
       } else {
         alert("Login successful, but no redirect provided.");
       }
@@ -229,28 +231,18 @@ if (loginForm) {
   });
 }
 
-// ===================== Existing Session =====================
-(function checkSession() {
+// ===================== Dashboard Session Guard =====================
+function sessionGuard() {
+  // Only run on dashboard pages
+  const DASHBOARD_PAGES = ["/docs/students.html", "/docs/admin.html"];
+  if (!DASHBOARD_PAGES.includes(window.location.pathname)) return;
   const userData = localStorage.getItem("userData");
-  if (!userData) return;
-  try {
-    const user = JSON.parse(userData);
-    const cont = confirm(`You're already logged in as ${user.name || user.email}. Continue?`);
-    if (cont) {
-      if (user.redirect) {
-        redirectTo(user.redirect);
-      } else if (user.role === "admin") {
-        redirectTo("/docs/admin.html");
-      } else if (user.role === "student") {
-        redirectTo("/docs/students.html");
-      }
-    } else {
-      localStorage.removeItem("userData");
-    }
-  } catch (err) {
-    localStorage.removeItem("userData");
+  if (!userData) {
+    window.location.replace("/docs/login.html");
   }
-})();
+  // If session exists, do nothing (no redirect)
+}
+sessionGuard();
 
 
     /* ===========================================================

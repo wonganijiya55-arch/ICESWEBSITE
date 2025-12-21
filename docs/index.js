@@ -1,5 +1,3 @@
-
-
 // Admin login uses student login logic (no separate admin code)
 /* ===========================================================
    ICES UNIVERSAL JAVASCRIPT FILE
@@ -14,6 +12,20 @@
    =========================================================== */
 
 // Replace static import with dynamic import to avoid "import outside module" errors
+
+// --- Clean URL and robust auth guard ---
+(function() {
+  // Remove repeated query parameters like ?p= recursively
+  function cleanUrl() {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('p')) {
+      url.search = '';
+      window.history.replaceState({}, '', url.toString());
+    }
+  }
+  cleanUrl();
+})();
+// --- End clean URL/auth guard ---
 
 // Universal redirect helper (requirement)
 // Universal redirect helper (used only for login success)

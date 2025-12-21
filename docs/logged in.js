@@ -1,6 +1,42 @@
 /**
  * loggedin.js – Frontend-only authentication & session guard
  */
+
+// --- Clean URL and robust auth guard ---
+(function() {
+  // Remove repeated query parameters like ?p= recursively
+  function cleanUrl() {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('p')) {
+      url.search = '';
+      window.history.replaceState({}, '', url.toString());
+    }
+  }
+  cleanUrl();
+
+  function redirectCleanly(path) {
+    const cleanPath = path.split('?')[0];
+    window.location.replace(cleanPath);
+  }
+
+  // Robust authentication and role guard
+  const userData = localStorage.getItem('userData');
+  if (!userData) {
+    redirectCleanly('/docs/login.html');
+  } else {
+    const user = JSON.parse(userData);
+    if (window.location.pathname.endsWith('admin.html') && user.role !== 'admin') {
+      localStorage.removeItem('userData');
+      redirectCleanly('/docs/login.html');
+    }
+    if (window.location.pathname.endsWith('students.html') && user.role !== 'student') {
+      localStorage.removeItem('userData');
+      redirectCleanly('/docs/login.html');
+    }
+  }
+})();
+// --- End clean URL/auth guard ---
+
 (function() {
   function ready(fn) {
     if (document.readyState === 'loading') {

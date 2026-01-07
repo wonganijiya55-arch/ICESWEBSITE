@@ -15,22 +15,24 @@
 
 // --- Clean URL and robust auth guard ---
 (function() {
-  // Remove repeated query parameters like ?p= recursively
-  function cleanUrl() {
+  function cleanUrlOnce() {
     const url = new URL(window.location.href);
     if (url.searchParams.has('p')) {
-      url.search = '';
-      window.history.replaceState({}, '', url.toString());
+      url.searchParams.delete('p');
+      window.history.replaceState({}, '', url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') + url.hash);
     }
   }
-  cleanUrl();
+  cleanUrlOnce();
 })();
 // --- End clean URL/auth guard ---
 
-// Universal redirect helper (requirement)
-// Universal redirect helper (used only for login success)
+// Universal redirect helper (used for login success and auth guards)
 function redirectTo(path) {
-  window.location.replace(path);
+  if (!path) return;
+  const normalized = (path.startsWith('/') ? path : '/' + path).split('?')[0].split('#')[0];
+  const current = window.location.pathname;
+  if (current === normalized) return; // Termination condition
+  window.location.replace(normalized);
 }
 let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBase;
 (async function initApi() {
@@ -159,10 +161,6 @@ async function safeFetch(path, options = {}) {
 
   if (!res.ok) throw {...data, status: res.status};
   return data;
-}
-
-function redirectTo(path) {
-  if (window.location.pathname !== path) window.location.replace(path);
 }
 
 // Registration

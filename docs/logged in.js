@@ -4,38 +4,47 @@
 
 // --- Clean URL and robust auth guard ---
 (function() {
-  // Remove repeated query parameters like ?p= recursively
-  function cleanUrl() {
+  function cleanUrlOnce() {
     const url = new URL(window.location.href);
     if (url.searchParams.has('p')) {
-      url.search = '';
-      window.history.replaceState({}, '', url.toString());
+      url.searchParams.delete('p');
+      window.history.replaceState({}, '', url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') + url.hash);
     }
   }
-  cleanUrl();
+  cleanUrlOnce();
 
   function redirectCleanly(path) {
-    const cleanPath = path.split('?')[0];
-    window.location.replace(cleanPath);
+    if (!path) return;
+    const normalized = (path.startsWith('/') ? path : '/' + path).split('?')[0].split('#')[0];
+    if (window.location.pathname === normalized) return;
+    window.location.replace(normalized);
   }
 
-  // Robust authentication and role guard
-  const userData = localStorage.getItem('userData');
+  const raw = localStorage.getItem('userData');
+  const userData = raw ? JSON.parse(raw) : null;
+
   if (!userData) {
     redirectCleanly('/docs/login.html');
   } else {
-    const user = JSON.parse(userData);
-    if (window.location.pathname.endsWith('admin.html') && user.role !== 'admin') {
+    const current = window.location.pathname;
+    if (current.endsWith('/docs/admin.html') && userData.role !== 'admin') {
       localStorage.removeItem('userData');
       redirectCleanly('/docs/login.html');
     }
-    if (window.location.pathname.endsWith('students.html') && user.role !== 'student') {
+    if (current.endsWith('/docs/students.html') && userData.role !== 'student') {
       localStorage.removeItem('userData');
       redirectCleanly('/docs/login.html');
     }
   }
 })();
 // --- End clean URL/auth guard ---
+
+function redirectTo(path) {
+  if (!path) return;
+  const normalized = (path.startsWith('/') ? path : '/' + path).split('?')[0].split('#')[0];
+  if (window.location.pathname === normalized) return;
+  window.location.replace(normalized);
+}
 
 (function() {
   function ready(fn) {
@@ -52,12 +61,6 @@
     const THEME_KEY = 'ices_theme_pref_v1';
     const LAST_ACTIVITY_KEY = 'lastActivityAt';
     const IDLE_LIMIT_MS = 20 * 60 * 1000; // 20 min
-
-    function redirectTo(path) {
-      if (!path) return;
-      const current = window.location.pathname;
-      if (current !== path) window.location.replace(path);
-    }
 
     function getUserData() {
       try {

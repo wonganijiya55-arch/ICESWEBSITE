@@ -10,32 +10,26 @@
   <script>
   (function() {
   const url = new URL(window.location.href);
-  // If ?p= is already present, do NOT redirect or append again
   if (url.searchParams.has('p')) {
-    // Optionally, clean up the URL (remove ?p=) ONCE, but do NOT reload/redirect again
-    // window.history.replaceState({}, '', url.pathname);
-    return; // Stop further logic to prevent loops
+    url.searchParams.delete('p');
+    window.history.replaceState({}, '', url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') + url.hash);
   }
-  // Only add ?p= if you have a real use-case (e.g., after login), not on every load!
-  // Example: Uncomment below ONLY if you need to add ?p= once
-  // url.searchParams.set('p', url.pathname);
-  // window.location.replace(url.pathname + '?p=' + encodeURIComponent(url.pathname));
   })();
   </script>
 </head>
 <body>
   <nav class="navbar">
     <div class="nav-container">
-      <a href="index.html" class="logo">
+      <a href="/docs/index.html" class="logo">
         <img src="images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
       </a>
       <ul class="nav-links">
-        <li><a href="admin.html" class="active">Home</a></li>
-        <li><a href="innovations.html">Innovations</a></li>
-        <li><a href="updatevents.html">Update Events</a></li>
-        <li><a href="paymentsdata.html">Payment Data</a></li>
-        <li><a href="studentrecords.html">Student Records</a></li>
-        <li><a href="admin-profile.html">Profile</a></li>
+        <li><a href="/docs/admin.html" class="active">Home</a></li>
+        <li><a href="/docs/innovations.html">Innovations</a></li>
+        <li><a href="/docs/updatevents.html">Update Events</a></li>
+        <li><a href="/docs/paymentsdata.html">Payment Data</a></li>
+        <li><a href="/docs/studentrecords.html">Student Records</a></li>
+        <li><a href="/docs/admin-profile.html">Profile</a></li>
       </ul>
       <div class="user-section">
         <span class="user-name" id="userName">Admin</span>

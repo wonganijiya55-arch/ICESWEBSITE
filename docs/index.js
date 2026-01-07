@@ -58,6 +58,25 @@ function resolveUrl(path) {
   return base + cleanPath;
 }
 
+// Helper to resolve page paths whether the site is deployed with `docs/` as the web root or under a subfolder
+function resolvePage(path) {
+  if (!path) return resolveUrl('');
+  const hasDocsInPath = window.location.pathname.includes('/docs/');
+  const clean = path.startsWith('/') ? path.slice(1) : path;
+  // If current URL contains /docs/, ensure we prefix with docs/ unless already present.
+  // If current URL does not contain /docs/, strip any leading docs/ from target paths.
+  const normalized = hasDocsInPath
+    ? (clean.startsWith('docs/') ? clean : `docs/${clean}`)
+    : (clean.startsWith('docs/') ? clean.replace(/^docs\//, '') : clean);
+  return resolveUrl(normalized);
+}
+
+// Redirect helper for page files (login.html, students.html, etc.) that works in both hosting modes
+function redirectToPage(pagePath) {
+  const target = resolvePage(pagePath);
+  redirectTo(target);
+}
+
 // --- Clean URL and robust auth guard ---
 (function() {
   function cleanUrlOnce() {
@@ -177,6 +196,42 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
       });
     }
 
+    // Normalize navigation and internal links so they work on Render and GitHub Pages
+    (function normalizeInternalLinks() {
+      const anchors = document.querySelectorAll('a[href]');
+      const skipProtocols = ['http:', 'https:', 'mailto:', 'tel:', 'javascript:'];
+      anchors.forEach(a => {
+        const raw = a.getAttribute('href');
+        if (!raw) return;
+        if (raw.startsWith('#')) return;
+        const lower = raw.toLowerCase();
+        if (skipProtocols.some(p => lower.startsWith(p))) return;
+
+        // Compute normalized page URL
+        // Remove origin and leading slash for consistent handling
+        let path = raw;
+        try {
+          // If raw is absolute path like /docs/about.html this will throw, fall back
+          const u = new URL(raw, window.location.origin);
+          // Only normalize same-origin links
+          if (u.origin === window.location.origin) {
+            path = u.pathname + (u.search || '') + (u.hash || '');
+          }
+        } catch (_) { /* ignore */ }
+
+        // Strip leading slash to feed into resolver
+        const noLead = path.startsWith('/') ? path.slice(1) : path;
+
+        // Only normalize .html pages or bare paths; leave assets alone
+        if (!/\.html(\?|#|$)/i.test(noLead) && noLead.includes('.')) return;
+
+        const normalized = resolvePage(noLead);
+        if (normalized && normalized !== raw) {
+          a.setAttribute('href', normalized);
+        }
+      });
+    })();
+
     /* ===========================================================
        SECTION 2: REGISTRATION PAGE TABS & POST
        =========================================================== */
@@ -226,7 +281,7 @@ if (registrationForm) {
       const res = await safeFetch(endpoint, {method:'POST', body:payload});
       alert(res.message || 'Registration successful');
       registrationForm.reset();
-      redirectTo('docs/login.html');
+      redirectToPage('login.html');
     } catch (err) { alert(err.error || err.message || 'Registration failed'); }
   });
 }
@@ -246,8 +301,8 @@ if (loginForm) {
       const data = await safeFetch(endpoint, {method:'POST', body:{email,password}});
       localStorage.setItem('userData', JSON.stringify(data));
       // Use frontend to redirect safely, no repeated ?p parameters
-      if (data.role === 'admin') redirectTo('docs/admin.html');
-      else if (data.role === 'student') redirectTo('docs/students.html');
+      if (data.role === 'admin') redirectToPage('admin.html');
+      else if (data.role === 'student') redirectToPage('students.html');
       else alert('Login successful but no redirect defined.');
     } catch (err) { alert(err.error || err.message || 'Login failed'); }
   });
@@ -342,7 +397,7 @@ if (loginForm) {
   function autoLogout(reason) {
     try { localStorage.removeItem('userData'); localStorage.removeItem(LAST_ACTIVITY_KEY); } catch (e) {}
     try { alert(reason || 'You have been logged out.'); } catch (e) {}
-    redirectTo('docs/login.html');
+    redirectToPage('login.html');
   }
 
   function checkIdleLogout() {
@@ -767,7 +822,8 @@ async function studentLogin(email, password) {
       try { data = JSON.parse(text); } catch (e) { data = {}; }
     }
     if (res.ok && data.redirect) {
-      window.location.replace(data.redirect);
+      // Normalize backend-provided redirect
+      redirectToPage(data.redirect);
     } else {
       alert(data.error || "Login failed. Check credentials.");
     }

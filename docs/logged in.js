@@ -38,6 +38,22 @@ function resolveUrl(path) {
   return base + cleanPath;
 }
 
+// Resolve page paths so they work whether /docs/ is part of the URL or not
+function resolvePage(path) {
+  if (!path) return resolveUrl('');
+  const hasDocsInPath = window.location.pathname.includes('/docs/');
+  const clean = path.startsWith('/') ? path.slice(1) : path;
+  const normalized = hasDocsInPath
+    ? (clean.startsWith('docs/') ? clean : `docs/${clean}`)
+    : (clean.startsWith('docs/') ? clean.replace(/^docs\//, '') : clean);
+  return resolveUrl(normalized);
+}
+
+function redirectToPage(pagePath) {
+  const target = resolvePage(pagePath);
+  redirectTo(target);
+}
+
 // --- Clean URL and robust auth guard ---
 (function() {
   function cleanUrlOnce() {
@@ -51,7 +67,7 @@ function resolveUrl(path) {
 
   function redirectCleanly(path) {
     if (!path) return;
-    const fullPath = resolveUrl(path);
+    const fullPath = resolvePage(path);
     const normalized = fullPath.split('?')[0].split('#')[0];
     if (window.location.pathname === normalized) return;
     window.location.replace(normalized);
@@ -67,18 +83,18 @@ function resolveUrl(path) {
   }
 
   if (!userData) {
-    redirectCleanly('docs/login.html');
+    redirectCleanly('login.html');
   } else {
     const current = window.location.pathname;
-    const adminPath = resolveUrl('docs/admin.html');
-    const studentsPath = resolveUrl('docs/students.html');
+    const adminPath = resolvePage('admin.html');
+    const studentsPath = resolvePage('students.html');
     if (current === adminPath && userData.role !== 'admin') {
       localStorage.removeItem('userData');
-      redirectCleanly('docs/login.html');
+      redirectCleanly('login.html');
     }
     if (current === studentsPath && userData.role !== 'student') {
       localStorage.removeItem('userData');
-      redirectCleanly('docs/login.html');
+      redirectCleanly('login.html');
     }
   }
 })();
@@ -129,7 +145,7 @@ function redirectTo(path) {
         alert('Session expired due to inactivity.');
         localStorage.removeItem('userData');
         localStorage.removeItem(LAST_ACTIVITY_KEY);
-        redirectTo('docs/login.html');
+        redirectToPage('login.html');
       }
     }
 
@@ -176,7 +192,7 @@ function redirectTo(path) {
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('userData');
         localStorage.removeItem(LAST_ACTIVITY_KEY);
-        redirectTo('docs/login.html');
+        redirectToPage('login.html');
       }
     }
 
@@ -185,30 +201,30 @@ function redirectTo(path) {
       const user = getUserData();
       const currentPath = window.location.pathname.toLowerCase();
       const adminPages = [
-        resolveUrl('docs/admin.html').toLowerCase(),
-        resolveUrl('docs/paymentsdata.html').toLowerCase(),
-        resolveUrl('docs/studentrecords.html').toLowerCase(),
-        resolveUrl('docs/updatevents.html').toLowerCase(),
-        resolveUrl('docs/admin-profile.html').toLowerCase()
+        resolvePage('admin.html').toLowerCase(),
+        resolvePage('paymentsdata.html').toLowerCase(),
+        resolvePage('studentrecords.html').toLowerCase(),
+        resolvePage('updatevents.html').toLowerCase(),
+        resolvePage('admin-profile.html').toLowerCase()
       ];
       const studentPages = [
-        resolveUrl('docs/students.html').toLowerCase(),
-        resolveUrl('docs/student-events.html').toLowerCase(),
-        resolveUrl('docs/student-payments.html').toLowerCase(),
-        resolveUrl('docs/student-support.html').toLowerCase(),
-        resolveUrl('docs/profile.html').toLowerCase()
+        resolvePage('students.html').toLowerCase(),
+        resolvePage('student-events.html').toLowerCase(),
+        resolvePage('student-payments.html').toLowerCase(),
+        resolvePage('student-support.html').toLowerCase(),
+        resolvePage('profile.html').toLowerCase()
       ];
 
       if (!user) {
         alert('Please login to access this page.');
-        redirectTo('docs/login.html');
+        redirectToPage('login.html');
         return false;
       }
 
       if (adminPages.includes(currentPath) && user.role !== 'admin') {
         alert('Access denied. Admins only.');
         localStorage.removeItem('userData');
-        redirectTo('docs/login.html');
+        redirectToPage('login.html');
         return false;
       }
 
@@ -237,7 +253,7 @@ function redirectTo(path) {
     if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
     window.addEventListener('storage', (e) => {
-      if (e.key === 'userData' && !e.newValue) redirectTo('docs/login.html');
+      if (e.key === 'userData' && !e.newValue) redirectToPage('login.html');
       if (e.key === THEME_KEY && e.newValue) applyTheme(e.newValue);
     });
 

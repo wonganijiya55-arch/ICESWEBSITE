@@ -17,32 +17,26 @@
   <script>
 (function() {
   const url = new URL(window.location.href);
-  // If ?p= is already present, do NOT redirect or append again
   if (url.searchParams.has('p')) {
-    // Optionally, clean up the URL (remove ?p=) ONCE, but do NOT reload/redirect again
-    // window.history.replaceState({}, '', url.pathname);
-    return; // Stop further logic to prevent loops
+    url.searchParams.delete('p');
+    window.history.replaceState({}, '', url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') + url.hash);
   }
-  // Only add ?p= if you have a real use-case (e.g., after login), not on every load!
-  // Example: Uncomment below ONLY if you need to add ?p= once
-  // url.searchParams.set('p', url.pathname);
-  // window.location.replace(url.pathname + '?p=' + encodeURIComponent(url.pathname));
 })();
 </script>
         <!-- ===== NAVBAR ===== -->
         <nav class="navbar">
             <div class="nav-container">
-                <a href="index.html" class="logo">
+                <a href="/docs/index.html" class="logo">
                     <img src="images/mubasiceslogo.png" alt="CESociety Logo" class="nav-logo">
                 </a>
                 <ul class="nav-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="about.html">About</a></li>
-                    <li><a href="gallery.html">Gallery</a></li>
-                    <li><a href="innovations.html">Innovations</a></li>
-                    <li><a href="announcements.html">Announcements</a></li>
-                    <li><a href="register.html">Register</a></li>
-                    <li><a href="contact.html" class="active">Contact</a></li>
+                    <li><a href="/docs/index.html">Home</a></li>
+                    <li><a href="/docs/about.html">About</a></li>
+                    <li><a href="/docs/gallery.html">Gallery</a></li>
+                    <li><a href="/docs/innovations.html">Innovations</a></li>
+                    <li><a href="/docs/announcements.html">Announcements</a></li>
+                    <li><a href="/docs/register.html">Register</a></li>
+                    <li><a href="/docs/contact.html" class="active">Contact</a></li>
                 </ul>
                 <div class="hamburger">
                     <div></div>

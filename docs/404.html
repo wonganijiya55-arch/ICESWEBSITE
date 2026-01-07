@@ -5,11 +5,14 @@
     <title>Redirecting...</title>
     <meta name="robots" content="noindex">
     <script>
-      // GitHub Pages SPA fallback: redirect to index with original path in query
       (function() {
-        var path = location.pathname + location.search + location.hash;
-        var target = (location.origin + location.pathname).replace(/\/404\.html$/i, '/') + '?p=' + encodeURIComponent(path);
-        // Hard redirect to root with preserved path
+        var currentUrl = new URL(location.href);
+        if (currentUrl.searchParams.has('p')) {
+          currentUrl.searchParams.delete('p');
+          history.replaceState({}, '', currentUrl.pathname + (currentUrl.searchParams.toString() ? '?' + currentUrl.searchParams.toString() : '') + currentUrl.hash);
+        }
+        var originalPath = location.pathname + location.search + location.hash;
+        var target = location.origin + '/docs/index.html' + '?p=' + encodeURIComponent(originalPath);
         window.location.replace(target);
       })();
     </script>

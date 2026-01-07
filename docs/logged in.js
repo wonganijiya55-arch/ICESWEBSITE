@@ -21,7 +21,13 @@
   }
 
   const raw = localStorage.getItem('userData');
-  const userData = raw ? JSON.parse(raw) : null;
+  let userData = null;
+  try {
+    userData = raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    console.error('Failed to parse userData:', e);
+    userData = null;
+  }
 
   if (!userData) {
     redirectCleanly('/docs/login.html');

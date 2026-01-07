@@ -9,7 +9,7 @@
         var currentUrl = new URL(location.href);
         if (currentUrl.searchParams.has('p')) {
           currentUrl.searchParams.delete('p');
-          history.replaceState({}, '', currentUrl.pathname);
+          history.replaceState({}, '', currentUrl.pathname + (currentUrl.searchParams.toString() ? '?' + currentUrl.searchParams.toString() : '') + currentUrl.hash);
         }
         var originalPath = location.pathname + location.search + location.hash;
         var target = location.origin + '/docs/index.html' + '?p=' + encodeURIComponent(originalPath);

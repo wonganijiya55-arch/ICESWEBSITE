@@ -2,6 +2,42 @@
  * loggedin.js – Frontend-only authentication & session guard
  */
 
+// --- Base Path Configuration ---
+// Must match the configuration in index.js
+(function() {
+  if (window.SITE_BASE_PATH) return; // Already configured
+  
+  const scriptPath = document.currentScript?.src || '';
+  let basePath = '/';
+  
+  if (scriptPath.includes('/ICESWEBSITE/')) {
+    basePath = '/ICESWEBSITE/';
+  } else {
+    const pathname = window.location.pathname;
+    // Match pattern: /something/docs/... where something is not empty
+    const match = pathname.match(/^(\/[^\/]+)\/docs\//);
+    if (match && match[1] !== '') {
+      basePath = match[1] + '/';
+    }
+  }
+  
+  const metaBase = document.querySelector('meta[name="base-path"]');
+  if (metaBase && metaBase.content) {
+    basePath = metaBase.content;
+  }
+  
+  if (!basePath.endsWith('/')) basePath += '/';
+  window.SITE_BASE_PATH = basePath;
+})();
+
+function resolveUrl(path) {
+  if (!path) return window.SITE_BASE_PATH || '/';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+  const base = window.SITE_BASE_PATH || '/';
+  return base + cleanPath;
+}
+
 // --- Clean URL and robust auth guard ---
 (function() {
   function cleanUrlOnce() {
@@ -15,7 +51,8 @@
 
   function redirectCleanly(path) {
     if (!path) return;
-    const normalized = (path.startsWith('/') ? path : '/' + path).split('?')[0].split('#')[0];
+    const fullPath = resolveUrl(path);
+    const normalized = fullPath.split('?')[0].split('#')[0];
     if (window.location.pathname === normalized) return;
     window.location.replace(normalized);
   }
@@ -30,16 +67,18 @@
   }
 
   if (!userData) {
-    redirectCleanly('/docs/login.html');
+    redirectCleanly('docs/login.html');
   } else {
     const current = window.location.pathname;
-    if (current.endsWith('/docs/admin.html') && userData.role !== 'admin') {
+    const adminPath = resolveUrl('docs/admin.html');
+    const studentsPath = resolveUrl('docs/students.html');
+    if (current === adminPath && userData.role !== 'admin') {
       localStorage.removeItem('userData');
-      redirectCleanly('/docs/login.html');
+      redirectCleanly('docs/login.html');
     }
-    if (current.endsWith('/docs/students.html') && userData.role !== 'student') {
+    if (current === studentsPath && userData.role !== 'student') {
       localStorage.removeItem('userData');
-      redirectCleanly('/docs/login.html');
+      redirectCleanly('docs/login.html');
     }
   }
 })();
@@ -47,7 +86,8 @@
 
 function redirectTo(path) {
   if (!path) return;
-  const normalized = (path.startsWith('/') ? path : '/' + path).split('?')[0].split('#')[0];
+  const fullPath = resolveUrl(path);
+  const normalized = fullPath.split('?')[0].split('#')[0];
   if (window.location.pathname === normalized) return;
   window.location.replace(normalized);
 }
@@ -89,7 +129,7 @@ function redirectTo(path) {
         alert('Session expired due to inactivity.');
         localStorage.removeItem('userData');
         localStorage.removeItem(LAST_ACTIVITY_KEY);
-        redirectTo('/docs/login.html');
+        redirectTo('docs/login.html');
       }
     }
 
@@ -136,7 +176,7 @@ function redirectTo(path) {
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('userData');
         localStorage.removeItem(LAST_ACTIVITY_KEY);
-        redirectTo('/docs/login.html');
+        redirectTo('docs/login.html');
       }
     }
 
@@ -144,26 +184,38 @@ function redirectTo(path) {
     function checkAuthentication() {
       const user = getUserData();
       const currentPath = window.location.pathname.toLowerCase();
-      const adminPages = ['/docs/admin.html','/docs/paymentsdata.html','/docs/studentrecords.html','/docs/updatevents.html','/docs/admin-profile.html'];
-      const studentPages = ['/docs/students.html','/docs/student-events.html','/docs/student-payments.html','/docs/student-support.html','/docs/profile.html'];
+      const adminPages = [
+        resolveUrl('docs/admin.html').toLowerCase(),
+        resolveUrl('docs/paymentsdata.html').toLowerCase(),
+        resolveUrl('docs/studentrecords.html').toLowerCase(),
+        resolveUrl('docs/updatevents.html').toLowerCase(),
+        resolveUrl('docs/admin-profile.html').toLowerCase()
+      ];
+      const studentPages = [
+        resolveUrl('docs/students.html').toLowerCase(),
+        resolveUrl('docs/student-events.html').toLowerCase(),
+        resolveUrl('docs/student-payments.html').toLowerCase(),
+        resolveUrl('docs/student-support.html').toLowerCase(),
+        resolveUrl('docs/profile.html').toLowerCase()
+      ];
 
       if (!user) {
         alert('Please login to access this page.');
-        redirectTo('/docs/login.html');
+        redirectTo('docs/login.html');
         return false;
       }
 
       if (adminPages.includes(currentPath) && user.role !== 'admin') {
         alert('Access denied. Admins only.');
         localStorage.removeItem('userData');
-        redirectTo('/docs/login.html');
+        redirectTo('docs/login.html');
         return false;
       }
 
       if (studentPages.includes(currentPath) && user.role !== 'student') {
         alert('Access denied. Students only.');
         localStorage.removeItem('userData');
-        redirectTo('/docs/login.html');
+        redirectTo('docs/login.html');
         return false;
       }
 
@@ -185,7 +237,7 @@ function redirectTo(path) {
     if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
     window.addEventListener('storage', (e) => {
-      if (e.key === 'userData' && !e.newValue) redirectTo('/docs/login.html');
+      if (e.key === 'userData' && !e.newValue) redirectTo('docs/login.html');
       if (e.key === THEME_KEY && e.newValue) applyTheme(e.newValue);
     });
 

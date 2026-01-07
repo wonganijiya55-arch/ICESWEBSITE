@@ -13,6 +13,51 @@
 
 // Replace static import with dynamic import to avoid "import outside module" errors
 
+// --- Base Path Configuration ---
+// Detects the base path where the site is hosted (e.g., "/ICESWEBSITE/" for GitHub Pages)
+// This allows the site to work both at root ("/") and under a subdirectory
+(function() {
+  // Get base path from document.currentScript or infer from pathname
+  const scriptPath = document.currentScript?.src || '';
+  let basePath = '/';
+  
+  // Try to detect from GitHub Pages pattern or script location
+  if (scriptPath.includes('/ICESWEBSITE/')) {
+    basePath = '/ICESWEBSITE/';
+  } else {
+    // Infer from current pathname - look for pattern like /project-name/docs/
+    const pathname = window.location.pathname;
+    // Match pattern: /something/docs/... where something is not empty
+    const match = pathname.match(/^(\/[^\/]+)\/docs\//);
+    if (match && match[1] !== '') {
+      // Only use as base if it's not just /docs (i.e., there's a project folder)
+      basePath = match[1] + '/';
+    }
+  }
+  
+  // Allow manual override via meta tag: <meta name="base-path" content="/ICESWEBSITE/">
+  const metaBase = document.querySelector('meta[name="base-path"]');
+  if (metaBase && metaBase.content) {
+    basePath = metaBase.content;
+  }
+  
+  // Ensure basePath ends with /
+  if (!basePath.endsWith('/')) basePath += '/';
+  
+  window.SITE_BASE_PATH = basePath;
+})();
+
+// Helper to resolve paths relative to base
+function resolveUrl(path) {
+  if (!path) return window.SITE_BASE_PATH || '/';
+  // If path is absolute URL, return as-is
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  // Remove leading slash if present
+  const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+  const base = window.SITE_BASE_PATH || '/';
+  return base + cleanPath;
+}
+
 // --- Clean URL and robust auth guard ---
 (function() {
   function cleanUrlOnce() {
@@ -29,7 +74,9 @@
 // Universal redirect helper (used for login success and auth guards)
 function redirectTo(path) {
   if (!path) return;
-  const normalized = (path.startsWith('/') ? path : '/' + path).split('?')[0].split('#')[0];
+  // Resolve path with base path
+  const fullPath = resolveUrl(path);
+  const normalized = fullPath.split('?')[0].split('#')[0];
   const current = window.location.pathname;
   if (current === normalized) return; // Termination condition
   window.location.replace(normalized);
@@ -179,7 +226,7 @@ if (registrationForm) {
       const res = await safeFetch(endpoint, {method:'POST', body:payload});
       alert(res.message || 'Registration successful');
       registrationForm.reset();
-      redirectTo('/docs/login.html');
+      redirectTo('docs/login.html');
     } catch (err) { alert(err.error || err.message || 'Registration failed'); }
   });
 }
@@ -199,8 +246,8 @@ if (loginForm) {
       const data = await safeFetch(endpoint, {method:'POST', body:{email,password}});
       localStorage.setItem('userData', JSON.stringify(data));
       // Use frontend to redirect safely, no repeated ?p parameters
-      if (data.role === 'admin') redirectTo('/docs/admin.html');
-      else if (data.role === 'student') redirectTo('/docs/students.html');
+      if (data.role === 'admin') redirectTo('docs/admin.html');
+      else if (data.role === 'student') redirectTo('docs/students.html');
       else alert('Login successful but no redirect defined.');
     } catch (err) { alert(err.error || err.message || 'Login failed'); }
   });
@@ -295,7 +342,7 @@ if (loginForm) {
   function autoLogout(reason) {
     try { localStorage.removeItem('userData'); localStorage.removeItem(LAST_ACTIVITY_KEY); } catch (e) {}
     try { alert(reason || 'You have been logged out.'); } catch (e) {}
-    redirectTo('/docs/login.html');
+    redirectTo('docs/login.html');
   }
 
   function checkIdleLogout() {

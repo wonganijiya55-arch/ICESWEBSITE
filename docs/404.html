@@ -6,13 +6,28 @@
     <meta name="robots" content="noindex">
     <script>
       (function() {
+        // Detect base path
+        var basePath = '/';
+        var pathname = location.pathname;
+        
+        // Check if we're in a subdirectory (e.g., /ICESWEBSITE/)
+        // Match pattern: /something/docs/... or /something/ where something is not empty
+        var match = pathname.match(/^(\/[^\/]+)\/docs\//);
+        if (match && match[1] !== '') {
+          basePath = match[1] + '/';
+        }
+        
+        // Clean up ?p parameter if present
         var currentUrl = new URL(location.href);
         if (currentUrl.searchParams.has('p')) {
           currentUrl.searchParams.delete('p');
           history.replaceState({}, '', currentUrl.pathname + (currentUrl.searchParams.toString() ? '?' + currentUrl.searchParams.toString() : '') + currentUrl.hash);
         }
+        
+        // Build redirect target with proper base path
         var originalPath = location.pathname + location.search + location.hash;
-        var target = location.origin + '/docs/index.html' + '?p=' + encodeURIComponent(originalPath);
+        var indexPath = basePath + 'docs/index.html';
+        var target = location.origin + indexPath + '?p=' + encodeURIComponent(originalPath);
         window.location.replace(target);
       })();
     </script>

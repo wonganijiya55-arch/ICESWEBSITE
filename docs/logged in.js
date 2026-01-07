@@ -14,9 +14,10 @@
     basePath = '/ICESWEBSITE/';
   } else {
     const pathname = window.location.pathname;
-    const match = pathname.match(/^(\/[^\/]+\/)/);
-    if (match && pathname.includes('/docs/')) {
-      basePath = match[1];
+    // Match pattern: /something/docs/... where something is not empty
+    const match = pathname.match(/^(\/[^\/]+)\/docs\//);
+    if (match && match[1] !== '') {
+      basePath = match[1] + '/';
     }
   }
   

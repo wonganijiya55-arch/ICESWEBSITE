@@ -11,9 +11,10 @@
         var pathname = location.pathname;
         
         // Check if we're in a subdirectory (e.g., /ICESWEBSITE/)
-        var match = pathname.match(/^(\/[^\/]+\/)/);
-        if (match && !pathname.endsWith('.html')) {
-          basePath = match[1];
+        // Match pattern: /something/docs/... or /something/ where something is not empty
+        var match = pathname.match(/^(\/[^\/]+)\/docs\//);
+        if (match && match[1] !== '') {
+          basePath = match[1] + '/';
         }
         
         // Clean up ?p parameter if present

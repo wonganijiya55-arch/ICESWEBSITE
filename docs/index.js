@@ -25,12 +25,13 @@
   if (scriptPath.includes('/ICESWEBSITE/')) {
     basePath = '/ICESWEBSITE/';
   } else {
-    // Infer from current pathname - look for common pattern
+    // Infer from current pathname - look for pattern like /project-name/docs/
     const pathname = window.location.pathname;
-    const match = pathname.match(/^(\/[^\/]+\/)/);
-    if (match && pathname.includes('/docs/')) {
-      // If we're in a subdirectory with /docs/, the base is the first segment
-      basePath = match[1];
+    // Match pattern: /something/docs/... where something is not empty
+    const match = pathname.match(/^(\/[^\/]+)\/docs\//);
+    if (match && match[1] !== '') {
+      // Only use as base if it's not just /docs (i.e., there's a project folder)
+      basePath = match[1] + '/';
     }
   }
   

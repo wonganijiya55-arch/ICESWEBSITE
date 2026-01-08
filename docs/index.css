@@ -555,8 +555,11 @@ header p {
 .glance-grid {
   display: grid;
   gap: 25px;  /* Increased gap between cards */
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   align-items: stretch;
+  justify-items: center; /* Center cards within columns */
+  justify-content: center; /* Center the grid tracks */
+  margin: 0 auto; /* Center the grid block */
 }
 
 .glance-card {
@@ -1077,8 +1080,11 @@ header p {
 
 .about-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 30px;
+  justify-items: center; /* Center cards within columns */
+  justify-content: center; /* Center the grid tracks */
+  margin: 0 auto; /* Center the grid block */
 }
 
 .about-card {
@@ -1132,8 +1138,11 @@ header p {
 
 .events-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 30px;
+  justify-items: center; /* Center cards within columns */
+  justify-content: center; /* Center the grid tracks */
+  margin: 0 auto; /* Center the grid block */
 }
 
 .event-card {
@@ -1449,3 +1458,12 @@ header p {
 .page-contact .card h3 { text-align: center; }
 .page-about .card h3 i,
 .page-contact .card h3 i { display: block; font-size: 2rem; color: #fe7701; margin-bottom: 12px; }
+
+@media (min-width: 992px) {
+  .glance-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .about-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

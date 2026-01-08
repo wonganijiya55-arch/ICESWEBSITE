@@ -12,7 +12,7 @@
   ready(async function(){
     let safeFetch;
     try {
-      const mod = await import('../../api.js');
+      const mod = await import('./api.js');
       safeFetch = mod.safeFetch;
       console.info('[Admin] Using API client with base', mod.currentBase());
     } catch (e) {
@@ -65,8 +65,12 @@
       fetchStudents().then(data => { students = data; renderStudents(students); });
       if(studentSearch){
         studentSearch.addEventListener('input', (e) => {
-          const q = e.target.value.toLowerCase();
-          const filtered = students.filter(s => s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q));
+          const q = (e.target.value || '').toLowerCase();
+          const filtered = students.filter(s => {
+            const name = (s.name || s.fullName || '').toLowerCase();
+            const email = (s.email || '').toLowerCase();
+            return name.includes(q) || email.includes(q);
+          });
           renderStudents(filtered);
         });
       }
@@ -121,8 +125,12 @@
       fetchAdmins().then(data => { admins = data; renderAdmins(admins); });
       if(adminSearch){
         adminSearch.addEventListener('input', (e) => {
-          const q = e.target.value.toLowerCase();
-          const filtered = admins.filter(a => a.username.toLowerCase().includes(q) || a.email.toLowerCase().includes(q));
+          const q = (e.target.value || '').toLowerCase();
+          const filtered = admins.filter(a => {
+            const username = (a.username || a.name || '').toLowerCase();
+            const email = (a.email || '').toLowerCase();
+            return username.includes(q) || email.includes(q);
+          });
           renderAdmins(filtered);
         });
       }
@@ -182,8 +190,12 @@
       fetchPayments().then(data => { payments = data; renderPayments(payments); });
       if(paymentSearch){
         paymentSearch.addEventListener('input', (e) => {
-          const q = e.target.value.toLowerCase();
-          const filtered = payments.filter(p => (p.student_name && p.student_name.toLowerCase().includes(q)) || p.purpose.toLowerCase().includes(q));
+          const q = (e.target.value || '').toLowerCase();
+          const filtered = payments.filter(p => {
+            const student = (p.student_name || '').toLowerCase();
+            const purpose = (p.purpose || '').toLowerCase();
+            return student.includes(q) || purpose.includes(q);
+          });
           renderPayments(filtered);
         });
       }

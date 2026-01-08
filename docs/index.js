@@ -234,37 +234,8 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
 
     /* ===========================================================
        SECTION 2: REGISTRATION PAGE TABS & POST
+       Use centralized API helpers from api.js for base URL, CORS, and endpoints.
        =========================================================== */
-const API_BASE_URL =
-  window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-    ? "http://localhost:3000"
-    : "https://back-end-9-qudx.onrender.com";
-
-// Robust safeFetch
-async function safeFetch(path, options = {}) {
-  const url = path.startsWith("http") ? path : `${API_BASE_URL}${path}`;
-  let res;
-  try {
-    res = await fetch(url, {
-      method: options.method || "GET",
-      headers: {"Content-Type": "application/json"},
-      body: options.body ? JSON.stringify(options.body) : undefined,
-      credentials: "include"
-    });
-  } catch (err) { throw {error: `Network error: ${err.message || err}`}; }
-
-  let data;
-  try {
-    const text = await res.text();
-    data = text ? JSON.parse(text) : {};
-  } catch {
-    data = {error: 'Invalid JSON response'};
-  }
-
-  if (!res.ok) throw {...data, status: res.status};
-  return data;
-}
-
 // Registration
 const registrationForm = document.getElementById("registration-form");
 if (registrationForm) {
@@ -277,8 +248,8 @@ if (registrationForm) {
       password: document.getElementById("password")?.value
     };
     try {
-      const endpoint = role === 'student' ? '/api/students/register' : '/api/admins/register';
-      const res = await safeFetch(endpoint, {method:'POST', body:payload});
+      // Use unified auth register endpoint; backend can infer role or you can include it in payload
+      const res = await API.registerUser({ ...payload, role });
       alert(res.message || 'Registration successful');
       registrationForm.reset();
       redirectToPage('login.html');
@@ -295,10 +266,11 @@ if (loginForm) {
     const email = document.getElementById("email")?.value?.trim();
     const password = document.getElementById("password")?.value;
     if (!email || !password) { alert("Enter email and password"); return; }
-
-    const endpoint = role === 'student' ? '/api/login' : '/api/admins/login';
     try {
-      const data = await safeFetch(endpoint, {method:'POST', body:{email,password}});
+      // Try common login endpoint variants for compatibility
+      const attempt = await API_TEST.tryLoginVariants(email, password);
+      const data = attempt?.res || attempt;
+      // Persist minimal session info locally
       localStorage.setItem('userData', JSON.stringify(data));
       // Use frontend to redirect safely, no repeated ?p parameters
       if (data.role === 'admin') redirectToPage('admin.html');

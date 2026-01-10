@@ -191,6 +191,7 @@ function redirectTo(path) {
     function handleLogout() {
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('userData');
+        localStorage.removeItem('authToken'); // Clear JWT token
         localStorage.removeItem(LAST_ACTIVITY_KEY);
         redirectToPage('login.html');
       }

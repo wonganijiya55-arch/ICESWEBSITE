@@ -220,11 +220,15 @@
     if (eventForm && eventList) {
       let events = [];
       async function fetchEvents(){
-        return [
-          {id:1, title:'Infrastructure Innovation Forum', date:'2024-12-10', description:'Annual showcase of student infrastructure projects.'},
-          {id:2, title:'Sustainable Materials Workshop', date:'2024-12-15', description:'Hands-on workshop on eco-friendly building materials.'},
-          {id:3, title:'Bridge Design Challenge', date:'2025-01-20', description:'Compete to design the most efficient bridge structure.'},
-        ];
+        try {
+          if (!safeFetch) throw new Error('API client unavailable');
+          const data = await safeFetch('/api/admins/events', { method: 'GET' });
+          return Array.isArray(data) ? data : (data.events || []);
+        } catch (error) {
+          console.error('Error fetching events:', error);
+          alert('Failed to load events from API.');
+          return [];
+        }
       }
       function renderEvents(){
         eventList.innerHTML = '';
@@ -241,20 +245,32 @@
         });
       }
       fetchEvents().then(data => { events = data; renderEvents(); });
-      eventForm.addEventListener('submit', (e) => {
+      eventForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const title = document.getElementById('eventTitle').value.trim();
-        const date = document.getElementById('eventDate').value;
-        const desc = document.getElementById('eventDescription').value.trim();
-        if(!title || !date || !desc) return;
-        const editIdx = eventForm.dataset.editIdx;
-        if(editIdx !== undefined && editIdx !== ''){ events[+editIdx] = {id: events[+editIdx].id, title, date, description:desc}; delete eventForm.dataset.editIdx; }
-        else { events.push({id:Date.now(), title, date, description:desc}); }
-        console.log('Save event to backend:', {title, date, description:desc});
-        eventForm.reset();
-        renderEvents();
-        document.getElementById('eventSuccess').style.display='block';
-        setTimeout(()=> document.getElementById('eventSuccess').style.display='none', 3000);
+        const title = document.getElementById('eventTitle')?.value;
+        const description = document.getElementById('eventDescription')?.value;
+        const date = document.getElementById('eventDate')?.value;
+        
+        if (!title || !date) {
+          alert('Title and date are required');
+          return;
+        }
+        
+        try {
+          if (!safeFetch) throw new Error('API client unavailable');
+          await safeFetch('/api/admins/events', {
+            method: 'POST',
+            body: { title, description: description || '', date }
+          });
+          alert('Event created successfully');
+          eventForm.reset();
+          const updatedEvents = await fetchEvents();
+          events = updatedEvents;
+          renderEvents();
+        } catch (error) {
+          console.error('Error creating event:', error);
+          alert('Failed to create event: ' + error.message);
+        }
       });
       eventList.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.btn-secondary');

@@ -100,7 +100,7 @@ function redirectTo(path) {
   if (current === normalized) return; // Termination condition
   window.location.replace(normalized);
 }
-let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBase;
+let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBase, saveToken, getToken, clearToken;
 (async function initApi() {
   try {
     const mod = await import('./api.js');
@@ -111,6 +111,9 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
     forceProdBase = mod.forceProdBase;
     isDevLocalBase = mod.isDevLocalBase;
     currentBase = mod.currentBase;
+    saveToken = mod.saveToken;
+    getToken = mod.getToken;
+    clearToken = mod.clearToken;
   } catch (e) {
     console.error('Failed to load API module:', e);
     alert('Failed to initialize API module. Check console for details.');
@@ -270,8 +273,20 @@ if (loginForm) {
       // Try common login endpoint variants for compatibility
       const attempt = await API_TEST.tryLoginVariants(email, password);
       const data = attempt?.res || attempt;
+      
+      // Save JWT token if present
+      if (data.token && saveToken) {
+        saveToken(data.token);
+      }
+      
       // Persist minimal session info locally
-      localStorage.setItem('userData', JSON.stringify(data));
+      localStorage.setItem('userData', JSON.stringify({
+        role: data.role,
+        name: data.user?.name || data.name,
+        email: data.user?.email || data.email,
+        userId: data.user?.id || data.id
+      }));
+      
       // Use frontend to redirect safely, no repeated ?p parameters
       if (data.role === 'admin') redirectToPage('admin.html');
       else if (data.role === 'student') redirectToPage('students.html');

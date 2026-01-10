@@ -275,8 +275,12 @@ if (loginForm) {
       const data = attempt?.res || attempt;
       
       // Save JWT token if present
-      if (data.token && saveToken) {
-        saveToken(data.token);
+      if (data.token) {
+        if (saveToken) {
+          saveToken(data.token);
+        } else {
+          console.warn('saveToken function not available');
+        }
       }
       
       // Persist minimal session info locally

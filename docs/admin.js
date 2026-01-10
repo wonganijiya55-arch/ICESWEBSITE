@@ -247,8 +247,8 @@
       fetchEvents().then(data => { events = data; renderEvents(); });
       eventForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const title = document.getElementById('eventTitle')?.value;
-        const description = document.getElementById('eventDescription')?.value;
+        const title = document.getElementById('eventTitle')?.value?.trim();
+        const description = document.getElementById('eventDescription')?.value?.trim();
         const date = document.getElementById('eventDate')?.value;
         
         if (!title || !date) {

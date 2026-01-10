@@ -51,14 +51,25 @@ export function currentBase() {
 }
 
 // Token storage helpers
+/**
+ * Save JWT authentication token to localStorage
+ * @param {string} token - JWT token from successful login
+ */
 export function saveToken(token) {
   if (token) localStorage.setItem('authToken', token);
 }
 
+/**
+ * Retrieve JWT authentication token from localStorage
+ * @returns {string|null} JWT token or null if not found
+ */
 export function getToken() {
   return localStorage.getItem('authToken');
 }
 
+/**
+ * Clear JWT authentication token from localStorage
+ */
 export function clearToken() {
   localStorage.removeItem('authToken');
 }

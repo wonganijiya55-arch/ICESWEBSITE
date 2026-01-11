@@ -50,6 +50,30 @@ export function currentBase() {
   return API_CONFIG.baseUrl;
 }
 
+// Token storage helpers
+/**
+ * Save JWT authentication token to localStorage
+ * @param {string} token - JWT token from successful login
+ */
+export function saveToken(token) {
+  if (token) localStorage.setItem('authToken', token);
+}
+
+/**
+ * Retrieve JWT authentication token from localStorage
+ * @returns {string|null} JWT token or null if not found
+ */
+export function getToken() {
+  return localStorage.getItem('authToken');
+}
+
+/**
+ * Clear JWT authentication token from localStorage
+ */
+export function clearToken() {
+  localStorage.removeItem('authToken');
+}
+
 // Log current API base/env at startup for visibility
 (function logApiBase() {
   const tag = `[API] base=${API_CONFIG.baseUrl} env=${API_CONFIG.env}`;
@@ -104,12 +128,20 @@ export async function safeFetch(path, options = {}) {
   const url = /^https?:\/\//i.test(path) ? path : (API_CONFIG.baseUrl.replace(/\/+$/, '') + path);
   const creds = options.credentials ?? defaultCredentialsForBase(API_CONFIG.baseUrl);
 
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {})
+  };
+
+  // Add JWT token if available
+  const token = getToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const opts = {
     method: options.method || 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {})
-    },
+    headers: headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
     credentials: creds
   };
@@ -121,6 +153,14 @@ export async function safeFetch(path, options = {}) {
     const data = isJson ? await res.json() : await res.text();
 
     if (!res.ok) {
+      // Handle expired/invalid token
+      if (res.status === 401 || res.status === 403) {
+        clearToken();
+        localStorage.removeItem('userData');
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('login')) {
+          window.location.href = 'login.html';
+        }
+      }
       const msg = typeof data === 'string' ? data : (data?.message || data?.error || res.statusText);
       console.error('API error:', { url, status: res.status, msg, data });
       const err = new Error(msg || `HTTP ${res.status}`);

@@ -353,7 +353,7 @@ export function Button({ variant, size = 'md', onClick, children, disabled }: Bu
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://back-end-9-qudx.onrender.com',
+  baseURL: 'https://back-end-11-uvgh.onrender.com',
   timeout: 15000
 });
 
@@ -560,7 +560,7 @@ export function useRealtimeEvents() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const socket = io('https://back-end-9-qudx.onrender.com');
+    const socket = io('https://back-end-11-uvgh.onrender.com');
 
     socket.on('event-created', (newEvent) => {
       // Optimistically update React Query cache

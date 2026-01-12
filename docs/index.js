@@ -248,7 +248,9 @@ if (registrationForm) {
     const payload = {
       name: document.getElementById("fullname")?.value?.trim(),
       email: document.getElementById("email")?.value?.trim(),
-      password: document.getElementById("password")?.value
+      password: document.getElementById("password")?.value,
+      year: Number(document.getElementById("year")?.value) || 0,
+      reg_number:document.getElementById("regnumber")?.value?.trim()
     };
     try {
       // Use unified auth register endpoint; backend can infer role or you can include it in payload

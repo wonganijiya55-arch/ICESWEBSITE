@@ -533,62 +533,7 @@ if (loginForm) {
   // Removed duplicate role toggler to avoid conflicts with applyRoleRequirements
 
   // Expose TEST_API only after API is ready (updated for code-based admin flow)
-  window.TEST_API = {
-    adminRegister: async ({ name, email, regNumber, year }) => {
-      if (!name || !email || !regNumber || !year) {
-        alert('Provide name, email, registration number, and year');
-        return;
-      }
-      try {
-        console.log('Registering admin (code flow) via /api/admins/register-code...');
-        const res = await safeFetch('/api/admins/register-code', {
-          method: 'POST',
-          body: { name, email, regNumber, year: Number(year) || 0 }
-        });
-        console.log('Admin register-code response:', res);
-        alert(res.message || 'Admin registration successful; code emailed');
-        return res;
-      } catch (err) {
-        console.error('Admin registration (code) failed:', err);
-        alert('Admin registration failed. See console for details.');
-        throw err;
-      }
-    },
-    adminLoginCode: async ({ regNumber, name, adminCode }) => {
-      if (!regNumber || !name || !adminCode) {
-        alert('Provide registration number, full name, and admin code');
-        return;
-      }
-      try {
-        console.log('Logging in admin (code flow) via /api/admins/login-code...');
-        const data = await safeFetch('/api/admins/login-code', {
-          method: 'POST',
-          body: { regNumber, name, adminCode }
-        });
-        console.log('Admin login-code response:', data);
-
-        if (data.role === 'admin') {
-          const userData = {
-            userId: data.userId,
-            email: data.email,
-            name: data.name || '',
-            role: data.role,
-            loginTime: new Date().toISOString()
-          };
-          localStorage.setItem('userData', JSON.stringify(userData));
-          alert('Admin login successful');
-          // window.location.href = data.redirect || 'admin.html';
-        } else {
-          alert(data.message || 'Login did not return admin role');
-        }
-        return data;
-      } catch (err) {
-        console.error('Admin login (code) failed:', err);
-        alert('Admin login failed. See console for details.');
-        throw err;
-      }
-    }
-  };
+  // TEST_API no longer exposes admin code registration or login logic
 
 })(); // end initApi IIFE
 

@@ -1,6 +1,6 @@
 // Environment-aware API base config
 // <-- UPDATED backend Render URL -->
-const RENDER_BASE = 'https://back-end-11-uvgh.onrender.com';
+const RENDER_BASE = 'https://back-end-12-mnj6.onrender.com';
 const LOCAL_BASE = 'http://localhost:5000';
 
 // Override via localStorage:

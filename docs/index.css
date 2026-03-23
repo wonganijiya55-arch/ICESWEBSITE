@@ -418,6 +418,28 @@ body {
   margin: 2px 0;
 }
 
+.menu-close-item {
+  display: none;
+}
+
+.menu-close-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.menu-close-btn:hover {
+  color: #fe7701;
+  border-color: #fe7701;
+}
+
 /* ===== SECTIONS ===== */
 section {
   padding: 100px 20px 60px;
@@ -1017,6 +1039,16 @@ header p {
   
   .nav-links.active {
     display: flex;
+  }
+
+  .menu-close-item {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .menu-close-btn {
+    width: 100%;
+    justify-content: center;
   }
   
   .hamburger {

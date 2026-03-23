@@ -18,12 +18,6 @@
     } catch (e) {
       console.warn('[Admin] Failed to load API module; admin data views may not work on Pages.', e);
     }
-    const hamburger = document.getElementById('hamburger');
-    const navLinks = document.querySelector('.nav-links');
-    if (hamburger && navLinks) {
-      hamburger.addEventListener('click', () => navLinks.classList.toggle('active'));
-    }
-
     const studentTable = document.getElementById('studentRecordsTable');
     const studentSearch = document.getElementById('studentSearch');
     const exportStudents = document.getElementById('exportStudents');

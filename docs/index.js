@@ -191,13 +191,67 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
 
-    if (hamburger && navLinks) {
-      hamburger.addEventListener('click', () => {
+    function initPublicMobileNav() {
+      if (!hamburger || !navLinks) return;
+
+      hamburger.setAttribute('role', 'button');
+      hamburger.setAttribute('tabindex', '0');
+      hamburger.setAttribute('aria-label', 'Toggle navigation menu');
+      hamburger.setAttribute('aria-expanded', 'false');
+
+      let closeBtn = navLinks.querySelector('.menu-close-btn');
+      if (!closeBtn) {
+        const closeItem = document.createElement('li');
+        closeItem.className = 'menu-close-item';
+        closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'menu-close-btn';
+        closeBtn.setAttribute('aria-label', 'Close navigation menu');
+        closeBtn.innerHTML = '<i class="fas fa-times" aria-hidden="true"></i> Close';
+        closeItem.appendChild(closeBtn);
+        navLinks.prepend(closeItem);
+      }
+
+      const closeMenu = () => {
+        navLinks.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+      };
+
+      const toggleMenu = () => {
         navLinks.classList.toggle('active');
-        // Optional: accessibility
-        hamburger.setAttribute('aria-expanded', navLinks.classList.contains('active'));
+        hamburger.setAttribute('aria-expanded', String(navLinks.classList.contains('active')));
+      };
+
+      hamburger.addEventListener('click', toggleMenu);
+      hamburger.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleMenu();
+        }
+      });
+
+      closeBtn.addEventListener('click', closeMenu);
+
+      navLinks.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', closeMenu);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!navLinks.classList.contains('active')) return;
+        if (navLinks.contains(e.target) || hamburger.contains(e.target)) return;
+        closeMenu();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMenu();
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) closeMenu();
       });
     }
+
+    initPublicMobileNav();
 
     // Normalize navigation and internal links so they work on Render and GitHub Pages
     (function normalizeInternalLinks() {

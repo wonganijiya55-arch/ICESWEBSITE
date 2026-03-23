@@ -424,7 +424,7 @@ The `api.js` module is an ES6 module that provides:
 ### API Configuration
 
 ```javascript
-const RENDER_BASE = 'https://back-end-11-uvgh.onrender.com';
+const RENDER_BASE = 'https://back-end-12-mnj6.onrender.com';
 const LOCAL_BASE = 'http://localhost:5000';
 
 export const API_CONFIG = {

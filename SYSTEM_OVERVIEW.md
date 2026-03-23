@@ -67,7 +67,7 @@ The ICES platform consists of two interconnected repositories:
 
 ### Backend Architecture (Separate Repository)
 
-**Deployment**: Render.com (https://back-end-11-uvgh.onrender.com)
+**Deployment**: Render.com (https://back-end-12-mnj6.onrender.com)
 
 **Technology Stack**:
 - Node.js runtime

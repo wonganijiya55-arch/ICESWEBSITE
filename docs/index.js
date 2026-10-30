@@ -193,6 +193,7 @@ let API, safeFetch, apiPing, API_TEST, forceProdBase, isDevLocalBase, currentBas
 
     function initPublicMobileNav() {
       if (!hamburger || !navLinks) return;
+      if (document.querySelector('.navbar')?.dataset.navigationInitialized === 'true') return;
 
       hamburger.setAttribute('role', 'button');
       hamburger.setAttribute('tabindex', '0');

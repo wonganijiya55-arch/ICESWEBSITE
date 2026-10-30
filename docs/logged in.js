@@ -201,6 +201,7 @@ function redirectTo(path) {
       const hamburger = document.querySelector('.hamburger');
       const navLinks = document.querySelector('.nav-links');
       if (!hamburger || !navLinks) return;
+      if (document.querySelector('.navbar')?.dataset.navigationInitialized === 'true') return;
 
       hamburger.setAttribute('role', 'button');
       hamburger.setAttribute('tabindex', '0');

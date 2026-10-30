@@ -409,6 +409,10 @@ body {
   flex-direction: column;
   cursor: pointer;
   gap: 5px;
+  border: 0;
+  padding: 8px;
+  background: transparent;
+  z-index: 1002;
 }
 
 .hamburger div {
@@ -416,6 +420,23 @@ body {
   height: 3px;
   background: white;
   margin: 2px 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.hamburger.is-open div:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger.is-open div:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.is-open div:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+body.mobile-menu-open {
+  overflow: hidden;
 }
 
 .menu-close-item {
